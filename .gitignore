@@ -1,0 +1,47 @@
+# General
+.DS_Store
+*.log
+
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.sqlite3
+*.db
+
+# Docker
+*.pid
+*.swp
+docker-compose.override.yml
+
+# Django
+backend/db.sqlite3  # Ignore if using SQLite
+backend/.env
+backend/media/
+backend/staticfiles/
+
+# Node.js / Next.js
+client/node_modules/
+client/.next/
+client/.vercel/
+client/.turbo/
+client/out/
+client/.eslintcache
+
+# Lock files (optional, but useful for controlled versions)
+client/package-lock.json
+client/yarn.lock
+client/pnpm-lock.yaml
+
+# Public & Build Output
+client/public/*.svg  # Ignore dynamically generated assets
+client/.build/
+client/dist/
+client/.cache/
+
+# Misc
+.vscode/
+.idea/
+*.iml
+*.swp
