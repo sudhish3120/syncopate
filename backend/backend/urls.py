@@ -22,5 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('admin/', admin.site.urls),
     path('api/', home),
-    path('concerts/', concerts)
+    path('concerts/', concerts),
+    path('concerts/<str:keyword>/', concerts)
 ]
