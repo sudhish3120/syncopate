@@ -10,8 +10,12 @@ services:
       - db
     env_file:
       - .env
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DEBUG=1
     volumes:
-      - .:/app
+      - ./:/app
+    command: python manage.py runserver 0.0.0.0:8000
 
   db:
     image: postgres:15
