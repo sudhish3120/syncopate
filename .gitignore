@@ -45,3 +45,7 @@ client/.cache/
 .idea/
 *.iml
 *.swp
+
+# Environment files
+.env
+*.env

@@ -9,21 +9,20 @@ TICKETMASTER_KEY=<Ticketmaster Key>
 TICKETMASTER_SECRET=<Ticketmaster Secret>
 TICKETMASTER_URL_BASE=https://app.ticketmaster.com/discovery/v2/
 ```
+### Commands need to be run from root directory 
 
-#### Start backend and postgres
+#### Start or stop backend and postgres
+`make up`
+`make down`
 
-`docker-compose up --build -d`
+#### Run makemigrations and migrate
+`make makemigrations`
+`make migrate`
 
-#### Run migrations inside the container
-
-`docker exec -it django_backend python manage.py migrate`
-
-#### Ensure backend is working
-
-`curl http://localhost:8000/api`
+#### If you can't run any of the make commands
+`xcode-select --install` in terminal
 
 #### Frontend stuff
-
 ```
 cd client
 npm install
