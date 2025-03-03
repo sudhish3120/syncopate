@@ -8,8 +8,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 @api_view(["GET"])
-def concerts(request, keyword=""):
+def concerts(request):
     try:
+        search_params = request.GET.get("query", "")
+
         request_params = {
             'apikey': os.environ["TICKETMASTER_KEY"],
             'latlong': "43.653225,-79.383186",
@@ -17,7 +19,7 @@ def concerts(request, keyword=""):
             'unit': 'km',
             'classificationName': 'Music',
             'includeTest': 'no',
-            'keyword': keyword
+            'keyword': search_params
         }
 
         response = requests.get(
