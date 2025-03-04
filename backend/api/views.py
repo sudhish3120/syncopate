@@ -13,6 +13,8 @@ from knox.auth import TokenAuthentication
 from knox.models import AuthToken
 from django.contrib.auth import authenticate
 from .serializers import RegisterSerializer, UserSerializer, LoginSerializer
+from models import Concert
+from models import FavoriteConcert
 import logging
 
 logger = logging.getLogger(__name__)
@@ -26,12 +28,12 @@ class RegisterView(generics.CreateAPIView):
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             user = serializer.save()
-            
+
             return Response({
                 "user": UserSerializer(user).data,
                 "token": AuthToken.objects.create(user)[1]
             }, status=status.HTTP_201_CREATED)
-            
+
         except Exception as e:
             logger.error(f"Registration error: {str(e)}")
             return Response({
@@ -45,9 +47,9 @@ class LoginView(KnoxLoginView):
     def post(self, request, format=None):
         username = request.data.get('username')
         password = request.data.get('password')
-        
+
         user = authenticate(request, username=username, password=password)
-        
+
         if user is not None:
             login(request, user)
             return Response({
@@ -69,7 +71,7 @@ class LogoutView(generics.GenericAPIView):
     def post(self, request, *args, **kwargs):
         request.auth.delete()
         return Response({"message": "Logged out successfully"})
-    
+
 @api_view(["GET"])
 def home(request):
     return Response({"message": "Django Backend is Running!"})
