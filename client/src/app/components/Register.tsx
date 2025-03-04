@@ -34,27 +34,29 @@ export default function Register() {
     { setSubmitting, setStatus }: FormikHelpers<RegisterValues>
   ) => {
     try {
-      const res = await fetch("http://localhost:8000/api/auth/register/", {
+      // Store registration data for later use
+      localStorage.setItem('registrationData', JSON.stringify({
+        username: values.username,
+        email: values.email,
+        password: values.password
+      }));
+
+      // Request verification code
+      const res = await fetch("http://localhost:8000/api/auth/register/send_verification_code/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: values.username,
-          password: values.password
-        }),
+        body: JSON.stringify({ email: values.email }),
       });
 
-      const data = await res.json();
-
       if (res.ok) {
-        localStorage.setItem("token", data.token);
-        router.push('/dashboard');
+        router.push('/verify');
       } else {
-        const errorMessage = data.error;
-        setStatus(errorMessage);
+        const data = await res.json();
+        setStatus(data.error || 'Failed to send verification code');
       }
     } catch (error) {
       console.error("Registration error:", error);
-      setStatus('An unexpected error occurred during registration');
+      setStatus('An unexpected error occurred');
     } finally {
       setSubmitting(false);
     }
