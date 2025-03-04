@@ -1,6 +1,10 @@
 from django.db import models
 from django.utils import timezone
 from datetime import timedelta
+from django.contrib.auth.models import User
+from django.db.models.fields.related import ManyToManyField
+from django.db.models.fields.related import ForeignKey
+from django.forms.fields import CharField
 
 class EmailVerificationCode(models.Model):
     email = models.EmailField()
@@ -14,10 +18,6 @@ class EmailVerificationCode(models.Model):
 
     def __str__(self):
         return f"{self.email} - {self.code}"
-from django.contrib.auth.models import User
-from django.db.models.fields.related import ManyToManyField
-from django.db.models.fields.related import ForeignKey
-from django.forms.fields import CharField
 
 # Create your models here.
 class Venue(models.Model):
