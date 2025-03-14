@@ -21,26 +21,28 @@ class EmailVerificationCode(models.Model):
 
 # Create your models here.
 class Venue(models.Model):
-    name = models.CharField(max_length=255)
-    address = models.CharField(max_length=255)
+    name = models.CharField(max_length=200)
+    address = models.CharField(max_length=200)
 
     def __str__(self):
         return self.name
 
 class Artist(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=200)
+
     def __str__(self):
         return self.name
 
 class Concert(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=200)
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE)
     venue = models.ForeignKey(Venue, on_delete=models.CASCADE)
     date = models.DateTimeField()
     ticket_url = models.URLField()
     users_favorited = models.ManyToManyField(User, through='FavoriteConcert', related_name='favourite_concerts')
+
     def __str__(self):
-         return f"{self.name} - {self.artist.name} at {self.venue.name}"
+        return f"{self.name} at {self.venue.name}"
 
 class FavoriteConcert(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
