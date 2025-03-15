@@ -16,6 +16,11 @@ from rest_framework.pagination import PageNumberPagination
 
 logger = logging.getLogger(__name__)
 
+LOCATIONS = {
+    "KW": "43.449791,-80.489090",
+    "TO": "43.653225,-79.383186"
+}
+
 class ConcertPagination(PageNumberPagination):
     page_size = 10  # Number of concerts per page
     page_size_query_param = 'page_size'
@@ -38,16 +43,12 @@ def get_concert_in_db(request):
 @api_view(["GET"])
 def concerts(request):
     try:
-        search_params = request.GET.get("query", "")
-
         request_params = {
             'apikey': os.environ["TICKETMASTER_KEY"],
-            'latlong': "43.653225,-79.383186",
             'radius': '20',
             'unit': 'km',
             'classificationName': 'Music',
-            'includeTest': 'no',
-            'keyword': search_params
+            'includeTest': 'no'
         }
         response = requests.get(
             f'{os.environ["TICKETMASTER_URL_BASE"]}/events',
