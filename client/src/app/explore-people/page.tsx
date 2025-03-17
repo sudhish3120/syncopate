@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { redirect } from "next/navigation";
 import Nav from "../components/Nav";
-import { Avatar, Box, Button, Card, CardActions, CardContent, CardMedia, Grid, Stack, Typography } from "../../../node_modules/@mui/material/index";
+import { Avatar, Box, Button, Card, CardActions, CardContent, CardMedia, Grid, LinearProgress, Stack, Typography } from "../../../node_modules/@mui/material/index";
 
 enum PeopleStatus {
     YES = "yes",
@@ -110,6 +110,11 @@ export default function ExplorePeople() {
             <Nav />
             <main className="container mx-auto  py-8 px-8 h-screen">
                 <section className="mb-8">
+                    <LinearProgress
+                        variant="determinate"
+                        value={people ? (peopleIndex / people.length) * 100 : 0}
+                        sx={{ m: 3, height: 10 }}
+                    />
                     {
                         noMatchings ? (
                             <Typography gutterBottom variant="h5" component="div" sx={{ color: "black" }}>
