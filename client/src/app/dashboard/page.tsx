@@ -13,14 +13,24 @@ interface UserData {
     username: string;
   };
   status: string;
+  user: {
+    id: number;
+    username: string;
+  };
+  status: string;
 }
 
 interface Artist {
   id: number;
   name: string;
+  id: number;
+  name: string;
 }
 
 interface Venue {
+  id: number;
+  name: string;
+  address: string;
   id: number;
   name: string;
   address: string;
@@ -55,6 +65,11 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [concerts, setConcerts] = useState<Array<Concert> | null>(null);
+  const router = useRouter();
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [concerts, setConcerts] = useState<Array<Concert> | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -63,31 +78,63 @@ export default function Dashboard() {
       redirect("/login");
       return;
     }
-
-    const fetchUserData = async () => {
-      try {
-        const res = await fetch("http://localhost:8000/api/auth/user/", {
-          method: "GET",
-          headers: {
-            Authorization: `Token ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!res.ok) {
-          throw new Error("Failed to fetch user data");
-        }
-
-        const { user, status } = await res.json();
-        setUserData({ user, status });
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
-        console.error(err);
-      } finally {
-        setIsLoading(false);
+    useEffect(() => {
+      const token = localStorage.getItem("token");
+      console.log(token);
+      if (!token) {
+        redirect("/login");
+        return;
       }
-    };
 
+      const fetchUserData = async () => {
+        try {
+          const res = await fetch("http://localhost:8000/api/auth/user/", {
+            method: "GET",
+            headers: {
+              Authorization: `Token ${token}`,
+              "Content-Type": "application/json",
+            },
+          });
+          const fetchUserData = async () => {
+            try {
+              const res = await fetch("http://localhost:8000/api/auth/user/", {
+                method: "GET",
+                headers: {
+                  Authorization: `Token ${token}`,
+                  "Content-Type": "application/json",
+                },
+              });
+
+              if (!res.ok) {
+                throw new Error("Failed to fetch user data");
+              }
+              if (!res.ok) {
+                throw new Error("Failed to fetch user data");
+              }
+
+              const { user, status } = await res.json();
+              setUserData({ user, status });
+            } catch (err) {
+              setError(
+                err instanceof Error ? err.message : "An error occurred"
+              );
+              console.error(err);
+            } finally {
+              setIsLoading(false);
+            }
+          };
+          const { user, status } = await res.json();
+          setUserData({ user, status });
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "An error occurred");
+          console.error(err);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      fetchUserData();
+    }, []);
     fetchUserData();
   }, []);
 
@@ -116,6 +163,9 @@ export default function Dashboard() {
     return <div className="p-4">Loading...</div>;
   }
 
+  if (error) {
+    return <div className="p-4 text-red-500">Error: {error}</div>;
+  }
   if (error) {
     return <div className="p-4 text-red-500">Error: {error}</div>;
   }

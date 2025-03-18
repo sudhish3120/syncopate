@@ -5,6 +5,7 @@ from ..views.concert_views import UserFavoriteConcertsView
 
 urlpatterns = [
     path("db_favorites/", UserFavoriteConcertsView.as_view(), name="db_favorites"),
+    #db_concerts not really used anymore, gonna leave it for now. 
     path("db_concerts/", get_concert_in_db, name="db_concerts"),
     path("favorite/", FavoriteConcertView.as_view(), name="favorite"),
     path("", concerts, name="concerts"),

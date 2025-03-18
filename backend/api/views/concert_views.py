@@ -9,7 +9,7 @@ from knox.models import AuthToken
 import requests
 import os
 import logging
-from ..models import Concert, FavoriteConcert, Artist, Venue
+from ..models import Concert, FavoriteConcert
 from ..serializers import ConcertSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
@@ -49,29 +49,11 @@ def concerts(request):
             'includeTest': 'no',
             'keyword': search_params
         }
-
         response = requests.get(
             f'{os.environ["TICKETMASTER_URL_BASE"]}/events',
             params=request_params
         )
-
         events = response.json()["_embedded"]["events"]
-        for event in events:
-            artist_name = event["name"]
-            venue_name = event["_embedded"]["venues"][0]["name"]
-            venue_address = event["_embedded"]["venues"][0]["address"]["line1"]
-            concert_date = event["dates"]["start"]["dateTime"]
-            ticket_url = event["url"]
-
-            artist, _ = Artist.objects.get_or_create(name=artist_name)
-            venue, _ = Venue.objects.get_or_create(name=venue_name, address=venue_address)
-            Concert.objects.get_or_create(
-                name=event["name"],
-                artist=artist,
-                venue=venue,
-                date=concert_date,
-                ticket_url=ticket_url
-            )
         return JsonResponse(events, safe=False)
     except Exception as e:
         logger.error(f"Concert fetch error: {str(e)}")
@@ -79,25 +61,26 @@ def concerts(request):
 
 
 class FavoriteConcertView(generics.CreateAPIView):
-    # authentication_classes = [TokenAuthentication]
-    # permission_classes = [IsAuthenticated]
-
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
     def post(self, request, *args, **kwargs):
         user = request.user
         concert_id = request.data.get('concert')
-        # Ensure the concert exists
+        # Ensure the concert exists add add it if it does not
         try:
-            concert = Concert.objects.get(id=concert_id)
-        except Concert.DoesNotExist:
-            return Response({"error": "Concert not found"}, status=status.HTTP_404_NOT_FOUND)
+            concert, created = Concert.objects.get_or_create(concert_id=concert_id)
+        except Exception as e:
+            return Response({"error: ": "Failed to create/fetch concert"}, status=e)
+        #Favourite a concert logic
+        try:
+            favorite, created = FavoriteConcert.objects.get_or_create(user=user, concert=concert)
+            if created:
+                return Response({"Concert favourited successfully"}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({"Concert already favourited"}, status=status.HTTP_200_OK)
 
-        # Check if the user has already favorited the concert
-        favorite, created = FavoriteConcert.objects.get_or_create(user=user, concert=concert)
-        if created:
-            return Response({"message": "Concert favorited successfully"}, status=status.HTTP_201_CREATED)
-        else:
-            return Response({"message": "Concert already favorited"}, status=status.HTTP_200_OK)
-
+        except Exception as e:
+            return Response({"error: ": "Failed to favorite concert"}, status=e)
 
 
 class UserFavoriteConcertsView(generics.ListAPIView):
