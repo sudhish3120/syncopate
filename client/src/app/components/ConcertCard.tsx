@@ -1,127 +1,146 @@
-import React, { useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import {
-    Card,
-    CardMedia,
-    CardContent,
-    Typography,
-    Modal,
-    Box,
-    Button,
+  Card,
+  CardMedia,
+  CardContent,
+  Typography,
+  Modal,
+  Box,
+  Button,
 } from "@mui/material";
-import { useEffect } from "react";
-interface ConcertCardProps {
-    id: number;
-    title: string;
-    date: string;
-    imageUrl?: string;
-}
 import { redirect } from "next/navigation";
+import { FaStar } from "react-icons/fa6";
+import Link from "next/link";
+
+interface ConcertCardProps {
+  id: number;
+  title: string;
+  date: string;
+  url: string;
+  imageUrl?: string;
+}
 
 const ConcertCard: React.FC<ConcertCardProps> = ({
-    id,
-    title,
-    date,
-    imageUrl,
+  id,
+  title,
+  date,
+  url,
+  imageUrl,
 }) => {
-    const [open, setOpen] = useState(false);
-    const [isFavorite, setIsFavorite] = useState(false);
-    const [token, setToken] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
+  const [isOverflowing, setIsOverflowing] = useState(false);
 
-    const handleOpen = () => setOpen(true);
-    const handleClose = () => setOpen(false);
-    const toggleFavorite = (id: number) => {
-        setIsFavorite(!isFavorite);
-        favorite(id);
+  const titleRef = useRef<HTMLSpanElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const checkOverflow = () => {
+      if (titleRef.current && containerRef.current) {
+        const titleWidth = titleRef.current.scrollWidth;
+        const containerWidth = containerRef.current.clientWidth;
+        setIsOverflowing(titleWidth > containerWidth);
+      }
     };
 
-    useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (!token) {
-            redirect("/login");
-            return;
-        }
-        setToken(token);
-    }, []);
+    checkOverflow();
+    window.addEventListener("resize", checkOverflow);
+    return () => window.removeEventListener("resize", checkOverflow);
+  }, [title]);
 
-    const favorite = async (id: number) => {
-        try {
-            const res = await fetch(
-                "http://localhost:8000/api/concerts/favorite/",
-                {
-                    method: "POST",
-                    headers: {
-                        Authorization: `Token ${token}`,
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        concert: id, // The concert ID you want to add to favorites
-                    }),
-                },
-            );
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      redirect("/login");
+      return;
+    }
+    setToken(token);
+  }, []);
 
-            if (!res.ok) {
-                throw new Error("Failed to favorite concert");
-            }
+  const toggleFavorite = async (id: number) => {
+    setIsFavorite(!isFavorite);
+    try {
+      const res = await fetch("http://localhost:8000/api/concerts/favorite/", {
+        method: "POST",
+        headers: {
+          Authorization: `Token ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ concert: id }),
+      });
 
-            const data = await res.json();
-            console.log(data.message); // Log the response message (you can adjust based on the API response)
-        } catch (error) {
-            console.error(error);
-        }
-    };
+      if (!res.ok) {
+        throw new Error("Failed to favorite concert");
+      }
 
-    return (
-        <>
-            <Card
-                className="w-64 cursor-pointer shadow-lg transition-transform hover:scale-105"
-                onClick={handleOpen}
+      const data = await res.json();
+      console.log(data.message);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  return (
+    <>
+      <Card
+        sx={{ backgroundColor: "#1A1A1A" }}
+        className="w-80 h-60 cursor-pointer shadow-lg transition-transform hover:scale-105 drop-shadow-[0_0_15px_rgba(76,29,149,0.9)]"
+        onClick={() => setOpen(true)}
+      >
+        <CardMedia
+          component="img"
+          style={{ height: "60%" }}
+          image={imageUrl || "/concert_default_photo.jpg"}
+          alt={title}
+        />
+        <CardContent>
+          <div ref={containerRef} className="overflow-hidden whitespace-nowrap">
+            <Typography
+              ref={titleRef}
+              fontSize={16}
+              variant="h6"
+              className={`font-semibold text-white inline-block ${
+                isOverflowing ? "hover:animate-marquee" : ""
+              }`}
             >
-                <CardMedia
-                    component="img"
-                    height="140"
-                    image={imageUrl || "https://via.placeholder.com/300"}
-                    alt={title}
-                />
-                <CardContent>
-                    <Typography
-                        variant="h6"
-                        className="font-semibold text-black"
-                    >
-                        {title}
-                    </Typography>
-                    <Typography variant="body2" className="text-black">
-                        {date}
-                    </Typography>
-                </CardContent>
-            </Card>
+              {title}
+            </Typography>
+          </div>
+          <Typography variant="body2" className="text-violet-600">
+            {date}
+          </Typography>
+        </CardContent>
+      </Card>
 
-            <Modal open={open} onClose={handleClose}>
-                <Box className="bg-white p-6 rounded-md shadow-lg w-96 mx-auto mt-20">
-                    <Typography
-                        variant="h5"
-                        className="font-semibold text-black"
-                    >
-                        {title}
-                    </Typography>
-                    <Typography variant="body1" className="mt-2 text-black">
-                        {date}
-                    </Typography>
+      <Modal open={open} onClose={() => setOpen(false)}>
+        <Box className="bg-space_black rounded-md w-3/5 h-3/5 mx-auto mt-20 flex flex-row relative">
+          <CardMedia
+            component="img"
+            style={{ width: "60%" }}
+            image={imageUrl || "/concert_default_photo.jpg"}
+            alt={title}
+          />
+          <div className="p-6 shadow-lg w-full relative">
+            <Typography variant="h5" className="font-semibold text-white">
+              {title}
+            </Typography>
+            <Typography variant="body1" className="mt-2 text-violet-600">
+              {date}
+            </Typography>
 
-                    {/* Add to Favorites Button */}
-                    <Button
-                        variant="contained"
-                        color={isFavorite ? "secondary" : "primary"}
-                        className="mt-4"
-                        onClick={() => toggleFavorite(id)}
-                    >
-                        {isFavorite
-                            ? "Remove from Favorites"
-                            : "Add to Favorites"}
-                    </Button>
-                </Box>
-            </Modal>
-        </>
-    );
+            <FaStar
+              size={24}
+              onClick={() => toggleFavorite(id)}
+              className={`absolute bottom-5 right-5 hover:cursor-pointer ${
+                isFavorite ? "text-yellow-600" : "text-slate-400"
+              }`}
+            />
+          </div>
+        </Box>
+      </Modal>
+    </>
+  );
 };
 
 export default ConcertCard;
