@@ -16,6 +16,11 @@ from rest_framework.pagination import PageNumberPagination
 
 logger = logging.getLogger(__name__)
 
+LOCATIONS = {
+    "KW": "43.449791,-80.489090",
+    "TO": "43.653225,-79.383186"
+}
+
 class ConcertPagination(PageNumberPagination):
     page_size = 10  # Number of concerts per page
     page_size_query_param = 'page_size'
@@ -38,22 +43,32 @@ def get_concert_in_db(request):
 @api_view(["GET"])
 def concerts(request):
     try:
-        search_params = request.GET.get("query", "")
-
         request_params = {
             'apikey': os.environ["TICKETMASTER_KEY"],
-            'latlong': "43.653225,-79.383186",
             'radius': '20',
             'unit': 'km',
             'classificationName': 'Music',
-            'includeTest': 'no',
-            'keyword': search_params
+            'includeTest': 'no'
         }
+
+        search_params = request.GET.get("query", None)
+        location_params = request.GET.get("location", "ALL")
+
+        if search_params:
+            request_params["keyword"] = search_params
+        if location_params != "ALL":
+            request_params["latlong"] = LOCATIONS[location_params]
+
         response = requests.get(
             f'{os.environ["TICKETMASTER_URL_BASE"]}/events',
-            params=request_params
-        )
-        events = response.json()["_embedded"]["events"]
+            params=request_params,
+            timeout=10
+        ).json()
+
+        events = []
+        if response["page"]["totalElements"] > 0:
+            events = response["_embedded"]["events"]
+
         return JsonResponse(events, safe=False)
     except Exception as e:
         logger.error(f"Concert fetch error: {str(e)}")
