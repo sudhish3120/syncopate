@@ -30,21 +30,23 @@ export default function Home() {
     checkAuth();
   }, [router]);
 
-  // Always show loading spinner if loading or authenticated
+  // Loading spinner
   if (isLoading || isAuthenticated) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      <div className="flex items-center justify-center min-h-screen bg-black">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
       </div>
     );
   }
 
-  // Only show login if definitely not authenticated
+  // Login page
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <h1 className="text-3xl font-bold mb-8">Welcome to Syncopate!</h1>
-        <Login />
+    <div className="min-h-screen bg-black relative pt-20">
+      <main className="container mx-auto py-8 px-8">
+        <div className="max-w-md mx-auto text-center">
+          <h1 className="text-3xl font-bold mb-8 text-white">Welcome to Syncopate!</h1>
+          <Login />
+        </div>
       </main>
     </div>
   );

@@ -25,6 +25,7 @@ function NavBar() {
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
         null,
     );
+    const [isLoggingOut, setIsLoggingOut] = React.useState(false);
 
     const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorElNav(event.currentTarget);
@@ -46,6 +47,7 @@ function NavBar() {
 
     const handleLogout = async () => {
         try {
+            setIsLoggingOut(true);
             const res = await fetch('http://localhost:8000/api/auth/logout/', {
                 method: 'POST',
                 credentials: 'include',
@@ -57,14 +59,22 @@ function NavBar() {
 
             if (res.ok) {
                 handleCloseUserMenu();
-                router.replace('/');
+                setTimeout(() => {
+                    router.replace('/');
+                }, 500); // Add small delay to show loading state
             }
         } catch (error) {
             console.error('Logout error:', error);
-        } finally {
-            router.replace('/');
         }
     };
+
+    if (isLoggingOut) {
+        return (
+            <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+            </div>
+        );
+    }
 
     return (
         <AppBar position="fixed" sx={{ backgroundColor: "#1A1A1A" }}>

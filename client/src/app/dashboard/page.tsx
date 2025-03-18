@@ -26,26 +26,15 @@ export default function Dashboard() {
   const [searching, setSearching] = useState<boolean>(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    console.log(token);
-    if (!token) {
-      redirect("/login");
-      return;
-    }
-
     const fetchUserData = async () => {
       try {
         const res = await fetch("http://localhost:8000/api/auth/user/", {
-          method: "GET",
+          credentials: 'include',  // Changed: Use cookies
           headers: {
-            Authorization: `Token ${token}`,
             "Content-Type": "application/json",
           },
         });
 
-        if (!res.ok) {
-          throw new Error("Failed to fetch user data");
-        }
         if (!res.ok) {
           throw new Error("Failed to fetch user data");
         }
@@ -59,6 +48,7 @@ export default function Dashboard() {
         setIsLoading(false);
       }
     };
+
     fetchUserData();
   }, []);
 
@@ -86,7 +76,11 @@ export default function Dashboard() {
   }, []);
 
   if (isLoading) {
-    return <div className="p-4">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
+    );
   }
 
   if (error) {

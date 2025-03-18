@@ -119,9 +119,16 @@ export default function Register() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 disabled:bg-blue-300"
+            className="w-full bg-violet-600 text-white p-2 rounded-full hover:bg-violet-700 disabled:bg-violet-400 transition-colors duration-200"
           >
-            {isSubmitting ? "Registering..." : "Register"}
+            {isSubmitting ? (
+              <div className="flex justify-center items-center">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                Registering...
+              </div>
+            ) : (
+              "Register"
+            )}
           </button>
 
           <div className="text-center">

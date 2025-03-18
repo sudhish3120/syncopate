@@ -2,7 +2,6 @@ from django.urls import path
 from ..views.auth_views import (
     LoginView, 
     LogoutView, 
-    RegisterView, 
     RegisterInitView,
     send_magic_link,
     verify_token,
@@ -13,7 +12,6 @@ from ..views.user_views import get_user
 from knox import views as knox_views
 
 urlpatterns = [
-    path("register/", RegisterView.as_view(), name="register"),
     path("register/init/", RegisterInitView.as_view(), name="register-init"),
     path("register/send_magic_link/", send_magic_link, name="send_magic_link"),
     path("login/", LoginView.as_view(), name="login"),

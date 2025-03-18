@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 @permission_classes([permissions.IsAuthenticated])
 def get_user(request):
     try:
+        logger.info(f"Getting user data for: {request.user.username}")
         serializer = UserSerializer(request.user)
         return Response({
             "user": serializer.data,

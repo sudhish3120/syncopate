@@ -43,43 +43,52 @@ export default function EmailVerifyPage() {
   };
 
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <h1 className="text-3xl font-bold mb-8">1. Enter Your UWaterloo Email</h1>
-        
-        <Formik
-          initialValues={{ email: '' }}
-          validationSchema={EmailSchema}
-          onSubmit={handleSubmit}
-        >
-          {({ errors, touched, isSubmitting, status }) => (
-            <Form className="flex flex-col gap-4 w-96">
-              <div>
-                <Field
-                  type="email"
-                  name="email"
-                  placeholder="yourname@uwaterloo.ca"
-                  className="w-full p-2 border rounded"
-                />
-                {errors.email && touched.email && (
-                  <div className="text-red-500 text-sm">{errors.email}</div>
+    <div className="min-h-screen bg-black relative pt-20">
+      <main className="container mx-auto py-8 px-8">
+        <div className="max-w-md mx-auto">
+          <h1 className="text-3xl font-bold mb-8 text-white">1. Enter Your UWaterloo Email</h1>
+          
+          <Formik
+            initialValues={{ email: '' }}
+            validationSchema={EmailSchema}
+            onSubmit={handleSubmit}
+          >
+            {({ errors, touched, isSubmitting, status }) => (
+              <Form className="flex flex-col gap-4">
+                <div>
+                  <Field
+                    type="email"
+                    name="email"
+                    placeholder="yourname@uwaterloo.ca"
+                    className="w-full p-2 border rounded bg-white text-gray-900"
+                  />
+                  {errors.email && touched.email && (
+                    <div className="text-red-500 text-sm">{errors.email}</div>
+                  )}
+                </div>
+
+                {status && (
+                  <div className="text-red-500 text-sm text-center">{status}</div>
                 )}
-              </div>
 
-              {status && (
-                <div className="text-red-500 text-sm text-center">{status}</div>
-              )}
-
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 disabled:bg-blue-300"
-              >
-                {isSubmitting ? "Sending..." : "Send Verification Code"}
-              </button>
-            </Form>
-          )}
-        </Formik>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full bg-violet-600 text-white p-2 rounded-full hover:bg-violet-700 disabled:bg-violet-400 transition-colors duration-200"
+                >
+                  {isSubmitting ? (
+                    <div className="flex justify-center items-center">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                      Sending...
+                    </div>
+                  ) : (
+                    "Send Verification Code"
+                  )}
+                </button>
+              </Form>
+            )}
+          </Formik>
+        </div>
       </main>
     </div>
   );
