@@ -181,7 +181,6 @@ function NavBar() {
                                 sx={{ p: 0 }}
                             >
                                 <Avatar
-                                    alt="Remy Sharp"
                                     src="/static/images/avatar/2.jpg"
                                 />
                             </IconButton>
@@ -205,11 +204,15 @@ function NavBar() {
                             {settings.map((setting) => (
                                 <MenuItem
                                     key={setting}
-                                    onClick={
-                                        setting === "Logout"
-                                            ? handleLogout
-                                            : handleCloseNavMenu
-                                    }
+                                    onClick={() => {
+                                        if (setting === "Logout") {
+                                            handleLogout();
+                                        } else if (setting === "Profile") {
+                                            redirect("/profile");
+                                        } else {
+                                            handleCloseUserMenu();
+                                        }
+                                    }}
                                 >
                                     <Typography sx={{ textAlign: "center" }}>
                                         {setting}
