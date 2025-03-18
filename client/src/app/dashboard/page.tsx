@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { redirect, useRouter } from "next/navigation";
 import ConcertCard from "../components/ConcertCard";
 import Nav from "../components/Nav";
-import getConfig from "next/config";
 
 interface UserData {
     user: {
@@ -41,13 +40,6 @@ export default function Dashboard() {
     const [concerts, setConcerts] = useState<Array<Concert> | null>(null);
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        console.log(token);
-        if (!token) {
-            redirect("/login");
-            return;
-        }
-
         const fetchUserData = async () => {
             try {
                 const res = await fetch(
@@ -55,13 +47,17 @@ export default function Dashboard() {
                     {
                         method: "GET",
                         headers: {
-                            Authorization: `Token ${token}`,
                             "Content-Type": "application/json",
                         },
+                        credentials: 'include',
                     },
                 );
 
                 if (!res.ok) {
+                    if (res.status === 401) {
+                        router.push('');
+                        return;
+                    }
                     throw new Error("Failed to fetch user data");
                 }
 
@@ -78,7 +74,7 @@ export default function Dashboard() {
         };
 
         fetchUserData();
-    }, []);
+    }, [router]);
 
     useEffect(() => {
         const getConcerts = async () => {
@@ -106,8 +102,23 @@ export default function Dashboard() {
         };
         getConcerts();
     }, []);
+
+    // Add helper function for consistent date formatting
+    const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    };
+
+    // Replace the simple loading div with the same spinner as home page
     if (isLoading) {
-        return <div className="p-4">Loading...</div>;
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+            </div>
+        );
     }
 
     if (error) {
@@ -157,9 +168,7 @@ export default function Dashboard() {
                                     key={concert.id}
                                     id={concert.id}
                                     title={concert.name}
-                                    date={new Date(
-                                        concert.date,
-                                    ).toLocaleDateString()}
+                                    date={formatDate(concert.date)}
                                 />
                             ))}
                     </div>

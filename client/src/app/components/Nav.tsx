@@ -1,3 +1,4 @@
+"use client";
 import * as React from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -11,8 +12,8 @@ import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import { redirect } from "next/navigation";
-
 import { useRouter } from "next/navigation";
+
 const pages = ["Catalog", "Matches", "Explore People", "Favorites"];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
@@ -44,22 +45,24 @@ function NavBar() {
     };
 
     const handleLogout = async () => {
-        const token = localStorage.getItem("token");
         try {
-            const res = await fetch("http://localhost:8000/api/auth/logout/", {
-                method: "POST",
+            const res = await fetch('http://localhost:8000/api/auth/logout/', {
+                method: 'POST',
+                credentials: 'include',
                 headers: {
-                    Authorization: `Token ${token}`,
-                    "Content-Type": "application/json",
-                },
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
             });
 
             if (res.ok) {
-                localStorage.removeItem("token");
-                router.push("/");
+                handleCloseUserMenu();
+                router.replace('/');
             }
         } catch (error) {
-            console.error("Logout failed:", error);
+            console.error('Logout error:', error);
+        } finally {
+            router.replace('/');
         }
     };
 

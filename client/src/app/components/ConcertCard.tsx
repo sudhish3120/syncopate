@@ -56,6 +56,7 @@ const ConcertCard: React.FC<ConcertCardProps> = ({
                     body: JSON.stringify({
                         concert: id, // The concert ID you want to add to favorites
                     }),
+                    credentials: 'include',
                 },
             );
 

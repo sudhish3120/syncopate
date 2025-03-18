@@ -1,23 +1,27 @@
 from django.db import models
-from django.utils import timezone
+import secrets
 from datetime import timedelta
+from django.utils import timezone
 from django.contrib.auth.models import User
 from django.db.models.fields.related import ManyToManyField
 from django.db.models.fields.related import ForeignKey
 from django.forms.fields import CharField
 
-class EmailVerificationCode(models.Model):
+class EmailVerificationToken(models.Model):
     email = models.EmailField()
-    code = models.CharField(max_length=6)
+    token = models.CharField(max_length=64, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     is_used = models.BooleanField(default=False)
 
     @property
     def is_expired(self):
-        return timezone.now() > self.created_at + timedelta(minutes=10)
+        expiry_time = self.created_at + timedelta(hours=24)
+        return timezone.now() > expiry_time
 
-    def __str__(self):
-        return f"{self.email} - {self.code}"
+    @classmethod
+    def generate_token(cls, email):
+        token = secrets.token_urlsafe(32)
+        return cls.objects.create(email=email, token=token)
 
 # Create your models here.
 class Venue(models.Model):
@@ -50,3 +54,16 @@ class FavoriteConcert(models.Model):
     date_favorited = models.DateTimeField(auto_now_add=True)
     class Meta:
         unique_together = ('user', 'concert')
+
+class TemporaryRegistration(models.Model):
+    setup_token = models.CharField(max_length=64, unique=True)
+    username = models.CharField(max_length=150)
+    email = models.EmailField()
+    password = models.CharField(max_length=128)  # Will store hashed password
+    created_at = models.DateTimeField(auto_now_add=True)
+    totp_secret = models.CharField(max_length=64, null=True)  # Increased from 32 to 64
+
+    @property
+    def is_expired(self):
+        expiry_time = self.created_at + timedelta(minutes=15)
+        return timezone.now() > expiry_time

@@ -1,12 +1,11 @@
 'use client';
 import { Formik, Form, Field, FormikHelpers } from "formik";
 import * as Yup from "yup";
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from "next/link";
 
 interface RegisterValues {
   username: string;
-  email: string;
   password: string;
   confirmPassword: string;
 }
@@ -15,9 +14,6 @@ const RegisterSchema = Yup.object().shape({
   username: Yup.string()
     .min(2, "Username too short")
     .required("Username is required"),
-  email: Yup.string()
-    .email("Invalid email")
-    .required("Email is required"),
   password: Yup.string()
     .min(6, "Password must be at least 6 characters")
     .required("Password is required"),
@@ -27,6 +23,9 @@ const RegisterSchema = Yup.object().shape({
 });
 
 export default function Register() {
+  const searchParams = useSearchParams();
+  const verified = searchParams.get('verified');
+  const email = searchParams.get('email');
   const router = useRouter();
 
   const handleSubmit = async (
@@ -34,29 +33,31 @@ export default function Register() {
     { setSubmitting, setStatus }: FormikHelpers<RegisterValues>
   ) => {
     try {
-      // Store registration data for later use
-      localStorage.setItem('registrationData', JSON.stringify({
-        username: values.username,
-        email: values.email,
-        password: values.password
-      }));
+      const email = localStorage.getItem('registerEmail');
+      if (!email) {
+        router.push('/email-verify');
+        return;
+      }
 
-      // Request verification code
-      const res = await fetch("http://localhost:8000/api/auth/register/send_verification_code/", {
+      const res = await fetch("http://localhost:8000/api/auth/register/init/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: values.email }),
+        body: JSON.stringify({
+          username: values.username,
+          email: email,
+          password: values.password
+        }),
       });
 
       if (res.ok) {
-        router.push('/verify');
+        const { setup_token } = await res.json();
+        router.push(`/register/totp-setup?token=${setup_token}`);
       } else {
         const data = await res.json();
-        setStatus(data.error || 'Failed to send verification code');
+        throw new Error(data.error || 'Registration failed');
       }
     } catch (error) {
-      console.error("Registration error:", error);
-      setStatus('An unexpected error occurred');
+      setStatus(error instanceof Error ? error.message : 'Registration failed');
     } finally {
       setSubmitting(false);
     }
@@ -64,12 +65,17 @@ export default function Register() {
 
   return (
     <Formik
-      initialValues={{ username: "", email: "", password: "", confirmPassword: "" }}
+      initialValues={{ username: "", password: "", confirmPassword: "" }}
       validationSchema={RegisterSchema}
       onSubmit={handleSubmit}
     >
       {({ errors, touched, isSubmitting, status }) => (
         <Form className="flex flex-col gap-4 max-w-md mx-auto mt-8">
+          {verified && (
+            <div className="bg-green-50 text-green-700 p-4 rounded-lg mb-4">
+              Email verified successfully! Complete your registration below.
+            </div>
+          )}
           <div>
             <Field
               type="text"
@@ -79,18 +85,6 @@ export default function Register() {
             />
             {errors.username && touched.username && (
               <div className="text-red-500 text-sm">{errors.username}</div>
-            )}
-          </div>
-
-          <div>
-            <Field
-              type="email"
-              name="email"
-              placeholder="Email"
-              className="w-full p-2 border rounded"
-            />
-            {errors.email && touched.email && (
-              <div className="text-red-500 text-sm">{errors.email}</div>
             )}
           </div>
 

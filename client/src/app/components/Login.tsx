@@ -2,10 +2,12 @@ import { useRouter } from 'next/navigation';
 import { Formik, Form, Field, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import Link from "next/link";
+import { useState } from 'react';
 
 interface LoginValues {
   username: string;
   password: string;
+  totp_code: string;  // Changed from optional to required
 }
 
 const LoginSchema = Yup.object().shape({
@@ -15,10 +17,17 @@ const LoginSchema = Yup.object().shape({
   password: Yup.string()
     .min(6, "Password must be at least 6 characters")
     .required("Password is required"),
+  totp_code: Yup.string()  // Add validation for totp_code
+    .when('$requiresTotp', {
+      is: true,
+      then: (schema) => schema.matches(/^\d{6}$/, 'Must be exactly 6 digits').required('TOTP code required'),
+      otherwise: (schema) => schema
+    })
 });
 
 export default function Login() {
   const router = useRouter();
+  const [requiresTotp, setRequiresTotp] = useState(false);
 
   const handleSubmit = async (
     values: LoginValues,
@@ -30,16 +39,26 @@ export default function Login() {
         headers: { 
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(values),
+        credentials: 'include',
+        body: JSON.stringify({
+          username: values.username,
+          password: values.password,
+          ...(values.totp_code && { totp_code: values.totp_code })
+        }),
       });
 
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || 'Login failed');
+      const data = await res.json();
+
+      if (res.status === 401 && data.requires_totp) {
+        setRequiresTotp(true);
+        setStatus(data.message);
+        return;
       }
 
-      const data = await res.json();
-      localStorage.setItem("token", data.token);
+      if (!res.ok) {
+        throw new Error(data.error || 'Login failed');
+      }
+
       router.push('/dashboard');
       
     } catch (error) {
@@ -52,9 +71,11 @@ export default function Login() {
 
   return (
     <Formik
-      initialValues={{ username: "", password: "" }}
+      initialValues={{ username: "", password: "", totp_code: "" }}
       validationSchema={LoginSchema}
       onSubmit={handleSubmit}
+      validateOnChange={true}
+      context={{ requiresTotp }}  // Add context for conditional validation
     >
       {({ errors, touched, isSubmitting, status }) => (
         <Form className="flex flex-col gap-4 max-w-md mx-auto mt-8">
@@ -82,6 +103,20 @@ export default function Login() {
             )}
           </div>
 
+          {requiresTotp && (
+            <div>
+              <Field
+                type="text"
+                name="totp_code"
+                placeholder="Enter 6-digit authenticator code"
+                className="w-full p-2 border rounded"
+              />
+            {errors.totp_code && touched.totp_code && (
+                <div className="text-red-500 text-sm">{errors.totp_code}</div>
+              )}
+            </div>
+          )}
+
           {status && (
             <div className="text-red-500 text-center text-sm">{status}</div>
           )}
@@ -95,8 +130,8 @@ export default function Login() {
           </button>
 
           <div className="text-center">
-            <Link href="/register" className="text-blue-500 hover:text-blue-600">
-              New to Syncopate? Register
+            <Link href="/email-verify" className="text-blue-500 hover:text-blue-600">
+              New to Syncopate? Create Account
             </Link>
           </div>
         </Form>
