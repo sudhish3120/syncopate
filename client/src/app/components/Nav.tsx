@@ -1,3 +1,4 @@
+"use client";
 import * as React from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -11,8 +12,8 @@ import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import { redirect } from "next/navigation";
-
 import { useRouter } from "next/navigation";
+
 const pages = ["Catalog", "Matches", "Explore People", "Favorites"];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
@@ -24,6 +25,7 @@ function NavBar() {
     const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
         null,
     );
+    const [isLoggingOut, setIsLoggingOut] = React.useState(false);
 
     const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorElNav(event.currentTarget);
@@ -44,24 +46,35 @@ function NavBar() {
     };
 
     const handleLogout = async () => {
-        const token = localStorage.getItem("token");
         try {
-            const res = await fetch("http://localhost:8000/api/auth/logout/", {
-                method: "POST",
+            setIsLoggingOut(true);
+            const res = await fetch('http://localhost:8000/api/auth/logout/', {
+                method: 'POST',
+                credentials: 'include',
                 headers: {
-                    Authorization: `Token ${token}`,
-                    "Content-Type": "application/json",
-                },
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
             });
 
             if (res.ok) {
-                localStorage.removeItem("token");
-                router.push("/");
+                handleCloseUserMenu();
+                setTimeout(() => {
+                    router.replace('/');
+                }, 500); // Add small delay to show loading state
             }
         } catch (error) {
-            console.error("Logout failed:", error);
+            console.error('Logout error:', error);
         }
     };
+
+    if (isLoggingOut) {
+        return (
+            <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+            </div>
+        );
+    }
 
     return (
         <AppBar position="fixed" sx={{ backgroundColor: "#1A1A1A" }}>

@@ -6,48 +6,7 @@ import Nav from "../components/Nav";
 import { FaMagnifyingGlass } from "react-icons/fa6";
 import { FormControl, InputLabel, MenuItem, Select } from "../../../node_modules/@mui/material/index";
 import ConcertCard from "../components/ConcertCard";
-interface UserData {
-  user: {
-    id: number;
-    username: string;
-  };
-  status: string;
-}
-
-interface Artist {
-  id: number;
-  name: string;
-}
-
-interface Venue {
-  id: number;
-  name: string;
-  address: string;
-}
-interface ConcertDate {
-  start: {
-    localDate: string;
-  };
-}
-
-interface ConcertImage {
-  ratio: string;
-  url: string;
-  width: number;
-  height: number;
-  fallback: boolean;
-}
-
-interface Concert {
-  id: number;
-  name: string;
-  artist: Artist;
-  venue: Venue;
-  dates: ConcertDate;
-  url: string;
-  images: Array<ConcertImage>;
-  ticket_url: string;
-}
+import {UserData, Artist, Venue, ConcertDate, ConcertImage, Concert } from "../types/concerts"
 
 const LOCATIONS: {[key: string]: string} = {
     "KW": "Kitchener-Waterloo",
@@ -67,26 +26,15 @@ export default function Dashboard() {
   const [searching, setSearching] = useState<boolean>(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    console.log(token);
-    if (!token) {
-      redirect("/login");
-      return;
-    }
-
     const fetchUserData = async () => {
       try {
         const res = await fetch("http://localhost:8000/api/auth/user/", {
-          method: "GET",
+          credentials: 'include',  // Changed: Use cookies
           headers: {
-            Authorization: `Token ${token}`,
             "Content-Type": "application/json",
           },
         });
 
-        if (!res.ok) {
-          throw new Error("Failed to fetch user data");
-        }
         if (!res.ok) {
           throw new Error("Failed to fetch user data");
         }
@@ -100,6 +48,7 @@ export default function Dashboard() {
         setIsLoading(false);
       }
     };
+
     fetchUserData();
   }, []);
 
@@ -127,7 +76,11 @@ export default function Dashboard() {
   }, []);
 
   if (isLoading) {
-    return <div className="p-4">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
+    );
   }
 
   if (error) {

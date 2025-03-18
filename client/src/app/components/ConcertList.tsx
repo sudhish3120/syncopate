@@ -1,53 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { redirect, useRouter } from "next/navigation";
 import ConcertCard from "../components/ConcertCard";
-import Nav from "../components/Nav";
-import getConfig from "next/config";
-
-interface UserData {
-  user: {
-    id: number;
-    username: string;
-  };
-  status: string;
-}
-
-interface Artist {
-  id: number;
-  name: string;
-}
-
-interface Venue {
-  id: number;
-  name: string;
-  address: string;
-}
-
-interface ConcertDate {
-  start: {
-    localDate: string;
-  };
-}
-
-interface ConcertImage {
-  ratio: string;
-  url: string;
-  width: number;
-  height: number;
-  fallback: boolean;
-}
-
-interface Concert {
-  id: number;
-  name: string;
-  artist: Artist;
-  venue: Venue;
-  dates: ConcertDate;
-  url: string;
-  images: Array<ConcertImage>;
-}
-
+import { Concert } from "../types/concerts";
 interface ConcertListProps {
   concerts: Array<Concert> | null;
   title: string;

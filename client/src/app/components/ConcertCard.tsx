@@ -6,11 +6,9 @@ import {
   Typography,
   Modal,
   Box,
-  Button,
 } from "@mui/material";
 import { redirect } from "next/navigation";
 import { FaStar } from "react-icons/fa6";
-import Link from "next/link";
 
 interface ConcertCardProps {
   id: number;

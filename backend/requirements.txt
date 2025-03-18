@@ -6,3 +6,7 @@ psycopg2-binary
 requests
 knox
 django-rest-knox
+django-otp
+qrcode
+Pillow
+pyotp

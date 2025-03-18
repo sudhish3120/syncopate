@@ -2,10 +2,12 @@ import { useRouter } from 'next/navigation';
 import { Formik, Form, Field, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import Link from "next/link";
+import { useState } from 'react';
 
 interface LoginValues {
   username: string;
   password: string;
+  totp_code: string;  // Changed from optional to required
 }
 
 const LoginSchema = Yup.object().shape({
@@ -15,10 +17,17 @@ const LoginSchema = Yup.object().shape({
   password: Yup.string()
     .min(6, "Password must be at least 6 characters")
     .required("Password is required"),
+  totp_code: Yup.string()  // Add validation for totp_code
+    .when('$requiresTotp', {
+      is: true,
+      then: (schema) => schema.matches(/^\d{6}$/, 'Must be exactly 6 digits').required('TOTP code required'),
+      otherwise: (schema) => schema
+    })
 });
 
 export default function Login() {
   const router = useRouter();
+  const [requiresTotp, setRequiresTotp] = useState(false);
 
   const handleSubmit = async (
     values: LoginValues,
@@ -30,16 +39,26 @@ export default function Login() {
         headers: { 
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(values),
+        credentials: 'include',
+        body: JSON.stringify({
+          username: values.username,
+          password: values.password,
+          ...(values.totp_code && { totp_code: values.totp_code })
+        }),
       });
 
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || 'Login failed');
+      const data = await res.json();
+
+      if (res.status === 401 && data.requires_totp) {
+        setRequiresTotp(true);
+        setStatus(data.message);
+        return;
       }
 
-      const data = await res.json();
-      localStorage.setItem("token", data.token);
+      if (!res.ok) {
+        throw new Error(data.error || 'Login failed');
+      }
+
       router.push('/dashboard');
       
     } catch (error) {
@@ -52,18 +71,20 @@ export default function Login() {
 
   return (
     <Formik
-      initialValues={{ username: "", password: "" }}
+      initialValues={{ username: "", password: "", totp_code: "" }}
       validationSchema={LoginSchema}
       onSubmit={handleSubmit}
+      validateOnChange={true}
+      context={{ requiresTotp }}  // Add context for conditional validation
     >
       {({ errors, touched, isSubmitting, status }) => (
-        <Form className="flex flex-col gap-4 max-w-md mx-auto mt-8">
+        <Form className="flex flex-col gap-4 w-full max-w-md">
           <div>
             <Field
               type="text"
               name="username"
               placeholder="Username"
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded bg-white text-gray-900"
             />
             {errors.username && touched.username && (
               <div className="text-red-500 text-sm">{errors.username}</div>
@@ -75,28 +96,48 @@ export default function Login() {
               type="password"
               name="password"
               placeholder="Password"
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded bg-white text-gray-900"
             />
             {errors.password && touched.password && (
               <div className="text-red-500 text-sm">{errors.password}</div>
             )}
           </div>
 
-          {status && (
-            <div className="text-red-500 text-center text-sm">{status}</div>
+          {requiresTotp && (
+            <div>
+              <Field
+                type="text"
+                name="totp_code"
+                placeholder="Enter 6-digit authenticator code"
+                className="w-full p-2 border rounded bg-white text-gray-900"
+              />
+            {errors.totp_code && touched.totp_code && (
+                <div className="text-red-500 text-sm">{errors.totp_code}</div>
+              )}
+              {status && (
+                <div className="text-red-500 text-sm text-center mt-2">{status}</div>
+              )}
+            </div>
           )}
 
           <button
             type="submit"
             disabled={isSubmitting}
-            className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 disabled:bg-blue-300"
+            className="w-full bg-violet-600 text-white p-2 rounded-full hover:bg-violet-700 disabled:bg-violet-400 transition-colors duration-200"
           >
-            {isSubmitting ? "Logging in..." : "Login"}
+            {isSubmitting ? (
+              <div className="flex justify-center items-center">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                {requiresTotp ? "Verifying 2FA..." : "Logging in..."}
+              </div>
+            ) : (
+              requiresTotp ? "Verify 2FA" : "Login"
+            )}
           </button>
 
           <div className="text-center">
-            <Link href="/register" className="text-blue-500 hover:text-blue-600">
-              New to Syncopate? Register
+            <Link href="/email-verify" className="text-blue-500 hover:text-blue-600">
+              New to Syncopate? Create Account
             </Link>
           </div>
         </Form>
