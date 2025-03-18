@@ -13,8 +13,8 @@ import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import { redirect } from "next/navigation";
 import { useRouter } from "next/navigation";
+import { pages_url } from "../constants";
 
-const pages = ["Catalog", "Matches", "Explore People", "Favorites"];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
 function NavBar() {
