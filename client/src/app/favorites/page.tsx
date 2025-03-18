@@ -4,6 +4,8 @@ import { redirect, useRouter } from "next/navigation";
 import ConcertCard from "../components/ConcertCard";
 import Nav from "../components/Nav";
 import getConfig from "next/config";
+import ConcertList from "../components/ConcertList";
+import { FaMagnifyingGlass } from "react-icons/fa6";
 
 interface UserData {
   user: {
@@ -24,13 +26,28 @@ interface Venue {
   address: string;
 }
 
+interface ConcertDate {
+  start: {
+    localDate: string;
+  };
+}
+
+interface ConcertImage {
+  ratio: string;
+  url: string;
+  width: number;
+  height: number;
+  fallback: boolean;
+}
+
 interface Concert {
   id: number;
   name: string;
   artist: Artist;
   venue: Venue;
-  date: string;
+  dates: ConcertDate;
   url: string;
+  images: Array<ConcertImage>;
 }
 
 export default function Favorites() {
@@ -84,35 +101,23 @@ export default function Favorites() {
   }
 
   return (
-    <div className="font-sans bg-gradient-to-l from-syncopate_primary via-syncopate_secondary to-syncopate_accent bg-opacity-100 relative">
-      <div className="absolute inset-0 bg-white opacity-40"></div>
+    <div className="font-sans bg-black relative pt-20">
       <Nav />
       <main className="container mx-auto  py-8 px-8 h-screen relative">
         <section className="mb-8 flex justify-between">
-          <h2 className="text-3xl font-semibold text-black mb-4">Favorites</h2>
+          <h2 className="text-3xl font-md text-white mb-4">Favorites</h2>
           <div className="flex items-center justify-between mb-4">
-            <div></div>
             <div className="relative">
-              <input
-                type="text"
-                placeholder="Search for Concerts"
-                className="border border-gray-300 rounded-full px-4 py-2 pl-6 w-80 focus:outline-none focus:border-blue-500"
-              />
-              <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth="1.5"
-                  stroke="currentColor"
-                  className="w-6 h-6 text-gray-400"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
-                  />
-                </svg>
+              <div className="flex flex-row justify-between border bg-white border-gray-300 rounded-full px-4 py-1 pl-6 w-80 focus:outline-none focus:border-blue-500">
+                <input
+                  type="text"
+                  placeholder="Search for Concerts"
+                  className="w-full text-gray-600 border-gray-300 focus:outline-none focus:border-blue-500"
+                />
+                <FaMagnifyingGlass
+                  size={32}
+                  className="inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-300"
+                />
               </div>
             </div>
           </div>
@@ -123,9 +128,20 @@ export default function Favorites() {
               key={favorite.id}
               id={favorite.id}
               title={favorite.name}
-              date={new Date(favorite.date).toLocaleDateString()}
+              date={new Date(
+                favorite.dates.start.localDate
+              ).toLocaleDateString()}
+              url={favorite.url}
+              imageUrl={
+                favorite.images.reduce((largest, image) => {
+                  return image.width * image.height >
+                    largest.width * largest.height
+                    ? image
+                    : largest;
+                }, favorite.images[0]).url
+              }
             />
-          ))}
+          ))}{" "}
         </div>
       </main>
     </div>

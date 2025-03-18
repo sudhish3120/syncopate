@@ -50,8 +50,9 @@ interface Concert {
 
 interface ConcertListProps {
   concerts: Array<Concert> | null;
+  title: string;
 }
-const ConcertList: React.FC<ConcertListProps> = ({ concerts }) => {
+const ConcertList: React.FC<ConcertListProps> = ({ concerts, title }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -74,8 +75,8 @@ const ConcertList: React.FC<ConcertListProps> = ({ concerts }) => {
 
   return (
     <>
-      <h2 className="text-xl font-medium text-black mb-4 uppercase">
-        Upcoming Concerts
+      <h2 className="text-lg font-medium text-white mb-4 uppercase">
+        {title}
       </h2>
 
       <div className="relative">
@@ -90,7 +91,7 @@ const ConcertList: React.FC<ConcertListProps> = ({ concerts }) => {
           className="relative overflow-x-auto whitespace-nowrap scroll-hidden snap-x snap-mandatory"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
-          <div className="flex space-x-8">
+          <div className="flex space-x-8 m-10">
             {concerts?.map((concert) => (
                 <div key={concert.id} className="snap-center shrink-0">
                 <ConcertCard

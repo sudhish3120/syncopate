@@ -14,6 +14,7 @@ export default {
         syncopate_primary: "#3A1C71",
         syncopate_secondary: "#D76D77",
         syncopate_accent: "#FFAF7B",
+        space_black: "#1A1A1A",
       },
       animation: {
         marquee: "marquee 25s linear infinite",

@@ -64,21 +64,22 @@ function NavBar() {
     };
 
     return (
-        <AppBar position="static" sx={{ backgroundColor: "white" }}>
+        <AppBar position="fixed" sx={{ backgroundColor: "#1A1A1A" }}>
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
+                    <img src="SyncopateLogoWhite.png" alt="logo" style={{ width: 30, height: 25 }} />
                     <Typography
                         variant="h6"
                         noWrap
                         component="a"
                         href="#app-bar-with-responsive-menu"
+                        className="uppercase"
                         sx={{
                             mr: 2,
                             display: { xs: "none", md: "flex" },
-                            fontFamily: "monospace",
+                            fontFamily: "unset",
                             fontWeight: 700,
-                            letterSpacing: ".3rem",
-                            color: "black",
+                            color: "white",
                             textDecoration: "none",
                         }}
                     >
@@ -133,7 +134,7 @@ function NavBar() {
                         </Menu>
                     </Box>
                     <Typography
-                        variant="h5"
+                        variant="h6"
                         noWrap
                         component="a"
                         href="#app-bar-with-responsive-menu"
@@ -144,7 +145,7 @@ function NavBar() {
                             fontFamily: "monospace",
                             fontWeight: 700,
                             letterSpacing: ".3rem",
-                            color: "black",
+                            color: "white",
                             textDecoration: "none",
                         }}
                     >
@@ -154,6 +155,7 @@ function NavBar() {
                         sx={{
                             flexGrow: 1,
                             display: { xs: "none", md: "flex" },
+                            justifyContent: "flex-end"
                         }}
                     >
                         {pages.map((page) => (
@@ -166,7 +168,7 @@ function NavBar() {
                                           ? () => redirect("/dashboard")
                                           : handleCloseNavMenu
                                 }
-                                sx={{ my: 2, color: "black", display: "block" }}
+                                sx={{ my: 2, color: "white", display: "block" }}
                             >
                                 {page}
                             </Button>

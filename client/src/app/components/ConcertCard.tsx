@@ -84,7 +84,8 @@ const ConcertCard: React.FC<ConcertCardProps> = ({
   return (
     <>
       <Card
-        className="w-80 h-60 cursor-pointer shadow-lg transition-transform hover:scale-105"
+        sx={{ backgroundColor: "#1A1A1A" }}
+        className="w-80 h-60 cursor-pointer shadow-lg transition-transform hover:scale-105 drop-shadow-[0_0_15px_rgba(76,29,149,0.9)]"
         onClick={() => setOpen(true)}
       >
         <CardMedia
@@ -97,44 +98,47 @@ const ConcertCard: React.FC<ConcertCardProps> = ({
           <div ref={containerRef} className="overflow-hidden whitespace-nowrap">
             <Typography
               ref={titleRef}
+              fontSize={16}
               variant="h6"
-              className={`font-semibold text-black inline-block ${
+              className={`font-semibold text-white inline-block ${
                 isOverflowing ? "hover:animate-marquee" : ""
               }`}
             >
               {title}
             </Typography>
           </div>
-          <Typography variant="body2" className="text-black">
+          <Typography variant="body2" className="text-violet-600">
             {date}
           </Typography>
         </CardContent>
       </Card>
 
-    <Modal open={open} onClose={() => setOpen(false)}>
-      <Box className="bg-white rounded-md w-3/5 h-3/5 mx-auto mt-20 flex flex-row relative">
-        <CardMedia
-        component="img"
-        style={{ width: "60%" }}
-        image={imageUrl || "/concert_default_photo.jpg"}
-        alt={title}
-        />
-        <div className="p-6 shadow-lg w-full relative">
-        <Typography variant="h5" className="font-semibold text-black">
-          {title}
-        </Typography>
-        <Typography variant="body1" className="mt-2 text-black">
-          {date}
-        </Typography>
+      <Modal open={open} onClose={() => setOpen(false)}>
+        <Box className="bg-space_black rounded-md w-3/5 h-3/5 mx-auto mt-20 flex flex-row relative">
+          <CardMedia
+            component="img"
+            style={{ width: "60%" }}
+            image={imageUrl || "/concert_default_photo.jpg"}
+            alt={title}
+          />
+          <div className="p-6 shadow-lg w-full relative">
+            <Typography variant="h5" className="font-semibold text-white">
+              {title}
+            </Typography>
+            <Typography variant="body1" className="mt-2 text-violet-600">
+              {date}
+            </Typography>
 
-        <FaStar
-          size={24}
-          onClick={() => toggleFavorite(id)}
-          className={`absolute bottom-5 right-5 hover:cursor-pointer ${isFavorite ? "text-yellow-600" : "text-slate-400"}`}
-        />
-        </div>
-      </Box>
-    </Modal>
+            <FaStar
+              size={24}
+              onClick={() => toggleFavorite(id)}
+              className={`absolute bottom-5 right-5 hover:cursor-pointer ${
+                isFavorite ? "text-yellow-600" : "text-slate-400"
+              }`}
+            />
+          </div>
+        </Box>
+      </Modal>
     </>
   );
 };
