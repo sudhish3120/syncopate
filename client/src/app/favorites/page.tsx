@@ -121,8 +121,7 @@ export default function Favorites() {
                     </div>
 
                     <div className="grid grid-cols-4 gap-4">
-                        {favorites
-                            ?.slice(0, 4)
+                        {favorites?
                             .map((favorite) => (
                                 <ConcertCard
                                     key={favorite.id}
