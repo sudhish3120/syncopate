@@ -11,6 +11,19 @@ export default {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        syncopate_primary: "#3A1C71",
+        syncopate_secondary: "#D76D77",
+        syncopate_accent: "#FFAF7B",
+        space_black: "#1A1A1A",
+      },
+      animation: {
+        marquee: "marquee 25s linear infinite",
+      },
+      keyframes: {
+        marquee: {
+          "0%": { transform: "translateX(0%)" },
+          "100%": { transform: "translateX(-100%)" },
+        },
       },
     },
   },
