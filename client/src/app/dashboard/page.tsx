@@ -1,18 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
 import { redirect, useRouter } from "next/navigation";
-import ConcertCard from "../components/ConcertCard";
 import ConcertList from "../components/ConcertList";
 import Nav from "../components/Nav";
-import getConfig from "next/config";
 import { FaMagnifyingGlass } from "react-icons/fa6";
 import { FormControl, InputLabel, MenuItem, Select } from "../../../node_modules/@mui/material/index";
+import ConcertCard from "../components/ConcertCard";
 interface UserData {
-  user: {
-    id: number;
-    username: string;
-  };
-  status: string;
   user: {
     id: number;
     username: string;
@@ -23,14 +17,9 @@ interface UserData {
 interface Artist {
   id: number;
   name: string;
-  id: number;
-  name: string;
 }
 
 interface Venue {
-  id: number;
-  name: string;
-  address: string;
   id: number;
   name: string;
   address: string;
@@ -72,15 +61,10 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [concerts, setConcerts] = useState<Array<Concert> | null>(null);
-  const router = useRouter();
-  const [userData, setUserData] = useState<UserData | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [concerts, setConcerts] = useState<Array<Concert> | null>(null);
 
   const [location, setLocation] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [header, setHeader] = useState<string>("Explore Concerts");
+  const [searching, setSearching] = useState<boolean>(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -89,63 +73,33 @@ export default function Dashboard() {
       redirect("/login");
       return;
     }
-    useEffect(() => {
-      const token = localStorage.getItem("token");
-      console.log(token);
-      if (!token) {
-        redirect("/login");
-        return;
-      }
 
-      const fetchUserData = async () => {
-        try {
-          const res = await fetch("http://localhost:8000/api/auth/user/", {
-            method: "GET",
-            headers: {
-              Authorization: `Token ${token}`,
-              "Content-Type": "application/json",
-            },
-          });
-          const fetchUserData = async () => {
-            try {
-              const res = await fetch("http://localhost:8000/api/auth/user/", {
-                method: "GET",
-                headers: {
-                  Authorization: `Token ${token}`,
-                  "Content-Type": "application/json",
-                },
-              });
+    const fetchUserData = async () => {
+      try {
+        const res = await fetch("http://localhost:8000/api/auth/user/", {
+          method: "GET",
+          headers: {
+            Authorization: `Token ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
 
-              if (!res.ok) {
-                throw new Error("Failed to fetch user data");
-              }
-              if (!res.ok) {
-                throw new Error("Failed to fetch user data");
-              }
-
-              const { user, status } = await res.json();
-              setUserData({ user, status });
-            } catch (err) {
-              setError(
-                err instanceof Error ? err.message : "An error occurred"
-              );
-              console.error(err);
-            } finally {
-              setIsLoading(false);
-            }
-          };
-          const { user, status } = await res.json();
-          setUserData({ user, status });
-        } catch (err) {
-          setError(err instanceof Error ? err.message : "An error occurred");
-          console.error(err);
-        } finally {
-          setIsLoading(false);
+        if (!res.ok) {
+          throw new Error("Failed to fetch user data");
         }
-      };
+        if (!res.ok) {
+          throw new Error("Failed to fetch user data");
+        }
 
-      fetchUserData();
-    }, []);
+        const { user, status } = await res.json();
+        setUserData({ user, status });
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An error occurred");
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
     fetchUserData();
   }, []);
 
@@ -179,9 +133,6 @@ export default function Dashboard() {
   if (error) {
     return <div className="p-4 text-red-500">Error: {error}</div>;
   }
-  if (error) {
-    return <div className="p-4 text-red-500">Error: {error}</div>;
-  }
 
   const concertSearch = async (query: Record<string, string>) => {
       try {
@@ -209,82 +160,120 @@ export default function Dashboard() {
       }
   }
 
-  const setDetailedHeader = (query: string, loc: string) => {
-    let newHeader = "Search Results"
-    if (query) {
-        newHeader += " for \"" + query + "\""
+  const header = () => {
+    let newHeader = "No concerts found"
+    if (concerts && concerts.length > 0) {
+      newHeader = "Search Results"
     }
-    if (loc != "ALL") {
-        newHeader += " at " + LOCATIONS[loc]
+    if (searchQuery) {
+        newHeader += " for \"" + searchQuery + "\""
     }
-    setHeader(newHeader)
+    if (location != "ALL") {
+        newHeader += " at " + LOCATIONS[location]
     }
+    return newHeader
+  }
 
-    const handleLocationChange = (e: any) => {
-      if (searchQuery != "") {
-        concertSearch({"location": e.target.value, "query": searchQuery})
-        setDetailedHeader(searchQuery, e.target.value)
-      }
-      setLocation(e.target.value)
+  const handleLocationChange = (e: any) => {
+    if (searchQuery != "") {
+      concertSearch({"location": e.target.value, "query": searchQuery})
+      setSearching(true)
+    } else {
+      setSearching(false)
     }
+    setLocation(e.target.value)
+  }
 
-    const handleSearchQuery = (e: any) => {
-      if (e.key == "Enter" && e.target.value.trim() !== "") {
-        concertSearch({"location": location, "query": e.target.value})
-        setDetailedHeader(e.target.value, location)
-      } else if (e.key == "Enter") {
-        clearSearch()
-      }
-      setSearchQuery(e.target.value)
+  const handleSearchQuery = (e: any) => {
+    if (e.key == "Enter" && e.target.value.trim() !== "") {
+      concertSearch({"location": location, "query": e.target.value})
+      setSearching(true)
+    } else if (e.key == "Enter") {
+      setSearching(false)
+      clearSearch()
     }
+    setSearchQuery(e.target.value)
+  }
 
-    const clearSearch = (e: any) => {
-      setHeader("Explore Concerts")
-      setLocation("ALL")
-      setSearchQuery("")
-      getConcerts()
-    }
+  const clearSearch = () => {
+    setLocation("ALL")
+    setSearchQuery("")
+    setSearching(false)
+    getConcerts()
+  }
 
-    return (
-      <div className="font-sans bg-black relative pt-20">
-        <Nav />
-        <main className="container mx-auto  py-8 px-8 h-screen relative">
-          <section className="mb-8 flex justify-between">
-            <h2 className="text-3xl font-md text-white mb-4">Explore Concerts</h2>
-            <div className="flex items-center justify-between mb-4 space-x-4">
-              <FormControl className="bg-white border-gray-300 rounded-full focus:outline-none p-0">
-                <Select
-                  id="location-select"
-                  value={location}
-                  label="Location"
-                  onChange={handleLocationChange}
-                  className="w-64 p-0"
-                >
-                  {
-                    Object.entries(LOCATIONS).map(
-                      (location) => (<MenuItem value={location[0]} key={location[0]}>{location[1]}</MenuItem>)
-                    )
-                  }
-                </Select>
-              </FormControl>
-              <div className="flex flex-row justify-between border bg-white border-gray-300 rounded-full px-4 py-1 pl-6 w-80 focus:outline-none focus:border-blue-500">
-                <input
-                  type="text"
-                  placeholder="Search for Concerts"
-                  className="w-full text-gray-600 border-gray-300 focus:outline-none focus:border-blue-500"
-                  onKeyDown={handleSearchQuery}
-                />
-                <FaMagnifyingGlass
-                  size={32}
-                  className="inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-300"
-                />
-              </div>
+  return (
+    <div className="font-sans bg-black relative pt-20">
+      <Nav />
+      <main className="container mx-auto  py-8 px-8 h-screen relative">
+        <section className="mb-8 flex justify-between">
+          <h2 className="text-3xl font-md text-white mb-4">Explore Concerts</h2>
+          <div className="flex items-center justify-between mb-4 space-x-4">
+            <FormControl className="bg-white border-gray-300 rounded-full outline-none p-0">
+              <Select
+                id="location-select"
+                value={location}
+                label="Location"
+                onChange={handleLocationChange}
+                className="w-64 p-0 focus-within:outline-none"
+              >
+                {
+                  Object.entries(LOCATIONS).map(
+                    (location) => (<MenuItem value={location[0]} key={location[0]}>{location[1]}</MenuItem>)
+                  )
+                }
+              </Select>
+            </FormControl>
+            <div className="flex flex-row justify-between border bg-white border-gray-300 rounded-full px-3 py-3 pl-6 w-80 focus:outline-none focus:border-blue-500">
+              <input
+                type="text"
+                placeholder="Search for Concerts"
+                className="w-full text-gray-600 border-gray-300 focus:outline-none focus:border-blue-500"
+                onKeyDown={handleSearchQuery}
+              />
+              <FaMagnifyingGlass
+                size={32}
+                className="inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-300"
+              />
             </div>
-          </section>
-          <ConcertList title={"Upcoming Concerts"} concerts={concerts} />
-          <ConcertList title={"Concerts in Toronto"} concerts={concerts} />
-          <ConcertList title={"Concerts in Waterloo"} concerts={concerts} />
-        </main>
-      </div>
-    );
+          </div>
+        </section>
+        {
+          searching ? (
+            <>
+              <h2 className="text-lg font-medium text-white mb-4 uppercase">
+                {header()}
+              </h2>
+              <div className="flex flex-wrap gap-10">
+                {
+                  concerts?.map((concert) => (
+                    <div key={concert.id}>
+                      <ConcertCard
+                        id={concert.id}
+                        title={concert.name}
+                        date={new Date(
+                        concert.dates.start.localDate
+                        ).toLocaleDateString()}
+                        url={concert.url}
+                        imageUrl={concert.images.reduce((largest, image) => {
+                        return image.width * image.height > largest.width * largest.height ? image : largest;
+                        }, concert.images[0]).url}
+                      />
+                    </div>
+                  ))
+                }
+              </div>
+            </>
+          ) :
+          (
+            <>
+              <ConcertList title={"Upcoming Concerts"} concerts={concerts} />
+              {/* <ConcertList title={"Concerts in Toronto"} concerts={concerts} />
+              <ConcertList title={"Concerts in Waterloo"} concerts={concerts} /> */}
+            </>
+          )
+        }
+      </main>
+    </div>
+  );
 }

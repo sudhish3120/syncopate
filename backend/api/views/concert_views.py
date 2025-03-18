@@ -50,11 +50,25 @@ def concerts(request):
             'classificationName': 'Music',
             'includeTest': 'no'
         }
+
+        search_params = request.GET.get("query", None)
+        location_params = request.GET.get("location", "ALL")
+
+        if search_params:
+            request_params["keyword"] = search_params
+        if location_params != "ALL":
+            request_params["latlong"] = LOCATIONS[location_params]
+
         response = requests.get(
             f'{os.environ["TICKETMASTER_URL_BASE"]}/events',
-            params=request_params
-        )
-        events = response.json()["_embedded"]["events"]
+            params=request_params,
+            timeout=10
+        ).json()
+
+        events = []
+        if response["page"]["totalElements"] > 0:
+            events = response["_embedded"]["events"]
+
         return JsonResponse(events, safe=False)
     except Exception as e:
         logger.error(f"Concert fetch error: {str(e)}")
