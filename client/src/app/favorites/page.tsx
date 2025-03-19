@@ -65,13 +65,12 @@ export default function Favorites() {
   useEffect(() => {
     const getFavorites = async () => {
       try {
-        const t = localStorage.getItem("token");
         const res = await fetch(
           "http://localhost:8000/api/concerts/db_favorites",
           {
             method: "GET",
+            credentials: 'include',
             headers: {
-              Authorization: `Token ${t}`,
               "Content-Type": "application/json",
             },
           }

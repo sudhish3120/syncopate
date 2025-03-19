@@ -9,6 +9,8 @@ from knox.models import AuthToken
 import requests
 import os
 import logging
+
+from ..authentication import CookieTokenAuthentication
 from ..models import Concert, FavoriteConcert
 from ..serializers import ConcertSerializer
 from rest_framework.permissions import IsAuthenticated
@@ -27,6 +29,8 @@ class ConcertPagination(PageNumberPagination):
     max_page_size = 100
 
 @api_view(["GET"])
+@authentication_classes([CookieTokenAuthentication])
+@permission_classes([IsAuthenticated])
 def get_concert_in_db(request):
     try:
         name = request.GET.get("artist", None)
@@ -76,7 +80,7 @@ def concerts(request):
 
 
 class FavoriteConcertView(generics.CreateAPIView):
-    authentication_classes = [TokenAuthentication]
+    authentication_classes = [CookieTokenAuthentication]  # Changed from TokenAuthentication
     permission_classes = [IsAuthenticated]
     def post(self, request, *args, **kwargs):
         user = request.user
@@ -100,6 +104,8 @@ class FavoriteConcertView(generics.CreateAPIView):
 
 class UserFavoriteConcertsView(generics.ListAPIView):
     serializer_class = ConcertSerializer
+    authentication_classes = [CookieTokenAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return Concert.objects.filter(users_favorited=self.request.user)
