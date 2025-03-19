@@ -1,7 +1,6 @@
 "use client";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { redirect, useRouter } from "next/navigation";
-import Nav from "../components/Nav";
 import { Avatar } from "@mui/material";
 
 const avatars = [
@@ -11,176 +10,157 @@ const avatars = [
   "/avatars/4.jpg",
 ];
 
-const UpdateModal = ({}) => {
-  const [user, setUser] = useState({
-    username: "",
-    email: "",
-    profile_photo: "",
-    favoriteArtist: "",
-    favoriteSong: "",
-  });
-  const [token, setToken] = useState<string | null>(null);
+export interface UserData {
+  id: number;
+  username: string;
+  email?: string;
+  profile_photo?: string;
+  favoriteArtist?: string;
+  favoriteSong?: string;
+}
+
+const UpdateModal = () => {
+  const [user, setUser] = useState<UserData | null>(null);
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      redirect("/login");
-      return;
-    }
-    setToken(token);
-
-    // Fetch user profile
     const fetchUserProfile = async () => {
       try {
-        const res = await fetch("http://localhost:8000/api/profile/", {
-          headers: {
-            Authorization: `Token ${token}`,
-          },
+        const res = await fetch("http://localhost:8000/api/auth/user/", {
+          credentials: "include",
         });
-        if (!res.ok) {
-          throw new Error("Failed to fetch user profile");
+
+        if (res.ok) {
+          setIsAuthenticated(true);
+          const data = await res.json();
+          setUser(data.user);
+          console.log(data.user);
+          router.replace("/profile"); // Use replace instead of push
+          return;
         }
-        const data = await res.json();
-        setUser(data);
       } catch (error) {
-        console.error(error);
+        console.error("Auth check failed:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchUserProfile();
-  }, []);
+  }, [router]);
+
+  // not real yet
+  const handleSubmit = async (e: React.FormEvent) => {};
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUser({ ...user, [e.target.name]: e.target.value });
+    setUser({ ...user, [e.target.name]: e.target.value } as UserData);
   };
 
   const handleAvatarSelect = (avatar: string) => {
-    setUser({ ...user, profile_photo: avatar });
-  };
-
-  // not real yet
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const res = await fetch("http://localhost:8000/api/profile/", {
-        method: "PUT",
-        headers: {
-          Authorization: `Token ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(user),
-      });
-      if (!res.ok) {
-        throw new Error("Failed to update profile");
-      }
-      const data = await res.json();
-      setUser(data);
-      alert("Profile updated successfully");
-    } catch (error) {
-      console.error(error);
-      alert("Failed to update profile");
-    }
+    setUser({ ...user, profile_photo: avatar } as UserData);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-space_black p-4 rounded">
-      <div className="flex flex-row items-center">
-        <div className="w-1/3 justify-items-center">
-          {user.profile_photo ? (
-            <img
-              src={user.profile_photo}
-              alt="Profile"
-              className="w-32 h-32 rounded-full object-cover mx-auto"
-            />
-          ) : (
-            <Avatar
-              className="w-32 h-32 justify-center"
-              src="/static/images/avatar/2.jpg"
-            />
-          )}
-          <div className="mt-4 grid grid-cols-3 gap-2">
-            {avatars.map((avatar) => (
+    isAuthenticated &&
+    user && (
+      <form onSubmit={handleSubmit} className="bg-space_black p-4 rounded">
+        <div className="flex flex-row items-center">
+          <div className="w-1/3 justify-items-center">
+            {user.profile_photo ? (
               <img
-                key={avatar}
-                src={avatar}
-                alt="Avatar"
-                className={`w-16 h-16 rounded-full cursor-pointer ${
-                  user.profile_photo === avatar
-                    ? "border-4 border-violet-600"
-                    : ""
-                }`}
-                onClick={() => handleAvatarSelect(avatar)}
+                src={user.profile_photo}
+                alt="Profile"
+                className="w-32 h-32 rounded-full object-cover mx-auto"
               />
-            ))}
+            ) : (
+              <Avatar className="w-32 h-32 justify-center" />
+            )}
+            <div className="mt-4 grid grid-cols-3 gap-2">
+              {avatars.map((avatar) => (
+                <img
+                  key={avatar}
+                  src={avatar}
+                  alt="Avatar"
+                  className={`w-16 h-16 rounded-full cursor-pointer ${
+                    user.profile_photo === avatar
+                      ? "border-4 border-violet-600"
+                      : ""
+                  }`}
+                  onClick={() => handleAvatarSelect(avatar)}
+                />
+              ))}
+            </div>
+          </div>
+          <div className="w-2/3 pl-4 flex flex-col">
+            <div>
+              <div className="mb-4">
+                <label className="block text-white mb-2" htmlFor="username">
+                  Username
+                </label>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  value={user.username}
+                  onChange={handleChange}
+                  className="w-full p-2 rounded bg-black text-white"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-white mb-2" htmlFor="email">
+                  Email
+                </label>
+                <input
+                  type="text"
+                  id="email"
+                  name="email"
+                  value={user.email}
+                  onChange={handleChange}
+                  className="w-full p-2 rounded bg-neutral-900 text-white cursor-not-allowed"
+                  disabled={true}
+                />
+              </div>
+              <div className="mb-4">
+                <label
+                  className="block text-white mb-2"
+                  htmlFor="favoriteArtist"
+                >
+                  Favorite Artist
+                </label>
+                <input
+                  type="text"
+                  id="favoriteArtist"
+                  name="favoriteArtist"
+                  value={user.favoriteArtist}
+                  onChange={handleChange}
+                  className="w-full p-2 rounded bg-black text-white"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-white mb-2" htmlFor="favoriteSong">
+                  Favorite Song
+                </label>
+                <input
+                  type="text"
+                  id="favoriteSong"
+                  name="favoriteSong"
+                  value={user.favoriteSong}
+                  onChange={handleChange}
+                  className="w-full p-2 rounded bg-black text-white"
+                />
+              </div>
+              <button
+                type="submit"
+                className=" bg-violet-600 text-white py-2 px-4 rounded hover:bg-violet-600"
+              >
+                Save Changes
+              </button>
+            </div>
           </div>
         </div>
-        <div className="w-2/3 pl-4 flex flex-col">
-          <div>
-            <div className="mb-4">
-              <label className="block text-white mb-2" htmlFor="username">
-                Username
-              </label>
-              <input
-                type="text"
-                id="username"
-                name="username"
-                value={user.username}
-                onChange={handleChange}
-                className="w-full p-2 rounded bg-black text-white"
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-white mb-2" htmlFor="email">
-                Email
-              </label>
-              <input
-                type="text"
-                id="email"
-                name="email"
-                value={user.email}
-                onChange={handleChange}
-                className="w-full p-2 rounded bg-black text-white cursor-not-allowed"
-                disabled={true}
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-white mb-2" htmlFor="favoriteArtist">
-                Favorite Artist
-              </label>
-              <input
-                type="text"
-                id="favoriteArtist"
-                name="favoriteArtist"
-                value={user.favoriteArtist}
-                onChange={handleChange}
-                className="w-full p-2 rounded bg-black text-white"
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-white mb-2" htmlFor="favoriteSong">
-                favorite Song
-              </label>
-              <input
-                type="text"
-                id="favoriteSong"
-                name="favoriteSong"
-                value={user.favoriteSong}
-                onChange={handleChange}
-                className="w-full p-2 rounded bg-black text-white cursor-not-allowed"
-                disabled={true}
-              />
-            </div>
-            <button
-              type="submit"
-              className=" bg-violet-600 text-white py-2 px-4 rounded hover:bg-violet-600"
-            >
-              Save Changes
-            </button>
-          </div>
-        </div>
-      </div>
-    </form>
+      </form>
+    )
   );
 };
 

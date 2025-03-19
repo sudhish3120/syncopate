@@ -34,3 +34,27 @@ migrations: makemigrations migrate
 
 # Combined command to rebuild and restart all containers
 rebuild: down up
+
+# Define variables
+PYTHON_VENV = .venv
+PYTHON = $(PYTHON_VENV)/bin/python
+PIP = $(PYTHON_VENV)/bin/pip
+ESLINT = npx eslint
+
+# Create a virtual environment
+setup-python:
+	python3 -m venv $(PYTHON_VENV)
+	$(PIP) install --upgrade pip
+	$(PIP) install pylint
+
+# Run Pylint
+lint-python:
+	$(PYTHON) -v pylint **/*.py
+
+# Clean up the virtual environment
+clean:
+	rm -rf $(PYTHON_VENV)
+
+# Activate the virtual environment (use `make activate`)
+activate:
+	@echo "Run: source $(PYTHON_VENV)/bin/activate"

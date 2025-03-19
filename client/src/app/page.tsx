@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Login from "./components/Login";
 
@@ -17,6 +17,8 @@ export default function Home() {
         
         if (res.ok) {
           setIsAuthenticated(true);
+          const data = await res.json();
+          console.log(data);
           router.replace('/dashboard'); // Use replace instead of push
           return;
         }
