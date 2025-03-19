@@ -7,6 +7,12 @@ from django.db.models.fields.related import ManyToManyField
 from django.db.models.fields.related import ForeignKey
 from django.forms.fields import CharField
 
+MATCHING_DECISIONS = [
+    ("YES", "YES"),
+    ("NO", "NO"),
+    ("UNKNOWN", "UNKNOWN")
+]
+
 class EmailVerificationToken(models.Model):
     email = models.EmailField()
     token = models.CharField(max_length=64, unique=True)
@@ -61,3 +67,10 @@ class TemporaryRegistration(models.Model):
     def is_expired(self):
         expiry_time = self.created_at + timedelta(minutes=15)
         return timezone.now() > expiry_time
+
+# class Matching(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE)
+#     target = models.ForeignKey(User, on_delete=models.CASCADE)
+#     decision = models.CharField(max_length=7, choices=MATCHING_DECISIONS)
+#     class Meta:
+#         unique_together = ('user', 'target')

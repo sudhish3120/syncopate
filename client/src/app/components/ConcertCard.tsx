@@ -52,8 +52,8 @@ const ConcertCard: React.FC<ConcertCardProps> = ({
     try {
       const res = await fetch("http://localhost:8000/api/concerts/favorite/", {
         method: "POST",
+        credentials: 'include',
         headers: {
-          Authorization: `Token ${token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ concert: id }),

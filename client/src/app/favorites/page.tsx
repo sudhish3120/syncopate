@@ -59,7 +59,7 @@ export default function Favorites() {
     const getFavorites = async () => {
       try {
         const res = await fetch(
-          "http://localhost:8000/api/concerts/db_favorites",
+          "http://localhost:8000/api/concerts/favorites",
           {
             method: "GET",
             credentials: 'include',
@@ -71,9 +71,9 @@ export default function Favorites() {
         if (!res.ok) {
           throw new Error("Failed to fetch db concerts");
         }
-        const concerts = await res.json();
-        console.log(concerts);
-        setFavorites(concerts);
+        const data = await res.json();
+        // console.log(concerts);
+        setFavorites(data["concerts"]);
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
         console.error(err);
