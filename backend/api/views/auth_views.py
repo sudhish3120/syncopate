@@ -176,15 +176,16 @@ class RegisterInitView(generics.CreateAPIView):
                 setup_token=setup_token,
                 username=request.data['username'],
                 email=request.data['email'],
-                password=request.data['password']  # Store raw password
+                password=request.data['password']
             )
             
             return Response({
                 "setup_token": setup_token
             })
         except Exception as e:
+            logger.error(f"Registration error: {str(e)}")
             return Response({
-                "error": str(e)
+                "error": "Registration failed. Please try again."
             }, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
@@ -275,10 +276,14 @@ def totp_verify(request):
 
         except Exception as e:
             logger.error(f"Error creating user during TOTP verification: {str(e)}")
-            return Response({"error": "Failed to create user"}, status=500)
+            return Response({
+                "error": "Failed to complete registration. Please try again."
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     except Exception as e:
         logger.error(f"TOTP verification error: {str(e)}")
-        return Response({"error": "Verification failed"}, status=400)
+        return Response({
+            "error": "Verification failed. Please try again."
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 

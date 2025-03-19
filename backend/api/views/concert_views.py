@@ -39,10 +39,13 @@ def get_concert_in_db(request):
             concerts = concerts.filter(artist__name__iscontains=name)
         paginator = ConcertPagination()
         paginated_concerts = paginator.paginate_queryset(concerts, request)
-        serialized_concerts = ConcertSerializer(paginated_concerts, many = True)
+        serialized_concerts = ConcertSerializer(paginated_concerts, many=True)
         return paginator.get_paginated_response(serialized_concerts.data)
     except Exception as e:
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        logger.error(f"Database query error: {str(e)}")
+        return Response({
+            "error": "Unable to fetch concerts. Please try again."
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(["GET"])
 def concerts(request):
@@ -80,27 +83,37 @@ def concerts(request):
 
 
 class FavoriteConcertView(generics.CreateAPIView):
-    authentication_classes = [CookieTokenAuthentication]  # Changed from TokenAuthentication
+    authentication_classes = [CookieTokenAuthentication]
     permission_classes = [IsAuthenticated]
+    
     def post(self, request, *args, **kwargs):
         user = request.user
         concert_id = request.data.get('concert')
-        # Ensure the concert exists add add it if it does not
+        
         try:
             concert, created = Concert.objects.get_or_create(concert_id=concert_id)
         except Exception as e:
-            return Response({"error: ": "Failed to create/fetch concert"}, status=e)
-        #Favourite a concert logic
+            logger.error(f"Concert creation error: {str(e)}")
+            return Response({
+                "error": "Unable to process concert. Please try again."
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
         try:
             favorite, created = FavoriteConcert.objects.get_or_create(user=user, concert=concert)
             if created:
-                return Response({"Concert favourited successfully"}, status=status.HTTP_201_CREATED)
+                return Response({
+                    "message": "Concert favorited successfully"
+                }, status=status.HTTP_201_CREATED)
             else:
-                return Response({"Concert already favourited"}, status=status.HTTP_200_OK)
+                return Response({
+                    "message": "Concert already favorited"
+                }, status=status.HTTP_200_OK)
 
         except Exception as e:
-            return Response({"error: ": "Failed to favorite concert"}, status=e)
-
+            logger.error(f"Favorite creation error: {str(e)}")
+            return Response({
+                "error": "Unable to favorite concert. Please try again."
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class UserFavoriteConcertsView(generics.ListAPIView):
     serializer_class = ConcertSerializer
