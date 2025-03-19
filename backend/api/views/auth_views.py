@@ -84,8 +84,9 @@ class LoginView(KnoxLoginView):
                 status=status.HTTP_401_UNAUTHORIZED
             )
         except Exception as e:
+            logger.error(f"Login error: {str(e)}")
             return Response(
-                {"error": str(e)},
+                {"error": "Login failed. Please try again."},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -96,7 +97,7 @@ class LogoutView(generics.GenericAPIView):
     def post(self, request):
         try:
             knox_token = request.COOKIES.get('knox_token')
-            if knox_token:
+            if (knox_token):
                 AuthToken.objects.filter(user=request.user).delete()
 
             response = Response({"detail": "Successfully logged out"})
@@ -106,7 +107,7 @@ class LogoutView(generics.GenericAPIView):
         except Exception as e:
             logger.error(f"Logout error: {str(e)}")
             return Response(
-                {"error": str(e)}, 
+                {"error": "Failed to logout. Please try again."}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
@@ -132,7 +133,10 @@ def send_magic_link(request):
         return Response({'message': 'Verification email sent'})
     except Exception as e:
         logger.error(f"Error sending verification email: {str(e)}")
-        return Response({'error': str(e)}, status=500)
+        return Response(
+            {'error': "Failed to send verification email. Please try again."}, 
+            status=500
+        )
 
 @api_view(['GET'])
 def verify_token(request, token):

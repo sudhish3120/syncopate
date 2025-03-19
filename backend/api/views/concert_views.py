@@ -44,7 +44,7 @@ def get_concert_in_db(request):
     except Exception as e:
         logger.error(f"Database query error: {str(e)}")
         return Response({
-            "error": "Unable to fetch concerts. Please try again."
+            "error": "Unable to fetch concerts. Please try again later."
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(["GET"])
@@ -79,7 +79,9 @@ def concerts(request):
         return JsonResponse(events, safe=False)
     except Exception as e:
         logger.error(f"Concert fetch error: {str(e)}")
-        return JsonResponse({"error": "Failed to fetch concerts"}, status=500)
+        return JsonResponse({
+            "error": "Unable to fetch concerts. Please try again later."
+        }, status=500)
 
 
 class FavoriteConcertView(generics.CreateAPIView):
@@ -95,7 +97,7 @@ class FavoriteConcertView(generics.CreateAPIView):
         except Exception as e:
             logger.error(f"Concert creation error: {str(e)}")
             return Response({
-                "error": "Unable to process concert. Please try again."
+                "error": "Unable to process request. Please try again."
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             
         try:
