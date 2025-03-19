@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Avatar } from "@mui/material";
 
 const avatars = [
@@ -51,7 +51,7 @@ const UpdateModal = () => {
   }, [router]);
 
   // not real yet
-  const handleSubmit = async (e: React.FormEvent) => {};
+  const handleSubmit = async () => {};
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUser({ ...user, [e.target.name]: e.target.value } as UserData);
@@ -63,6 +63,7 @@ const UpdateModal = () => {
 
   return (
     isAuthenticated &&
+    !isLoading &&
     user && (
       <form onSubmit={handleSubmit} className="bg-space_black p-4 rounded">
         <div className="flex flex-row items-center">

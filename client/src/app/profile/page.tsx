@@ -1,16 +1,7 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { redirect, useRouter } from "next/navigation";
+import React from "react";
 import Nav from "../components/Nav";
 import UpdateModal from "../components/UpdateModal";
-import { profile } from "console";
-
-const avatars = [
-  "/avatars/1.jpg",
-  "/avatars/2.jpg",
-  "/avatars/3.jpg",
-  "/avatars/4.jpg",
-];
 
 export default function Profile() {
 

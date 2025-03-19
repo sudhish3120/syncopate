@@ -1,12 +1,11 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { redirect, useRouter } from "next/navigation";
 import ConcertList from "../components/ConcertList";
 import Nav from "../components/Nav";
 import { FaMagnifyingGlass } from "react-icons/fa6";
-import { FormControl, InputLabel, MenuItem, Select } from "../../../node_modules/@mui/material/index";
+import { FormControl, MenuItem, Select, SelectChangeEvent } from "../../../node_modules/@mui/material/index";
 import ConcertCard from "../components/ConcertCard";
-import {UserData, Artist, Venue, ConcertDate, ConcertImage, Concert } from "../types/concerts"
+import {Concert } from "../types/concerts"
 
 const LOCATIONS: {[key: string]: string} = {
     "KW": "Kitchener-Waterloo",
@@ -15,8 +14,6 @@ const LOCATIONS: {[key: string]: string} = {
 }
 
 export default function Dashboard() {
-  const router = useRouter();
-  const [userData, setUserData] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [concerts, setConcerts] = useState<Array<Concert> | null>(null);
@@ -38,9 +35,6 @@ export default function Dashboard() {
         if (!res.ok) {
           throw new Error("Failed to fetch user data");
         }
-
-        const { user, status } = await res.json();
-        setUserData({ user, status });
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
         console.error(err);
@@ -127,25 +121,27 @@ export default function Dashboard() {
     return newHeader
   }
 
-  const handleLocationChange = (e: any) => {
-    if (searchQuery != "") {
-      concertSearch({"location": e.target.value, "query": searchQuery})
-      setSearching(true)
+  const handleLocationChange = (e: SelectChangeEvent<string>) => {
+    const newLocation = e.target.value as string;
+    if (searchQuery !== "") {
+      concertSearch({ "location": newLocation, "query": searchQuery });
+      setSearching(true);
     } else {
-      setSearching(false)
+      setSearching(false);
     }
-    setLocation(e.target.value)
+    setLocation(newLocation);
   }
 
-  const handleSearchQuery = (e: any) => {
-    if (e.key == "Enter" && e.target.value.trim() !== "") {
-      concertSearch({"location": location, "query": e.target.value})
-      setSearching(true)
-    } else if (e.key == "Enter") {
-      setSearching(false)
-      clearSearch()
+  const handleSearchQuery = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const target = e.target as HTMLInputElement;
+    if (e.key === "Enter" && target.value.trim() !== "") {
+      concertSearch({ "location": location, "query": target.value });
+      setSearching(true);
+    } else if (e.key === "Enter") {
+      setSearching(false);
+      clearSearch();
     }
-    setSearchQuery(e.target.value)
+    setSearchQuery(target.value);
   }
 
   const clearSearch = () => {
@@ -207,7 +203,6 @@ export default function Dashboard() {
                         date={new Date(
                         concert.dates.start.localDate
                         ).toLocaleDateString()}
-                        url={concert.url}
                         imageUrl={concert.images.reduce((largest, image) => {
                         return image.width * image.height > largest.width * largest.height ? image : largest;
                         }, concert.images[0]).url}

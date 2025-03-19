@@ -1,4 +1,5 @@
 'use client';
+import React from "react";
 import { Formik, Form, Field, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -25,7 +26,6 @@ const RegisterSchema = Yup.object().shape({
 export default function Register() {
   const searchParams = useSearchParams();
   const verified = searchParams.get('verified');
-  const email = searchParams.get('email');
   const router = useRouter();
 
   const handleSubmit = async (

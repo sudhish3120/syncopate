@@ -14,7 +14,6 @@ interface ConcertCardProps {
   id: number;
   title: string;
   date: string;
-  url: string;
   imageUrl?: string;
 }
 
@@ -22,7 +21,6 @@ const ConcertCard: React.FC<ConcertCardProps> = ({
   id,
   title,
   date,
-  url,
   imageUrl,
 }) => {
   const [open, setOpen] = useState(false);

@@ -54,7 +54,6 @@ const ConcertList: React.FC<ConcertListProps> = ({ concerts, title }) => {
                   date={new Date(
                   concert.dates.start.localDate
                   ).toLocaleDateString()}
-                  url={concert.url}
                   imageUrl={concert.images.reduce((largest, image) => {
                   return image.width * image.height > largest.width * largest.height ? image : largest;
                   }, concert.images[0]).url}
