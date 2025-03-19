@@ -54,13 +54,6 @@ export default function Favorites() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [favorites, setFavorites] = useState<Array<Concert> | null>(null);
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      redirect("/login");
-      return;
-    }
-  }, []);
 
   useEffect(() => {
     const getFavorites = async () => {

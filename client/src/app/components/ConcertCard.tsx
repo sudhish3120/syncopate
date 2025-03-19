@@ -47,15 +47,6 @@ const ConcertCard: React.FC<ConcertCardProps> = ({
     return () => window.removeEventListener("resize", checkOverflow);
   }, [title]);
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      redirect("/login");
-      return;
-    }
-    setToken(token);
-  }, []);
-
   const toggleFavorite = async (id: number) => {
     setIsFavorite(!isFavorite);
     try {
