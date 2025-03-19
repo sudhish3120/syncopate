@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { redirect, useRouter } from "next/navigation";
 import ConcertList from "../components/ConcertList";
 import Nav from "../components/Nav";

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ConcertCard from "../components/ConcertCard";
 import { Concert } from "../types/concerts";
 interface ConcertListProps {
