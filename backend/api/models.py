@@ -7,6 +7,12 @@ from django.db.models.fields.related import ManyToManyField
 from django.db.models.fields.related import ForeignKey
 from django.forms.fields import CharField
 
+MATCHING_DECISIONS = [
+    ("YES", "YES"),
+    ("NO", "NO"),
+    ("UNKNOWN", "UNKNOWN")
+]
+
 class EmailVerificationToken(models.Model):
     email = models.EmailField()
     token = models.CharField(max_length=64, unique=True)
@@ -22,21 +28,6 @@ class EmailVerificationToken(models.Model):
     def generate_token(cls, email):
         token = secrets.token_urlsafe(32)
         return cls.objects.create(email=email, token=token)
-
-# Create your models here.
-
-# class Venue(models.Model):
-#     name = models.CharField(max_length=200)
-#     address = models.CharField(max_length=200)
-
-#     def __str__(self):
-#         return self.name
-
-# class Artist(models.Model):
-#     name = models.CharField(max_length=200)
-
-#     def __str__(self):
-#         return self.name
 
 class Concert(models.Model):
     concert_id = models.CharField(max_length=200, null=True, blank=True)
@@ -61,3 +52,10 @@ class TemporaryRegistration(models.Model):
     def is_expired(self):
         expiry_time = self.created_at + timedelta(minutes=15)
         return timezone.now() > expiry_time
+
+class Matching(models.Model):
+    user = models.ForeignKey(User, related_name="user", on_delete=models.CASCADE)
+    target = models.ForeignKey(User, related_name="target", on_delete=models.CASCADE)
+    decision = models.CharField(max_length=7, choices=MATCHING_DECISIONS)
+    class Meta:
+        unique_together = ('user', 'target')

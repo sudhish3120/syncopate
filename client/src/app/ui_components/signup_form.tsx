@@ -1,6 +1,6 @@
 "use client";
 import { signup } from "@/app/server_actions/auth_validation";
-import { useActionState } from "react";
+import React, { useActionState } from "react";
 
 export function SignupForm() {
     const [state, action, pending] = useActionState(signup, undefined);
