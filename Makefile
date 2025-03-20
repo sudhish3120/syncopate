@@ -39,17 +39,17 @@ rebuild: down up
 PYTHON_VENV = .venv
 PYTHON = $(PYTHON_VENV)/bin/python
 PIP = $(PYTHON_VENV)/bin/pip
-ESLINT = npx eslint
 
 # Create a virtual environment
 setup-python:
 	python3 -m venv $(PYTHON_VENV)
 	$(PIP) install --upgrade pip
 	$(PIP) install pylint
+	$(PIP) install django
 
 # Run Pylint
 lint-python:
-	$(PYTHON) -v pylint **/*.py
+	$(PYTHON) -m pylint $(shell find backend -name "*.py")
 
 # Clean up the virtual environment
 clean:
