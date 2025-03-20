@@ -1,7 +1,6 @@
 from django.urls import path
 from ..views.concert_views import (
     concerts,
-    get_concert_in_db,
     user_favourite_concerts,
     favorite,
     matchings,
