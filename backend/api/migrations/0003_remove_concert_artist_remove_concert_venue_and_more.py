@@ -6,39 +6,39 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0002_emailverificationtoken'),
+        ("api", "0002_emailverificationtoken"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='concert',
-            name='artist',
+            model_name="concert",
+            name="artist",
         ),
         migrations.RemoveField(
-            model_name='concert',
-            name='venue',
+            model_name="concert",
+            name="venue",
         ),
         migrations.RemoveField(
-            model_name='concert',
-            name='date',
+            model_name="concert",
+            name="date",
         ),
         migrations.RemoveField(
-            model_name='concert',
-            name='name',
+            model_name="concert",
+            name="name",
         ),
         migrations.RemoveField(
-            model_name='concert',
-            name='ticket_url',
+            model_name="concert",
+            name="ticket_url",
         ),
         migrations.AddField(
-            model_name='concert',
-            name='concert_id',
+            model_name="concert",
+            name="concert_id",
             field=models.CharField(blank=True, max_length=200, null=True),
         ),
         migrations.DeleteModel(
-            name='Artist',
+            name="Artist",
         ),
         migrations.DeleteModel(
-            name='Venue',
+            name="Venue",
         ),
     ]

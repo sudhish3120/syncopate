@@ -1,6 +1,10 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.decorators import (
+    api_view,
+    authentication_classes,
+    permission_classes,
+)
 from django.http import JsonResponse
 from rest_framework import generics, permissions, status
 from knox.views import LoginView as KnoxLoginView
@@ -15,18 +19,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
 
 
-
-
 @api_view(["GET"])
 def spotify_login(request):
     try:
-        request_params = {
-
-        }
+        request_params = {}
 
         response = requests.get(
-            f'{os.environ["TICKETMASTER_URL_BASE"]}/events',
-            params=request_params
+            f'{os.environ["TICKETMASTER_URL_BASE"]}/events', params=request_params
         )
 
         events = response.json()["_embedded"]["events"]
@@ -38,13 +37,15 @@ def spotify_login(request):
             ticket_url = event["url"]
 
             artist, _ = Artist.objects.get_or_create(name=artist_name)
-            venue, _ = Venue.objects.get_or_create(name=venue_name, address=venue_address)
+            venue, _ = Venue.objects.get_or_create(
+                name=venue_name, address=venue_address
+            )
             Concert.objects.get_or_create(
                 name=event["name"],
                 artist=artist,
                 venue=venue,
                 date=concert_date,
-                ticket_url=ticket_url
+                ticket_url=ticket_url,
             )
         return JsonResponse(events, safe=False)
     except Exception as e:

@@ -8,7 +8,8 @@ from rest_framework.decorators import api_view
 
 logger = logging.getLogger(__name__)
 
+
 @api_view(["GET"])
 def home(_request):
-    '''Check that backend is running.'''
+    """Check that backend is running."""
     return Response({"message": "Django Backend is Running!"})

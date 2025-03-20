@@ -1,12 +1,12 @@
 from django.urls import path
 from ..views.auth_views import (
-    LoginView, 
-    LogoutView, 
+    LoginView,
+    LogoutView,
     RegisterInitView,
     send_magic_link,
     verify_token,
     totp_setup,
-    totp_verify
+    totp_verify,
 )
 from ..views.user_views import get_user
 from knox import views as knox_views
