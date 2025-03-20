@@ -1,8 +1,8 @@
 "use client";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { redirect } from "next/navigation";
 import Nav from "../components/Nav";
-import { Avatar, Box, Button, Card, CardActions, CardContent, CardMedia, Grid, LinearProgress, Stack, Typography } from "../../../node_modules/@mui/material/index";
+import { Card, CardContent } from "../../../node_modules/@mui/material/index";
 
 interface Match {
     username: string

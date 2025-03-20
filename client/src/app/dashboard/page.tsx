@@ -1,12 +1,12 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { redirect, useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import ConcertList from "../components/ConcertList";
 import Nav from "../components/Nav";
 import { FaMagnifyingGlass } from "react-icons/fa6";
-import { FormControl, InputLabel, MenuItem, Select } from "../../../node_modules/@mui/material/index";
+import { FormControl, MenuItem, Select } from "../../../node_modules/@mui/material/index";
 import ConcertCard from "../components/ConcertCard";
-import {UserData, Artist, Venue, ConcertDate, ConcertImage, Concert } from "../types/concerts"
+import {Concert } from "../types/concerts"
 
 const LOCATIONS: {[key: string]: string} = {
     "KW": "Kitchener-Waterloo",
@@ -15,8 +15,8 @@ const LOCATIONS: {[key: string]: string} = {
 }
 
 export default function Dashboard() {
-  const router = useRouter();
-  const [userData, setUserData] = useState<UserData | null>(null);
+  // const router = useRouter();
+  // const [userData, setUserData] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [concerts, setConcerts] = useState<Array<Concert> | null>(null);
@@ -40,7 +40,7 @@ export default function Dashboard() {
         }
 
         const { user, status } = await res.json();
-        setUserData({ user, status });
+        // setUserData({ user, status });
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
         console.error(err);
@@ -128,7 +128,7 @@ export default function Dashboard() {
     return newHeader
   }
 
-  const handleLocationChange = (e: any) => {
+  const handleLocationChange = (e) => {
     if (searchQuery != "") {
       concertSearch({"location": e.target.value, "query": searchQuery})
       setSearching(true)
@@ -138,7 +138,7 @@ export default function Dashboard() {
     setLocation(e.target.value)
   }
 
-  const handleSearchQuery = (e: any) => {
+  const handleSearchQuery = (e) => {
     if (e.key == "Enter" && e.target.value.trim() !== "") {
       concertSearch({"location": location, "query": e.target.value})
       setSearching(true)

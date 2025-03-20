@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Avatar } from "@mui/material";
 
 const avatars = [
@@ -22,7 +22,7 @@ export interface UserData {
 const UpdateModal = () => {
   const [user, setUser] = useState<UserData | null>(null);
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
+  // const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
@@ -51,7 +51,7 @@ const UpdateModal = () => {
   }, [router]);
 
   // not real yet
-  const handleSubmit = async (e: React.FormEvent) => {};
+  const handleSubmit = async () => {};
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUser({ ...user, [e.target.name]: e.target.value } as UserData);

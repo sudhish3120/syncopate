@@ -7,7 +7,6 @@ import {
   Modal,
   Box,
 } from "@mui/material";
-import { redirect } from "next/navigation";
 import { FaStar } from "react-icons/fa6";
 
 interface ConcertCardProps {
@@ -22,12 +21,10 @@ const ConcertCard: React.FC<ConcertCardProps> = ({
   id,
   title,
   date,
-  url,
   imageUrl,
 }) => {
   const [open, setOpen] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [token, setToken] = useState<string | null>(null);
   const [isOverflowing, setIsOverflowing] = useState(false);
 
   const titleRef = useRef<HTMLSpanElement>(null);

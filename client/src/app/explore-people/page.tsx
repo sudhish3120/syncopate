@@ -1,8 +1,8 @@
 "use client";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { redirect } from "next/navigation";
 import Nav from "../components/Nav";
-import { Avatar, Box, Button, Card, CardActions, CardContent, CardMedia, Grid, LinearProgress, Stack, Typography } from "../../../node_modules/@mui/material/index";
+import { Avatar, Box, Button, Card, CardActions, CardContent, CardMedia, LinearProgress, Typography } from "../../../node_modules/@mui/material/index";
 
 enum MatchingStatus {
     YES = "YES",
@@ -120,7 +120,7 @@ export default function ExplorePeople() {
                     {
                         noMatchings ? (
                             <Typography gutterBottom variant="h5" component="div" sx={{ color: "black" }}>
-                                You've reached your matching limit. Please come back later!
+                                You&apos;ve reached your matching limit. Please come back later!
                             </Typography>
                         ) : (
                             <Card sx={{ display: 'flex' }}>

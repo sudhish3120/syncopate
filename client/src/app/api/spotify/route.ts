@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
 export function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;

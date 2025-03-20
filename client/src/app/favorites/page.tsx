@@ -1,19 +1,16 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { redirect, useRouter } from "next/navigation";
 import ConcertCard from "../components/ConcertCard";
 import Nav from "../components/Nav";
-import getConfig from "next/config";
-import ConcertList from "../components/ConcertList";
 import { FaMagnifyingGlass } from "react-icons/fa6";
 
-interface UserData {
-  user: {
-    id: number;
-    username: string;
-  };
-  status: string;
-}
+// interface UserData {
+//   user: {
+//     id: number;
+//     username: string;
+//   };
+//   status: string;
+// }
 
 interface Artist {
   id: number;
