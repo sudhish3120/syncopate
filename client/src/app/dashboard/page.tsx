@@ -6,6 +6,7 @@ import { FaMagnifyingGlass } from "react-icons/fa6";
 import { FormControl, MenuItem, Select } from "../../../node_modules/@mui/material/index";
 import ConcertCard from "../components/ConcertCard";
 import {Concert } from "../types/concerts"
+import SessionExpired from "../components/SessionExpired";
 
 const LOCATIONS: {[key: string]: string} = {
     "KW": "Kitchener-Waterloo",
@@ -26,11 +27,16 @@ export default function Dashboard() {
     const fetchUserData = async () => {
       try {
         const res = await fetch("http://localhost:8000/api/auth/user/", {
-          credentials: 'include',  // Changed: Use cookies
+          credentials: 'include', 
           headers: {
             "Content-Type": "application/json",
           },
         });
+
+        if (res.status === 401) {
+          setError('session-expired');
+          return;
+        }
 
         if (!res.ok) {
           throw new Error("Failed to fetch user data");
@@ -52,16 +58,31 @@ export default function Dashboard() {
       const res = await fetch("http://localhost:8000/api/concerts/?location=TO", {
         method: "GET",
         credentials: 'include',
+        headers: {
+          "Content-Type": "application/json"
+        },
       });
-      if (!res.ok) {
-        throw new Error("Failed to fetch concerts");
+
+      if (res.status === 401) {
+        setError('session-expired');
+        return;
       }
+
+      if (res.status === 503) {
+        setError('Service temporarily unavailable');
+        return;
+      }
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to fetch concerts');
+      }
+
       const concerts = await res.json();
-      // console.log(concerts);
       setConcerts(concerts);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-      console.error(err);
+      console.error("Concert fetch error:", err);
+      setError(err instanceof Error ? err.message : "Failed to fetch concerts");
     } finally {
       setIsLoading(false);
     }
@@ -79,31 +100,43 @@ export default function Dashboard() {
     );
   }
 
+  if (error === 'session-expired') {
+    return <SessionExpired />;
+  }
+
   if (error) {
     return <div className="p-4 text-red-500">Error: {error}</div>;
   }
 
   const concertSearch = async (query: Record<string, string>) => {
       try {
-          console.log("Searching with", query)
-          const queryString = new URLSearchParams(query).toString()
+          const queryString = new URLSearchParams(query).toString();
           const res = await fetch(
               "http://localhost:8000/api/concerts/?" + queryString,
               {
                   method: "GET",
+                  credentials: 'include',
+                  headers: {
+                      "Content-Type": "application/json"
+                  },
               },
           );
-          if (!res.ok) {
-              throw new Error("Failed to fetch concerts");
+
+          if (res.status === 401) {
+              setError('session-expired');
+              return;
           }
+
+          if (!res.ok) {
+              const errorData = await res.json();
+              throw new Error(errorData.error || "Failed to fetch concerts");
+          }
+
           const concerts = await res.json();
           setConcerts(concerts);
-          console.log("concerts:", concerts)
       } catch (err) {
-          setError(
-              err instanceof Error ? err.message : "An error occurred",
-          );
-          console.error(err);
+          console.error("Concert fetch error:", err);
+          setError(err instanceof Error ? err.message : "Failed to fetch concerts");
       } finally {
           setIsLoading(false);
       }
@@ -123,26 +156,30 @@ export default function Dashboard() {
     return newHeader
   }
 
-  const handleLocationChange = (e) => {
-    if (searchQuery != "") {
-      concertSearch({"location": e.target.value, "query": searchQuery})
+  const handleLocationChange = (e: { target: { value: string } }) => {
+    const newLocation = e.target.value;
+    if (searchQuery !== "") {
+      concertSearch({"location": newLocation, "query": searchQuery})
       setSearching(true)
     } else {
       setSearching(false);
     }
     setLocation(newLocation);
-  }
+  };
 
-  const handleSearchQuery = (e) => {
-    if (e.key == "Enter" && e.target.value.trim() !== "") {
-      concertSearch({"location": location, "query": e.target.value})
-      setSearching(true)
-    } else if (e.key == "Enter") {
-      setSearching(false)
-      clearSearch()
+  const handleSearchQuery = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      const value = (e.target as HTMLInputElement).value.trim();
+      if (value !== "") {
+        concertSearch({"location": location, "query": value})
+        setSearching(true)
+      } else {
+        setSearching(false)
+        clearSearch()
+      }
+      setSearchQuery(value);
     }
-    setSearchQuery(target.value);
-  }
+  };
 
   const clearSearch = () => {
     setLocation("ALL")

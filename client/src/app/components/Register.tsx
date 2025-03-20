@@ -1,10 +1,9 @@
 'use client';
-import React from "react";
 import { Formik, Form, Field, FormikHelpers } from "formik";
 import * as Yup from "yup";
-import React, { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from "next/link";
-
+import React from "react";
 interface RegisterValues {
   username: string;
   password: string;

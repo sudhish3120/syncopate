@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os  # Add this at the top if not already present
 import sys
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -180,8 +181,9 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
-            'format': '{levelname} {asctime} {module} {message}',
+            'format': '[{levelname}] {asctime} {name} {message}',
             'style': '{',
+            'datefmt': '%Y-%m-%d %H:%M:%S'
         },
     },
     'handlers': {
@@ -190,23 +192,30 @@ LOGGING = {
             'formatter': 'verbose',
         },
     },
-    'root': {
-        'handlers': ['console'],
-        'level': 'INFO',
-    },
     'loggers': {
-        'django': {
+        '': {  # Root logger
             'handlers': ['console'],
             'level': 'INFO',
-            'propagate': True,
         },
-        'api': {  
+        'django': {  # Django framework logger
             'handlers': ['console'],
             'level': 'INFO',
-            'propagate': True,
+            'propagate': False,
         },
-    },
+        'api': {  # Your app logger
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        }
+    }
 }
 
 # Add OTP settings
 OTP_TOTP_ISSUER = 'Syncopate'
+
+# Knox settings
+REST_KNOX = {
+    'TOKEN_TTL': timedelta(minutes=15),
+    'AUTO_REFRESH': True,
+    'TOKEN_LIMIT_PER_USER': 1,
+}
