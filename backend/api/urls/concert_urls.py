@@ -11,8 +11,6 @@ from ..views.concert_views import (
 
 urlpatterns = [
     path("favorites/", user_favourite_concerts, name="favorites"),
-    # db_concerts not really used anymore, gonna leave it for now.
-    path("db_concerts/", get_concert_in_db, name="db_concerts"),
     path("favorite/", favorite, name="favorite"),
     path("", concerts, name="concerts"),
     path("matchings/", matchings, name="matchings"),
