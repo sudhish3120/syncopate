@@ -258,7 +258,7 @@ def totp_verify(request):
             user = User.objects.create_user(
                 username=temp_reg.username,
                 email=temp_reg.email,
-                password=temp_reg.password  # Use raw password
+                password=temp_reg.password
             )
             
             # Create TOTP device

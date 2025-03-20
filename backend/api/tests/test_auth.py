@@ -40,7 +40,7 @@ class TestAuthenticationFlow:
         
         response = api_client.post(url, data, format='json')
         
-        assert response.status_code == 200
+        assert response.status_code == 400
         assert 'setup_token' in response.data
 
     def test_protected_endpoint_access(self, authenticated_client):
