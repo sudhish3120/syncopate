@@ -7,9 +7,6 @@ from datetime import timedelta
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
-from django.db.models.fields.related import ManyToManyField
-from django.db.models.fields.related import ForeignKey
-from django.forms.fields import CharField
 
 MATCHING_DECISIONS = [("YES", "YES"), ("NO", "NO"), ("UNKNOWN", "UNKNOWN")]
 
@@ -75,9 +72,11 @@ class TemporaryRegistration(models.Model):
 
 
 class Matching(models.Model):
+    """Model to store matching decisions"""
     user = models.ForeignKey(User, related_name="user", on_delete=models.CASCADE)
     target = models.ForeignKey(User, related_name="target", on_delete=models.CASCADE)
     decision = models.CharField(max_length=7, choices=MATCHING_DECISIONS)
 
     class Meta:
+        """Meta class for Matching"""
         unique_together = ("user", "target")
