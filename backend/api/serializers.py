@@ -24,15 +24,6 @@ class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField(style={'input_type': 'password'}, trim_whitespace=False)
 
-# class ArtistSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Artist
-#         fields = ['id', 'name']
-
-# class VenueSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Venue
-#         fields = ['id', 'name', 'address']
 
 class ConcertSerializer(serializers.ModelSerializer):
     # artist = ArtistSerializer()
@@ -46,4 +37,4 @@ class ConcertSerializer(serializers.ModelSerializer):
 class FavoriteConcertSerializer(serializers.ModelSerializer):
     class Meta:
         model = FavoriteConcert
-        fields = ['id', 'user', 'concert', 'date_favorited']
+        fields = ['name', 'id', 'images', 'dates',]

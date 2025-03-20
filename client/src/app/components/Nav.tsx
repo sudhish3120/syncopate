@@ -8,13 +8,13 @@ import Typography from "@mui/material/Typography";
 import Menu from "@mui/material/Menu";
 import Container from "@mui/material/Container";
 import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import { redirect } from "next/navigation";
 import { useRouter } from "next/navigation";
+import { pages_url } from "../constants";
 
-const pages = ["Catalog", "Matches", "Explore People", "Favorites"];
+
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
 function NavBar() {
@@ -41,18 +41,14 @@ function NavBar() {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
-  const handleFavoritesClick = () => {
-    redirect("/favorites");
-  };
 
   const handleLogout = async () => {
     try {
       setIsLoggingOut(true);
       const res = await fetch("http://localhost:8000/api/auth/logout/", {
         method: "POST",
-        credentials: "include",
+        credentials: 'include',
         headers: {
-          Accept: "application/json",
           "Content-Type": "application/json",
         },
       });
@@ -135,16 +131,19 @@ function NavBar() {
               onClose={handleCloseNavMenu}
               sx={{ display: { xs: "block", md: "none" } }}
             >
-              {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography
-                    sx={{
-                      textAlign: "center",
-                      color: "black",
-                    }}
-                  >
-                    {page}
-                  </Typography>
+              {Object.keys(pages_url).map((page) => (
+                <MenuItem
+                    key={page}
+                    onClick={handleCloseNavMenu}
+                >
+                    <Typography
+                        sx={{
+                            textAlign: "center",
+                            color: "white",
+                        }}
+                    >
+                        {page}
+                    </Typography>
                 </MenuItem>
               ))}
             </Menu>
@@ -174,20 +173,20 @@ function NavBar() {
               justifyContent: "flex-end",
             }}
           >
-            {pages.map((page) => (
-              <Button
-                key={page}
-                onClick={
-                  page === "Favorites"
-                    ? () => redirect("/favorites")
-                    : page === "Catalog"
-                    ? () => redirect("/dashboard")
-                    : handleCloseNavMenu
-                }
-                sx={{ my: 2, color: "white", display: "block" }}
-              >
-                {page}
-              </Button>
+            {Object.keys(pages_url).map((page) => (
+                <MenuItem
+                    key={page}
+                    onClick={() => redirect(pages_url[page])}
+                >
+                    <Typography
+                        sx={{
+                            textAlign: "center",
+                            color: "white",
+                        }}
+                    >
+                        {page}
+                    </Typography>
+                </MenuItem>
             ))}
           </Box>
           <Box sx={{ flexGrow: 0 }}>

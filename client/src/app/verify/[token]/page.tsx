@@ -1,7 +1,6 @@
 'use client';
-import { useEffect } from 'react';
+import React, { useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
-import { use } from 'react';
 
 export default function VerifyToken({ params }: { params: Promise<{ token: string }> }) {
   const router = useRouter();
