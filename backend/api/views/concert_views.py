@@ -181,7 +181,7 @@ def review_matching(request):
             return Response({'error': 'Cannot process matching decision'}, status=500)
         
         decision = content.get("decision")
-        if decision in dict(MATCHING_DECISIONS) and decision is not "UNKNOWN":
+        if decision in dict(MATCHING_DECISIONS) and decision != "UNKNOWN":
             matching.decision = decision
             matching.save()
         else:

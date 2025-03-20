@@ -19,6 +19,7 @@ const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
 function NavBar() {
   const router = useRouter();
+  const [isLoggingOut, setIsLoggingOut] = React.useState(false);
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
     null
   );

@@ -22,7 +22,7 @@ export interface UserData {
 const UpdateModal = () => {
   const [user, setUser] = useState<UserData | null>(null);
   const router = useRouter();
-  // const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {

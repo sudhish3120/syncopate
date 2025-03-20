@@ -18,7 +18,7 @@ class TestAuthenticationFlow:
 
     def test_invalid_email_magic_link(self, api_client):
         url = reverse('send_magic_link')
-        data = {'email': 'invalid@gmail.com'}  # Non-uwaterloo email
+        data = {'email': 'invalid@gmail.com'}
         
         response = api_client.post(url, data, format='json')
         
