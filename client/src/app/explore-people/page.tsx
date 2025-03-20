@@ -4,42 +4,23 @@ import { redirect } from "next/navigation";
 import Nav from "../components/Nav";
 import { Avatar, Box, Button, Card, CardActions, CardContent, CardMedia, Grid, LinearProgress, Stack, Typography } from "../../../node_modules/@mui/material/index";
 
-enum PeopleStatus {
-    YES = "yes",
-    NO = "no",
-    UNKNOWN = "unknown"
+enum MatchingStatus {
+    YES = "YES",
+    NO = "NO",
+    UNKNOWN = "UNKNOWN"
 }
 
-interface People {
-    image?: string,
-    name: string,
-    topArtists: string[],
-    topSongs: string[],
-    status: PeopleStatus
+interface Matching {
+    id: string,
+    username: string,
 }
 
-
-const mockPeople: People[] = [
-    {
-        name: "Doe Doe",
-        topArtists: ["Clairo", "Alice Pheobe Lou", "Slow Pulp"],
-        topSongs: ["North", "Glow", "Falling Apart"],
-        status: PeopleStatus.UNKNOWN
-    },
-    {
-        image: "https://c8.alamy.com/comp/2H3GH7T/older-man-giving-thumb-up-with-computer-game-2H3GH7T.jpg",
-        name: "Jane Doe",
-        topArtists: ["Japanese Breakfast", "Shelly", "Men I Trust"],
-        topSongs: ["Kokomo, IN", "Natural", "Husk"],
-        status: PeopleStatus.UNKNOWN
-    },
-]
 
 export default function ExplorePeople() {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
-    const [people, setPeople] = useState<People[]>([]);
+    const [people, setPeople] = useState<MatchingStatus[]>([]);
     const [peopleIndex, setPeopleIndex] = useState<number>(0);
     const [noMatchings, setNoMatchings] = useState<boolean>(true);
 
@@ -51,35 +32,36 @@ export default function ExplorePeople() {
         }
     }, []);
 
-    useEffect(() => {
+    const fetchMatchings = async () => {
         try {
-            const t = localStorage.getItem("token");
-            // const res = await fetch(
-            //     "http://localhost:8000/api/concerts/db_favorites",
-            //     {
-            //         method: "GET",
-            //         headers: {
-            //             Authorization: `Token ${t}`,
-            //             "Content-Type": "application/json",
-            //         },
-            //     },
-            // );
-            // if (!res.ok) {
-            //     throw new Error("Failed to fetch db concerts");
-            // }
-            // const concerts = await res.json();
-            setPeople(mockPeople);
-            if (mockPeople.length > 0) {
+            const res = await fetch(
+                "http://localhost:8000/api/concerts/matchings",
+                {
+                    method: "GET",
+                    credentials: 'include',
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                },
+            );
+            if (!res.ok) {
+                throw new Error("Failed to fetch db matchings");
+            }
+            const data = await res.json();
+            setPeople(data["matchings"] as Matching[]);
+            if (data["matchings"] && data["matchings"].length > 0) {
                 setNoMatchings(false);
             }
         } catch (err) {
-            setError(
-                err instanceof Error ? err.message : "An error occurred",
-            );
-            console.error(err);
+          setError(err instanceof Error ? err.message : "An error occurred");
+          console.error(err);
         } finally {
-            setIsLoading(false);
+          setIsLoading(false);
         }
+    };
+
+    useEffect(() => {
+        fetchMatchings();
     }, [])
 
     if (isLoading) {
@@ -90,18 +72,38 @@ export default function ExplorePeople() {
         return <div className="p-4 text-red-500">Error: {error}</div>;
     }
 
-    const handleDecision = (decision: PeopleStatus) => {
-        if (decision == PeopleStatus.YES) {
-            // send request approving the person
+    const reviewMatching = async (decision: MatchingStatus, matchingId: string) => {
+        try {
+            if (decision != MatchingStatus.YES && decision != MatchingStatus.NO) {
+                console.log("ERROR: unapproved action")
+            } else {
+                console.log("ID: " + matchingId)
+                const res = await fetch(
+                    "http://localhost:8000/api/concerts/review-matching/",
+                    {
+                        method: "POST",
+                        credentials: 'include',
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            "matchingId": matchingId,
+                            "decision": decision
+                        })
+                    },
+                );
+                if (!res.ok) {
+                    throw new Error("Failed to fetch db matchings");
+                }
+            }
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "An error occurred");
+          console.error(err);
+        } finally {
             setPeopleIndex(peopleIndex + 1)
-        } else if (decision == PeopleStatus.NO) {
-            // send request not approving the person
-            setPeopleIndex(peopleIndex + 1)
-        } else {
-            console.log("ERROR: unapproved action")
-        }
-        if (peopleIndex + 1 >= people.length) {
-            setNoMatchings(true);
+            if (peopleIndex + 1 >= people.length) {
+                setNoMatchings(true);
+            }
         }
     }
 
@@ -132,7 +134,7 @@ export default function ExplorePeople() {
                                     ) : (
                                         <CardMedia component="div"> 
                                             <Avatar variant="square" sx={{ height: 500, width: 500, fontSize: 200 }}>
-                                                {people[peopleIndex]["name"][0]}
+                                                {people[peopleIndex]["username"][0]}
                                             </Avatar>
                                         </CardMedia>
                                     )
@@ -140,18 +142,18 @@ export default function ExplorePeople() {
                                 <Box>
                                     <CardContent>
                                         <Typography gutterBottom variant="h5" component="div">
-                                            {people[peopleIndex]["name"]}
+                                            {people[peopleIndex]["username"]}
                                         </Typography>
                                         <Box>
-                                            Top songs: {people[peopleIndex]["topSongs"].join(", ")}
+                                            {/* Top songs: {people[peopleIndex]["topSongs"].join(", ")} */}
                                         </Box>
                                         <Box>
-                                            Top artists: {people[peopleIndex]["topArtists"].join(", ")}
+                                            {/* Top artists: {people[peopleIndex]["topArtists"].join(", ")} */}
                                         </Box>
                                     </CardContent>
                                     <CardActions sx={{ display: 'flex' }}>
-                                        <Button onClick={() => handleDecision(PeopleStatus.NO)}>NO</Button>
-                                        <Button onClick={() => handleDecision(PeopleStatus.NO)}>YES</Button>
+                                        <Button onClick={() => reviewMatching(MatchingStatus.NO, people[peopleIndex]["id"])}>NO</Button>
+                                        <Button onClick={() => reviewMatching(MatchingStatus.YES, people[peopleIndex]["id"])}>YES</Button>
                                     </CardActions>
                                 </Box>
                             </Card>

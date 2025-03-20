@@ -10,9 +10,10 @@ from django.contrib.auth.models import User
 import requests
 import os
 import logging
+import json
 
 from ..authentication import CookieTokenAuthentication
-from ..models import Concert, FavoriteConcert, MATCHING_DECISIONS
+from ..models import Concert, FavoriteConcert, Matching, MATCHING_DECISIONS
 from ..serializers import ConcertSerializer, FavoriteConcertSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
@@ -110,9 +111,6 @@ def favorite(request):
     except Exception as e:
         return Response({"error: ": "Failed to favorite concert"}, status=e)
 
-
-
-
 @api_view(["GET"])
 @authentication_classes([CookieTokenAuthentication])
 @permission_classes([IsAuthenticated])
@@ -143,39 +141,66 @@ def user_favourite_concerts(request):
         print(f"ERROR {e}")
         return Response({"error", "Unable to fetch favourited concerts"})
 
-# @api_view(["GET"])
-# def matchings(request):
-#     favorite_concerts = FavoriteConcert.objects.filter(user=request.user)
-#     concerts = FavoriteConcert.objects.exclude(user=request.user).filter(id=favorite_concerts.values_list('id'))
-#     # matchings = Matchings.object.filter(user=request.user, target=concerts.values_list('user'))
+@api_view(["GET"])
+@authentication_classes([CookieTokenAuthentication])
+@permission_classes([IsAuthenticated])
+def matchings(request):
+    try:
+        matchings = []
 
-#     return Response({'matchings': matchings}, status=status.HTTP_200_OK)
+        current_user = request.user
+        fav_concerts = FavoriteConcert.objects.filter(user_id=current_user.id)
+        concerts = Concert.objects.filter(id__in=fav_concerts.values_list('concert_id'))
 
-# @api_view(["POST"])
-# def review_matching(request):
-#     try:
-#         matching_id = request.GET.get("matching_id")
-#         matching = Matching.object.get(id=matching_id)
-#         if not matching:
-#             return Response({'error': 'Cannot process matching decision'}, status=500)
+        all_other_users = User.objects.exclude(id=request.user.id)
+        for other_user in all_other_users:
+            other_fav_concerts = FavoriteConcert.objects.filter(user_id=other_user.id)
+            other_concerts = Concert.objects.filter(id__in=other_fav_concerts.values_list('concert_id'))
+
+            # has at least 1 common concert
+            if (concerts & other_concerts).exists():
+                preexisting_match = Matching.objects.filter(user=current_user, target=other_user).exclude(decision="UNKNOWN")
+                if not preexisting_match:
+                    matching, created = Matching.objects.get_or_create(user=current_user, target=other_user, decision="UNKNOWN")
+                    matchings.append({ "id": matching.id, "username": matching.target.username })
+
+        return Response({'matchings': matchings}, status=status.HTTP_200_OK)
+    except Exception as e:
+        print(e)
+        return Response({'error': 'Error fetching matchings'}, status=500)
+
+@api_view(["POST"])
+@authentication_classes([CookieTokenAuthentication])
+@permission_classes([IsAuthenticated])
+def review_matching(request):
+    try:
+        content = json.loads(request.body.decode('utf-8'))
+        matching_id = content.get("matchingId")
+        matching = Matching.objects.get(id=matching_id)
+        if not matching:
+            return Response({'error': 'Cannot process matching decision'}, status=500)
         
-#         decision = request.GET.get("decision")
-#         if decision in dict(MATCHING_DECISIONS) and decision is not "UNKNOWN":
-#             matching.decision = decision
-#             matching.save()
-#         else:
-#             return Response({'error': 'Cannot process matching decision'}, status=500)
+        decision = content.get("decision")
+        if decision in dict(MATCHING_DECISIONS) and decision is not "UNKNOWN":
+            matching.decision = decision
+            matching.save()
+        else:
+            return Response({'error': 'Cannot process matching decision'}, status=500)
         
-#         return Response({'Matching processed successfully'}, status=status.HTTP_200_OK)
-#     except Exception as e:
-#         return Response({'error': 'Failed to process matching'}, status=e)
+        return Response({'Matching processed successfully'}, status=status.HTTP_200_OK)
+    except Exception as e:
+        print(e)
+        return Response({'error': 'Failed to process matching'}, status=500)
 
-# @api_view(["GET"])
-# def matches(request):
-#     try:
-#         user_matches = Matching.object.filter(user=request.user, decision="YES")
-#         other_matches = Matching.object.filter(target=request.user, decision="YES")
+@api_view(["GET"])
+@authentication_classes([CookieTokenAuthentication])
+@permission_classes([IsAuthenticated])
+def matches(request):
+    try:
+        user_matches = Matching.objects.filter(user=request.user, decision="YES").values_list("target_id", flat=True)
+        other_matches = Matching.objects.filter(user_id__in=user_matches, target=request.user, decision="YES")
 
-#         return Response({'matches': other_matches}, status=status.HTTP_200_OK)
-#     except Exception as e:
-#         return Response({'error': 'Failed to fetch matching'}, status=e)
+        other_matches_json = list(map(lambda x: {"username": x.user.username}, other_matches))
+        return Response({'matches': other_matches_json}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': 'Failed to fetch matching'}, status=e)

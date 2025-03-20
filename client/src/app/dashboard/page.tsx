@@ -56,12 +56,13 @@ export default function Dashboard() {
     try {
       const res = await fetch("http://localhost:8000/api/concerts/?location=TO", {
         method: "GET",
+        credentials: 'include',
       });
       if (!res.ok) {
         throw new Error("Failed to fetch concerts");
       }
       const concerts = await res.json();
-      console.log(concerts);
+      // console.log(concerts);
       setConcerts(concerts);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
