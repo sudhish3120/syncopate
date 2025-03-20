@@ -9,6 +9,8 @@ django-rest-knox
 django-otp
 qrcode
 Pillow
+pylint
+pylint-django
 pyotp
 pytest
 pytest-django

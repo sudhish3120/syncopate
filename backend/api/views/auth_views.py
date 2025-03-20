@@ -1,4 +1,5 @@
 import logging
+
 logger = logging.getLogger(__name__)
 
 from rest_framework import generics, permissions, status
@@ -28,6 +29,7 @@ import secrets
 from django_otp import devices_for_user
 import pyotp  # Add this import at the top
 
+
 class LoginView(KnoxLoginView):
     permission_classes = [permissions.AllowAny]
     serializer_class = LoginSerializer
@@ -37,58 +39,66 @@ class LoginView(KnoxLoginView):
             serializer = LoginSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             user = authenticate(
-                username=serializer.validated_data['username'],
-                password=serializer.validated_data['password']
+                username=serializer.validated_data["username"],
+                password=serializer.validated_data["password"],
             )
-            
+
             if user:
                 # Check if user has TOTP device
-                totp_device = TOTPDevice.objects.filter(user=user, confirmed=True).first()
-                if (totp_device):
+                totp_device = TOTPDevice.objects.filter(
+                    user=user, confirmed=True
+                ).first()
+                if totp_device:
                     # If TOTP code not provided in request
-                    if not request.data.get('totp_code'):
-                        return Response({
-                            "requires_totp": True,
-                            "message": "Please provide TOTP code"
-                        }, status=status.HTTP_401_UNAUTHORIZED)
-                    
+                    if not request.data.get("totp_code"):
+                        return Response(
+                            {
+                                "requires_totp": True,
+                                "message": "Please provide TOTP code",
+                            },
+                            status=status.HTTP_401_UNAUTHORIZED,
+                        )
+
                     # Use pyotp for verification
                     totp = pyotp.TOTP(totp_device.key)
-                    if not totp.verify(request.data.get('totp_code')):
-                        return Response({
-                            "error": "Invalid TOTP code"
-                        }, status=status.HTTP_401_UNAUTHORIZED)
+                    if not totp.verify(request.data.get("totp_code")):
+                        return Response(
+                            {"error": "Invalid TOTP code"},
+                            status=status.HTTP_401_UNAUTHORIZED,
+                        )
 
                 # If TOTP verified or not required, proceed with login
                 login(request, user)
                 instance, token = AuthToken.objects.create(user)
                 logger.info(f"Login successful for user: {user.username}")
-                
-                response = Response({
-                    "user": UserSerializer(user).data
-                }, status=status.HTTP_200_OK)
-                
+
+                response = Response(
+                    {"user": UserSerializer(user).data}, status=status.HTTP_200_OK
+                )
+
                 response.set_cookie(
-                    'knox_token',
+                    "knox_token",
                     token,
                     max_age=900,
                     httponly=True,
                     secure=True,
-                    samesite='Lax'
+                    samesite="Lax",
                 )
                 return response
-            
-            logger.warning(f"Failed login attempt for username: {serializer.validated_data['username']}")
+
+            logger.warning(
+                f"Failed login attempt for username: {serializer.validated_data['username']}"
+            )
             return Response(
-                {"error": "Invalid credentials"},
-                status=status.HTTP_401_UNAUTHORIZED
+                {"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
             )
         except Exception as e:
             logger.error(f"Login error: {str(e)}")
             return Response(
                 {"error": "Login failed. Please try again."},
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_400_BAD_REQUEST,
             )
+
 
 class LogoutView(generics.GenericAPIView):
     authentication_classes = [CookieTokenAuthentication]
@@ -96,71 +106,71 @@ class LogoutView(generics.GenericAPIView):
 
     def post(self, request):
         try:
-            knox_token = request.COOKIES.get('knox_token')
-            if (knox_token):
+            knox_token = request.COOKIES.get("knox_token")
+            if knox_token:
                 AuthToken.objects.filter(user=request.user).delete()
 
             response = Response({"detail": "Successfully logged out"})
-            response.delete_cookie('knox_token')
+            response.delete_cookie("knox_token")
             return response
-            
+
         except Exception as e:
             logger.error(f"Logout error: {str(e)}")
             return Response(
-                {"error": "Failed to logout. Please try again."}, 
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                {"error": "Failed to logout. Please try again."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 
-@api_view(['POST'])
+
+@api_view(["POST"])
 def send_magic_link(request):
-    email = request.data.get('email')
+    email = request.data.get("email")
     if not email:
-        return Response({'error': 'Email is required'}, status=400)
-    
+        return Response({"error": "Email is required"}, status=400)
+
     # Add email domain validation
-    if not email.endswith('@uwaterloo.ca'):
-        return Response({'error': 'Must be a UWaterloo email address'}, status=400)
+    if not email.endswith("@uwaterloo.ca"):
+        return Response({"error": "Must be a UWaterloo email address"}, status=400)
 
     try:
         # Generate verification token
         verification = EmailVerificationToken.generate_token(email)
         verification_url = f"{settings.FRONTEND_URL}/verify/{verification.token}"
-        
+
         # Send email with magic link
         send_mail(
-            'Verify your Syncopate account',
-            f'Click this link to verify your email: {verification_url}\n\nThis link expires in 24 hours.',
+            "Verify your Syncopate account",
+            f"Click this link to verify your email: {verification_url}\n\nThis link expires in 24 hours.",
             settings.DEFAULT_FROM_EMAIL,
             [email],
             fail_silently=False,
         )
-        return Response({'message': 'Verification email sent'})
+        return Response({"message": "Verification email sent"})
     except Exception as e:
         logger.error(f"Error sending verification email: {str(e)}")
         return Response(
-            {'error': "Failed to send verification email. Please try again."}, 
-            status=500
+            {"error": "Failed to send verification email. Please try again."},
+            status=500,
         )
 
-@api_view(['GET'])
+
+@api_view(["GET"])
 def verify_token(request, token):
     try:
         verification = EmailVerificationToken.objects.get(token=token, is_used=False)
-        
+
         if verification.is_expired:
-            return Response({'error': 'Verification link has expired'}, status=400)
-        
+            return Response({"error": "Verification link has expired"}, status=400)
+
         verification.is_used = True
         verification.save()
-        
+
         # Return JSON instead of redirect
-        return Response({
-            'success': True,
-            'email': verification.email
-        })
-        
+        return Response({"success": True, "email": verification.email})
+
     except EmailVerificationToken.DoesNotExist:
-        return Response({'error': 'Invalid or expired verification link'}, status=400)
+        return Response({"error": "Invalid or expired verification link"}, status=400)
+
 
 class RegisterInitView(generics.CreateAPIView):
     permission_classes = [permissions.AllowAny]
@@ -169,36 +179,35 @@ class RegisterInitView(generics.CreateAPIView):
         try:
             # Validate email verification
             verified = EmailVerificationToken.objects.filter(
-                email=request.data.get('email'),
-                is_used=True
+                email=request.data.get("email"), is_used=True
             ).exists()
-            
+
             if not verified:
-                return Response({
-                    "error": "Email not verified"
-                }, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"error": "Email not verified"}, status=status.HTTP_400_BAD_REQUEST
+                )
 
             # Create temporary registration with raw password
             setup_token = secrets.token_urlsafe(32)
             temp_reg = TemporaryRegistration.objects.create(
                 setup_token=setup_token,
-                username=request.data['username'],
-                email=request.data['email'],
-                password=request.data['password']
+                username=request.data["username"],
+                email=request.data["email"],
+                password=request.data["password"],
             )
-            
-            return Response({
-                "setup_token": setup_token
-            })
+
+            return Response({"setup_token": setup_token})
         except Exception as e:
             logger.error(f"Registration error: {str(e)}")
-            return Response({
-                "error": "Registration failed. Please try again."
-            }, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Registration failed. Please try again."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-@api_view(['GET'])
+
+@api_view(["GET"])
 def totp_setup(request):
-    setup_token = request.headers.get('Authorization', '').split(' ')[1]
+    setup_token = request.headers.get("Authorization", "").split(" ")[1]
     try:
         temp_reg = TemporaryRegistration.objects.get(setup_token=setup_token)
         if temp_reg.is_expired:
@@ -211,10 +220,11 @@ def totp_setup(request):
 
         # Generate QR code with proper URI format
         totp = pyotp.TOTP(secret)
-        issuer_name = getattr(settings, 'OTP_TOTP_ISSUER', 'Syncopate')  # Use fallback if setting not found
+        issuer_name = getattr(
+            settings, "OTP_TOTP_ISSUER", "Syncopate"
+        )  # Use fallback if setting not found
         provisioning_uri = totp.provisioning_uri(
-            name=temp_reg.username,
-            issuer_name=issuer_name
+            name=temp_reg.username, issuer_name=issuer_name
         )
 
         img = qrcode.make(provisioning_uri, image_factory=qrcode.image.svg.SvgImage)
@@ -222,76 +232,81 @@ def totp_setup(request):
         img.save(buffer)
         qr_svg = buffer.getvalue().decode()
 
-        return Response({
-            "qr_url": f"data:image/svg+xml;base64,{base64.b64encode(qr_svg.encode()).decode()}"
-        })
+        return Response(
+            {
+                "qr_url": f"data:image/svg+xml;base64,{base64.b64encode(qr_svg.encode()).decode()}"
+            }
+        )
     except TemporaryRegistration.DoesNotExist:
         return Response({"error": "Invalid setup token"}, status=400)
 
-@api_view(['POST'])
+
+@api_view(["POST"])
 def totp_verify(request):
-    setup_token = request.headers.get('Authorization', '').split(' ')[1]
+    setup_token = request.headers.get("Authorization", "").split(" ")[1]
     try:
         temp_reg = TemporaryRegistration.objects.filter(setup_token=setup_token).first()
         if not temp_reg:
             return Response({"error": "Invalid setup token"}, status=400)
-            
+
         if temp_reg.is_expired:
             return Response({"error": "Setup token expired"}, status=400)
 
-        code = request.data.get('code')
+        code = request.data.get("code")
         if not code:
             return Response({"error": "No code provided"}, status=400)
 
         # Create a TOTP object with the secret
         totp = pyotp.TOTP(temp_reg.totp_secret)
-        
+
         # Verify with ±1 time step windows
         if not totp.verify(code, valid_window=1):
-            return Response({
-                "error": "Invalid code. Please try again.",
-                "remaining_attempts": "unlimited"
-            }, status=400)
+            return Response(
+                {
+                    "error": "Invalid code. Please try again.",
+                    "remaining_attempts": "unlimited",
+                },
+                status=400,
+            )
 
         try:
             # Create user with raw password - create_user will hash it
             user = User.objects.create_user(
                 username=temp_reg.username,
                 email=temp_reg.email,
-                password=temp_reg.password
+                password=temp_reg.password,
             )
-            
+
             # Create TOTP device
             device = TOTPDevice.objects.create(
                 user=user,
-                name='default',
+                name="default",
                 confirmed=True,
                 key=temp_reg.totp_secret,
                 step=30,
                 t0=0,
                 digits=6,
-                tolerance=1
+                tolerance=1,
             )
 
             # Cleanup
             temp_reg.delete()
 
             # Return user data
-            return Response({
-                "user": UserSerializer(user).data,
-                "message": "TOTP setup successful"
-            })
+            return Response(
+                {"user": UserSerializer(user).data, "message": "TOTP setup successful"}
+            )
 
         except Exception as e:
             logger.error(f"Error creating user during TOTP verification: {str(e)}")
-            return Response({
-                "error": "Failed to complete registration. Please try again."
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                {"error": "Failed to complete registration. Please try again."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
     except Exception as e:
         logger.error(f"TOTP verification error: {str(e)}")
-        return Response({
-            "error": "Verification failed. Please try again."
-        }, status=status.HTTP_400_BAD_REQUEST)
-
-
+        return Response(
+            {"error": "Verification failed. Please try again."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )

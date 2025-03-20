@@ -48,12 +48,11 @@ PIP = $(PYTHON_VENV)/bin/pip
 setup-python:
 	python3 -m venv $(PYTHON_VENV)
 	$(PIP) install --upgrade pip
-	$(PIP) install pylint
-	$(PIP) install django
+	$(PIP) install -r backend/requirements.txt
 
 # Run Pylint
 lint-python:
-	$(PYTHON) -m pylint $(shell find backend -name "*.py")
+	$(PYTHON) -m pylint --load-plugins pylint_django $(shell find backend -name "*.py")
 
 # Clean up the virtual environment
 clean:

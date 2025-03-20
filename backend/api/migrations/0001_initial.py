@@ -15,67 +15,104 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Artist',
+            name="Artist",
             fields=[
-                ('id', models.BigAutoField(auto_created=True,
-                                           primary_key=True,
-                                           serialize=False,
-                                           verbose_name='ID')),
-                ('name', models.CharField(max_length=200)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=200)),
             ],
         ),
         migrations.CreateModel(
-            name='Venue',
+            name="Venue",
             fields=[
-                ('id', models.BigAutoField(auto_created=True,
-                                           primary_key=True,
-                                           serialize=False,
-                                           verbose_name='ID')),
-                ('name', models.CharField(max_length=200)),
-                ('address', models.CharField(max_length=200)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=200)),
+                ("address", models.CharField(max_length=200)),
             ],
         ),
         migrations.CreateModel(
-            name='Concert',
+            name="Concert",
             fields=[
-                ('id', models.BigAutoField(auto_created=True,
-                                           primary_key=True,
-                                           serialize=False,
-                                           verbose_name='ID')),
-                ('name', models.CharField(max_length=200)),
-                ('date', models.DateTimeField()),
-                ('ticket_url', models.URLField()),
-                ('artist', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
-                                             to='api.artist')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=200)),
+                ("date", models.DateTimeField()),
+                ("ticket_url", models.URLField()),
+                (
+                    "artist",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="api.artist"
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='FavoriteConcert',
+            name="FavoriteConcert",
             fields=[
-                ('id', models.BigAutoField(auto_created=True,
-                                           primary_key=True,
-                                           serialize=False,
-                                           verbose_name='ID')),
-                ('date_favorited', models.DateTimeField(auto_now_add=True)),
-                ('concert', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
-                                              to='api.concert')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
-                                           to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("date_favorited", models.DateTimeField(auto_now_add=True)),
+                (
+                    "concert",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="api.concert"
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('user', 'concert')},
+                "unique_together": {("user", "concert")},
             },
         ),
         migrations.AddField(
-            model_name='concert',
-            name='users_favorited',
-            field=models.ManyToManyField(related_name='favourite_concerts',
-                                         through='api.FavoriteConcert',
-                                         to=settings.AUTH_USER_MODEL),
+            model_name="concert",
+            name="users_favorited",
+            field=models.ManyToManyField(
+                related_name="favourite_concerts",
+                through="api.FavoriteConcert",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AddField(
-            model_name='concert',
-            name='venue',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='api.venue'),
+            model_name="concert",
+            name="venue",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="api.venue"
+            ),
         ),
     ]

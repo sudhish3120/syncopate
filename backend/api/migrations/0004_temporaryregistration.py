@@ -6,20 +6,28 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0003_remove_concert_artist_remove_concert_venue_and_more'),
+        ("api", "0003_remove_concert_artist_remove_concert_venue_and_more"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='TemporaryRegistration',
+            name="TemporaryRegistration",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('setup_token', models.CharField(max_length=64, unique=True)),
-                ('username', models.CharField(max_length=150)),
-                ('email', models.EmailField(max_length=254)),
-                ('password', models.CharField(max_length=128)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('totp_secret', models.CharField(max_length=32, null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("setup_token", models.CharField(max_length=64, unique=True)),
+                ("username", models.CharField(max_length=150)),
+                ("email", models.EmailField(max_length=254)),
+                ("password", models.CharField(max_length=128)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("totp_secret", models.CharField(max_length=32, null=True)),
             ],
         ),
     ]
