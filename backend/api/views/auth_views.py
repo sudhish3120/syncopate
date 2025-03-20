@@ -116,6 +116,10 @@ def send_magic_link(request):
     email = request.data.get('email')
     if not email:
         return Response({'error': 'Email is required'}, status=400)
+    
+    # Add email domain validation
+    if not email.endswith('@uwaterloo.ca'):
+        return Response({'error': 'Must be a UWaterloo email address'}, status=400)
 
     try:
         # Generate verification token

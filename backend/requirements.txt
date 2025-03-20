@@ -10,3 +10,9 @@ django-otp
 qrcode
 Pillow
 pyotp
+pytest
+pytest-django
+pytest-cov
+pytest-asyncio
+factory-boy
+pytest-dotenv
