@@ -84,8 +84,9 @@ class LoginView(KnoxLoginView):
                 status=status.HTTP_401_UNAUTHORIZED
             )
         except Exception as e:
+            logger.error(f"Login error: {str(e)}")
             return Response(
-                {"error": str(e)},
+                {"error": "Login failed. Please try again."},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -96,7 +97,7 @@ class LogoutView(generics.GenericAPIView):
     def post(self, request):
         try:
             knox_token = request.COOKIES.get('knox_token')
-            if knox_token:
+            if (knox_token):
                 AuthToken.objects.filter(user=request.user).delete()
 
             response = Response({"detail": "Successfully logged out"})
@@ -106,7 +107,7 @@ class LogoutView(generics.GenericAPIView):
         except Exception as e:
             logger.error(f"Logout error: {str(e)}")
             return Response(
-                {"error": str(e)}, 
+                {"error": "Failed to logout. Please try again."}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
@@ -115,6 +116,10 @@ def send_magic_link(request):
     email = request.data.get('email')
     if not email:
         return Response({'error': 'Email is required'}, status=400)
+    
+    # Add email domain validation
+    if not email.endswith('@uwaterloo.ca'):
+        return Response({'error': 'Must be a UWaterloo email address'}, status=400)
 
     try:
         # Generate verification token
@@ -132,7 +137,10 @@ def send_magic_link(request):
         return Response({'message': 'Verification email sent'})
     except Exception as e:
         logger.error(f"Error sending verification email: {str(e)}")
-        return Response({'error': str(e)}, status=500)
+        return Response(
+            {'error': "Failed to send verification email. Please try again."}, 
+            status=500
+        )
 
 @api_view(['GET'])
 def verify_token(request, token):
@@ -176,15 +184,16 @@ class RegisterInitView(generics.CreateAPIView):
                 setup_token=setup_token,
                 username=request.data['username'],
                 email=request.data['email'],
-                password=request.data['password']  # Store raw password
+                password=request.data['password']
             )
             
             return Response({
                 "setup_token": setup_token
             })
         except Exception as e:
+            logger.error(f"Registration error: {str(e)}")
             return Response({
-                "error": str(e)
+                "error": "Registration failed. Please try again."
             }, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
@@ -249,7 +258,7 @@ def totp_verify(request):
             user = User.objects.create_user(
                 username=temp_reg.username,
                 email=temp_reg.email,
-                password=temp_reg.password  # Use raw password
+                password=temp_reg.password
             )
             
             # Create TOTP device
@@ -275,10 +284,14 @@ def totp_verify(request):
 
         except Exception as e:
             logger.error(f"Error creating user during TOTP verification: {str(e)}")
-            return Response({"error": "Failed to create user"}, status=500)
+            return Response({
+                "error": "Failed to complete registration. Please try again."
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     except Exception as e:
         logger.error(f"TOTP verification error: {str(e)}")
-        return Response({"error": "Verification failed"}, status=400)
+        return Response({
+            "error": "Verification failed. Please try again."
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 

@@ -7,7 +7,6 @@ import {
   Modal,
   Box,
 } from "@mui/material";
-import { redirect } from "next/navigation";
 import { FaStar } from "react-icons/fa6";
 
 interface ConcertCardProps {
@@ -25,7 +24,6 @@ const ConcertCard: React.FC<ConcertCardProps> = ({
 }) => {
   const [open, setOpen] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [token, setToken] = useState<string | null>(null);
   const [isOverflowing, setIsOverflowing] = useState(false);
 
   const titleRef = useRef<HTMLSpanElement>(null);
@@ -45,22 +43,13 @@ const ConcertCard: React.FC<ConcertCardProps> = ({
     return () => window.removeEventListener("resize", checkOverflow);
   }, [title]);
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      redirect("/login");
-      return;
-    }
-    setToken(token);
-  }, []);
-
   const toggleFavorite = async (id: number) => {
     setIsFavorite(!isFavorite);
     try {
       const res = await fetch("http://localhost:8000/api/concerts/favorite/", {
         method: "POST",
+        credentials: 'include',
         headers: {
-          Authorization: `Token ${token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ concert: id }),

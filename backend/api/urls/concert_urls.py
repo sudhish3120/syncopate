@@ -1,13 +1,13 @@
 from django.urls import path
-from ..views.concert_views import concerts, get_concert_in_db
-from ..views.concert_views import FavoriteConcertView
-from ..views.concert_views import UserFavoriteConcertsView
+from ..views.concert_views import concerts, get_concert_in_db, user_favourite_concerts, favorite, matchings, review_matching, matches
 
 urlpatterns = [
-    path("db_favorites/", UserFavoriteConcertsView.as_view(), name="db_favorites"),
+    path("favorites/", user_favourite_concerts, name="favorites"),
     #db_concerts not really used anymore, gonna leave it for now. 
     path("db_concerts/", get_concert_in_db, name="db_concerts"),
-    path("favorite/", FavoriteConcertView.as_view(), name="favorite"),
+    path("favorite/", favorite, name="favorite"),
     path("", concerts, name="concerts"),
-    path("<str:keyword>/", concerts, name="concerts-search"),
+    path("matchings/", matchings, name="matchings"),
+    path("review-matching/", review_matching, name="review-matching"),
+    path("matches/", matches, name="matches"),
 ]

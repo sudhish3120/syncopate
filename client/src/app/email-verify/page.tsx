@@ -18,6 +18,7 @@ export default function EmailVerifyPage() {
   const router = useRouter();
 
   const handleSubmit = async (values: { email: string }, { setSubmitting, setStatus }: { setSubmitting: (isSubmitting: boolean) => void, setStatus: (status?: string) => void }) => {
+
     try {
       const res = await fetch('http://localhost:8000/api/auth/register/send_magic_link/', {  // Updated endpoint
         method: 'POST',

@@ -35,6 +35,10 @@ migrations: makemigrations migrate
 # Combined command to rebuild and restart all containers
 rebuild: down up
 
+# Run pytest in backend directory
+test:
+	cd backend && pytest
+
 # Define variables
 PYTHON_VENV = .venv
 PYTHON = $(PYTHON_VENV)/bin/python

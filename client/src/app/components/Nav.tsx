@@ -8,13 +8,13 @@ import Typography from "@mui/material/Typography";
 import Menu from "@mui/material/Menu";
 import Container from "@mui/material/Container";
 import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import { redirect } from "next/navigation";
 import { useRouter } from "next/navigation";
+import { pages_url } from "../constants";
 
-const pages = ["Catalog", "Matches", "Explore People", "Favorites"];
+
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
 function NavBar() {
@@ -42,27 +42,36 @@ function NavBar() {
   };
 
   const handleLogout = async () => {
-    const token = localStorage.getItem("token");
     try {
+      setIsLoggingOut(true);
       const res = await fetch("http://localhost:8000/api/auth/logout/", {
         method: "POST",
         credentials: "include",
         headers: {
-          Authorization: `Token ${token}`,
           "Content-Type": "application/json",
         },
       });
-      
+
       if (res.ok) {
         handleCloseUserMenu();
-        setTimeout(() => {
-          router.replace("/");
-        }, 500); // Add small delay to show loading state
+        router.replace("/");
+      } else {
+        throw new Error("Logout failed");
       }
     } catch (error) {
       console.error("Logout error:", error);
+    } finally {
+      setIsLoggingOut(false);
     }
   };
+
+  if (isLoggingOut) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+      </div>
+    );
+  }
 
   return (
     <AppBar position="fixed" sx={{ backgroundColor: "#1A1A1A" }}>
@@ -121,16 +130,19 @@ function NavBar() {
               onClose={handleCloseNavMenu}
               sx={{ display: { xs: "block", md: "none" } }}
             >
-              {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography
-                    sx={{
-                      textAlign: "center",
-                      color: "black",
-                    }}
-                  >
-                    {page}
-                  </Typography>
+              {Object.keys(pages_url).map((page) => (
+                <MenuItem
+                    key={page}
+                    onClick={handleCloseNavMenu}
+                >
+                    <Typography
+                        sx={{
+                            textAlign: "center",
+                            color: "white",
+                        }}
+                    >
+                        {page}
+                    </Typography>
                 </MenuItem>
               ))}
             </Menu>
@@ -160,20 +172,20 @@ function NavBar() {
               justifyContent: "flex-end",
             }}
           >
-            {pages.map((page) => (
-              <Button
-                key={page}
-                onClick={
-                  page === "Favorites"
-                    ? () => redirect("/favorites")
-                    : page === "Catalog"
-                    ? () => redirect("/dashboard")
-                    : handleCloseNavMenu
-                }
-                sx={{ my: 2, color: "white", display: "block" }}
-              >
-                {page}
-              </Button>
+            {Object.keys(pages_url).map((page) => (
+                <MenuItem
+                    key={page}
+                    onClick={() => redirect(pages_url[page])}
+                >
+                    <Typography
+                        sx={{
+                            textAlign: "center",
+                            color: "white",
+                        }}
+                    >
+                        {page}
+                    </Typography>
+                </MenuItem>
             ))}
           </Box>
           <Box sx={{ flexGrow: 0 }}>

@@ -2,7 +2,7 @@
 import React from "react";
 import { Formik, Form, Field, FormikHelpers } from "formik";
 import * as Yup from "yup";
-import { useRouter, useSearchParams } from 'next/navigation';
+import React, { useRouter, useSearchParams } from 'next/navigation';
 import Link from "next/link";
 
 interface RegisterValues {

@@ -21,8 +21,8 @@ export default function VerifyEmail() {
           </h2>
           <div className="text-center space-y-4">
             <p className="text-gray-600">
-              We&apos;ve sent a verification link to your email address. Please check
-              your inbox and click the link to continue.
+              We&apos;ve sent a verification link to your email address. 
+              Please check your inbox and click the link to continue.
             </p>
             <div className="animate-pulse text-sm text-gray-500 mt-4">
               Waiting for verification...

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import ConcertList from "../components/ConcertList";
 import Nav from "../components/Nav";
 import { FaMagnifyingGlass } from "react-icons/fa6";
-import { FormControl, MenuItem, Select, SelectChangeEvent } from "../../../node_modules/@mui/material/index";
+import { FormControl, MenuItem, Select } from "../../../node_modules/@mui/material/index";
 import ConcertCard from "../components/ConcertCard";
 import {Concert } from "../types/concerts"
 
@@ -35,6 +35,7 @@ export default function Dashboard() {
         if (!res.ok) {
           throw new Error("Failed to fetch user data");
         }
+        const { user, status } = await res.json();
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
         console.error(err);
@@ -50,12 +51,13 @@ export default function Dashboard() {
     try {
       const res = await fetch("http://localhost:8000/api/concerts/?location=TO", {
         method: "GET",
+        credentials: 'include',
       });
       if (!res.ok) {
         throw new Error("Failed to fetch concerts");
       }
       const concerts = await res.json();
-      console.log(concerts);
+      // console.log(concerts);
       setConcerts(concerts);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
@@ -121,25 +123,23 @@ export default function Dashboard() {
     return newHeader
   }
 
-  const handleLocationChange = (e: SelectChangeEvent<string>) => {
-    const newLocation = e.target.value as string;
-    if (searchQuery !== "") {
-      concertSearch({ "location": newLocation, "query": searchQuery });
-      setSearching(true);
+  const handleLocationChange = (e) => {
+    if (searchQuery != "") {
+      concertSearch({"location": e.target.value, "query": searchQuery})
+      setSearching(true)
     } else {
       setSearching(false);
     }
     setLocation(newLocation);
   }
 
-  const handleSearchQuery = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    const target = e.target as HTMLInputElement;
-    if (e.key === "Enter" && target.value.trim() !== "") {
-      concertSearch({ "location": location, "query": target.value });
-      setSearching(true);
-    } else if (e.key === "Enter") {
-      setSearching(false);
-      clearSearch();
+  const handleSearchQuery = (e) => {
+    if (e.key == "Enter" && e.target.value.trim() !== "") {
+      concertSearch({"location": location, "query": e.target.value})
+      setSearching(true)
+    } else if (e.key == "Enter") {
+      setSearching(false)
+      clearSearch()
     }
     setSearchQuery(target.value);
   }
