@@ -1,11 +1,7 @@
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.status import status
 from django.http import JsonResponse
-from rest_framework import generics, permissions, status
-from knox.views import LoginView as KnoxLoginView
-from knox.auth import TokenAuthentication
-from knox.models import AuthToken
 from django.contrib.auth.models import User
 import requests
 import os
@@ -14,7 +10,7 @@ import json
 
 from ..authentication import CookieTokenAuthentication
 from ..models import Concert, FavoriteConcert, Matching, MATCHING_DECISIONS
-from ..serializers import ConcertSerializer, FavoriteConcertSerializer
+from ..serializers import ConcertSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
 
@@ -116,8 +112,12 @@ def favorite(request):
 @permission_classes([IsAuthenticated])
 def user_favourite_concerts(request):
     try:
-        concerts = FavoriteConcert.objects.filter(user_id=request.user.id)
-        tm_concert_ids = Concert.objects.filter(id__in=concerts.values_list('concert_id')).values_list('concert_id', flat=True)
+        concerts = FavoriteConcert.objects.filter(
+            user_id=request.user.id
+        )
+        tm_concert_ids = Concert.objects.filter(
+            id__in=concerts.values_list('concert_id')).values_list('concert_id', flat=True
+        )
 
         fetched_concerts = []
         for concert_id in tm_concert_ids:
@@ -155,7 +155,9 @@ def matchings(request):
         all_other_users = User.objects.exclude(id=request.user.id)
         for other_user in all_other_users:
             other_fav_concerts = FavoriteConcert.objects.filter(user_id=other_user.id)
-            other_concerts = Concert.objects.filter(id__in=other_fav_concerts.values_list('concert_id'))
+            other_concerts = Concert.objects.filter(
+                id__in=other_fav_concerts.values_list('concert_id')
+            )
 
             # has at least 1 common concert
             if (concerts & other_concerts).exists():

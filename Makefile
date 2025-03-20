@@ -52,7 +52,7 @@ setup-python:
 
 # Run Pylint
 lint-python:
-	$(PYTHON) -m pylint $(shell find backend -name "*.py")
+	$(PYTHON) -m pylint --load-plugins pylint_django $(shell find backend -name "*.py")
 
 # Clean up the virtual environment
 clean:
