@@ -3,13 +3,6 @@ import React from "react";
 import Nav from "../components/Nav";
 import UpdateModal from "../components/UpdateModal";
 
-// const avatars = [
-//   "/avatars/1.jpg",
-//   "/avatars/2.jpg",
-//   "/avatars/3.jpg",
-//   "/avatars/4.jpg",
-// ];
-
 export default function Profile() {
 
   return (

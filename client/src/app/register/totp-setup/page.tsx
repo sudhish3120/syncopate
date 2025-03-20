@@ -42,7 +42,8 @@ export default function TOTPSetup() {
     }
   }, [setupToken]);
 
-  const handleVerify = async (values: { code: string }, { setSubmitting, setStatus, resetForm }) => {
+  const handleVerify = async (values: { code: string }, { setSubmitting, setStatus, resetForm }: { setSubmitting: (isSubmitting: boolean) => void, setStatus: (status?: string) => void, resetForm: (nextState?: Partial<{ values: { code: string }, status?: string }>) => void }) => {
+
     try {
       if (!setupToken) {
         throw new Error('No setup token found');
@@ -65,8 +66,7 @@ export default function TOTPSetup() {
         });
         return;
       }
-
-      // const data = await res.json();
+      
       router.push('/');  // Redirect to login after successful TOTP setup
 
     } catch (err) {

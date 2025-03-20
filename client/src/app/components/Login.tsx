@@ -1,13 +1,13 @@
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 import { Formik, Form, Field, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import Link from "next/link";
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 interface LoginValues {
   username: string;
   password: string;
-  totp_code: string;  // Changed from optional to required
+  totp_code: string; // Changed from optional to required
 }
 
 const LoginSchema = Yup.object().shape({
@@ -17,12 +17,15 @@ const LoginSchema = Yup.object().shape({
   password: Yup.string()
     .min(6, "Password must be at least 6 characters")
     .required("Password is required"),
-  totp_code: Yup.string()  // Add validation for totp_code
-    .when('$requiresTotp', {
+  totp_code: Yup.string() // Add validation for totp_code
+    .when("$requiresTotp", {
       is: true,
-      then: (schema) => schema.matches(/^\d{6}$/, 'Must be exactly 6 digits').required('TOTP code required'),
-      otherwise: (schema) => schema
-    })
+      then: (schema) =>
+        schema
+          .matches(/^\d{6}$/, "Must be exactly 6 digits")
+          .required("TOTP code required"),
+      otherwise: (schema) => schema,
+    }),
 });
 
 export default function Login() {
@@ -36,14 +39,14 @@ export default function Login() {
     try {
       const res = await fetch("http://localhost:8000/api/auth/login/", {
         method: "POST",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
         },
-        credentials: 'include',
+        credentials: "include",
         body: JSON.stringify({
           username: values.username,
           password: values.password,
-          ...(values.totp_code && { totp_code: values.totp_code })
+          ...(values.totp_code && { totp_code: values.totp_code }),
         }),
       });
 
@@ -56,14 +59,13 @@ export default function Login() {
       }
 
       if (!res.ok) {
-        throw new Error(data.error || 'Login failed');
+        throw new Error(data.error || "Login failed");
       }
 
-      router.push('/dashboard');
-      
+      router.push("/dashboard");
     } catch (error) {
-      console.error('Login error:', error);
-      setStatus(error instanceof Error ? error.message : 'Login failed');
+      console.error("Login error:", error);
+      setStatus(error instanceof Error ? error.message : "Login failed");
     } finally {
       setSubmitting(false);
     }
@@ -75,7 +77,7 @@ export default function Login() {
       validationSchema={LoginSchema}
       onSubmit={handleSubmit}
       validateOnChange={true}
-      context={{ requiresTotp }}  // Add context for conditional validation
+      context={{ requiresTotp }} // Add context for conditional validation
     >
       {({ errors, touched, isSubmitting, status }) => (
         <Form className="flex flex-col gap-4 w-full max-w-md">
@@ -111,11 +113,13 @@ export default function Login() {
                 placeholder="Enter 6-digit authenticator code"
                 className="w-full p-2 border rounded bg-white text-gray-900"
               />
-            {errors.totp_code && touched.totp_code && (
+              {errors.totp_code && touched.totp_code && (
                 <div className="text-red-500 text-sm">{errors.totp_code}</div>
               )}
               {status && (
-                <div className="text-red-500 text-sm text-center mt-2">{status}</div>
+                <div className="text-red-500 text-sm text-center mt-2">
+                  {status}
+                </div>
               )}
             </div>
           )}
@@ -130,13 +134,18 @@ export default function Login() {
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                 {requiresTotp ? "Verifying 2FA..." : "Logging in..."}
               </div>
+            ) : requiresTotp ? (
+              "Verify 2FA"
             ) : (
-              requiresTotp ? "Verify 2FA" : "Login"
+              "Login"
             )}
           </button>
 
           <div className="text-center">
-            <Link href="/email-verify" className="text-blue-500 hover:text-blue-600">
+            <Link
+              href="/email-verify"
+              className="text-blue-500 hover:text-blue-600"
+            >
               New to Syncopate? Create Account
             </Link>
           </div>

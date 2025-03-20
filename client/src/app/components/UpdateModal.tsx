@@ -63,6 +63,7 @@ const UpdateModal = () => {
 
   return (
     isAuthenticated &&
+    !isLoading &&
     user && (
       <form onSubmit={handleSubmit} className="bg-space_black p-4 rounded">
         <div className="flex flex-row items-center">

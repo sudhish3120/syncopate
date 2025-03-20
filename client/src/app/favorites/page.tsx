@@ -1,51 +1,10 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { redirect } from "next/navigation";
 import ConcertCard from "../components/ConcertCard";
 import Nav from "../components/Nav";
 import { FaMagnifyingGlass } from "react-icons/fa6";
-
-// interface UserData {
-//   user: {
-//     id: number;
-//     username: string;
-//   };
-//   status: string;
-// }
-
-interface Artist {
-  id: number;
-  name: string;
-}
-
-interface Venue {
-  id: number;
-  name: string;
-  address: string;
-}
-
-interface ConcertDate {
-  start: {
-    localDate: string;
-  };
-}
-
-interface ConcertImage {
-  ratio: string;
-  url: string;
-  width: number;
-  height: number;
-  fallback: boolean;
-}
-
-interface Concert {
-  id: number;
-  name: string;
-  artist: Artist;
-  venue: Venue;
-  dates: ConcertDate;
-  url: string;
-  images: Array<ConcertImage>;
-}
+import {Concert} from "../types/concerts"
 
 export default function Favorites() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -124,7 +83,6 @@ export default function Favorites() {
               date={new Date(
                 favorite.dates.start.localDate
               ).toLocaleDateString()}
-              url={favorite.url}
               imageUrl={
                 favorite.images.reduce((largest, image) => {
                   return image.width * image.height >

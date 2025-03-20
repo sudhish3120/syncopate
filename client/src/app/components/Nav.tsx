@@ -18,14 +18,13 @@ import { pages_url } from "../constants";
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
 function NavBar() {
-    const router = useRouter();
-    const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
-        null,
-    );
-    const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
-        null,
-    );
-    const [isLoggingOut, setIsLoggingOut] = React.useState(false);
+  const router = useRouter();
+  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
+    null
+  );
+  const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
+    null
+  );
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -47,7 +46,7 @@ function NavBar() {
       setIsLoggingOut(true);
       const res = await fetch("http://localhost:8000/api/auth/logout/", {
         method: "POST",
-        credentials: 'include',
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },

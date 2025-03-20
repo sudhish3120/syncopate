@@ -13,7 +13,6 @@ interface ConcertCardProps {
   id: number;
   title: string;
   date: string;
-  url: string;
   imageUrl?: string;
 }
 

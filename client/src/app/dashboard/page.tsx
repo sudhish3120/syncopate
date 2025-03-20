@@ -1,6 +1,5 @@
 "use client";
 import React, { useEffect, useState } from "react";
-// import { useRouter } from "next/navigation";
 import ConcertList from "../components/ConcertList";
 import Nav from "../components/Nav";
 import { FaMagnifyingGlass } from "react-icons/fa6";
@@ -15,8 +14,6 @@ const LOCATIONS: {[key: string]: string} = {
 }
 
 export default function Dashboard() {
-  // const router = useRouter();
-  // const [userData, setUserData] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [concerts, setConcerts] = useState<Array<Concert> | null>(null);
@@ -38,9 +35,7 @@ export default function Dashboard() {
         if (!res.ok) {
           throw new Error("Failed to fetch user data");
         }
-
         const { user, status } = await res.json();
-        // setUserData({ user, status });
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
         console.error(err);
@@ -133,9 +128,9 @@ export default function Dashboard() {
       concertSearch({"location": e.target.value, "query": searchQuery})
       setSearching(true)
     } else {
-      setSearching(false)
+      setSearching(false);
     }
-    setLocation(e.target.value)
+    setLocation(newLocation);
   }
 
   const handleSearchQuery = (e) => {
@@ -146,7 +141,7 @@ export default function Dashboard() {
       setSearching(false)
       clearSearch()
     }
-    setSearchQuery(e.target.value)
+    setSearchQuery(target.value);
   }
 
   const clearSearch = () => {
@@ -208,7 +203,6 @@ export default function Dashboard() {
                         date={new Date(
                         concert.dates.start.localDate
                         ).toLocaleDateString()}
-                        url={concert.url}
                         imageUrl={concert.images.reduce((largest, image) => {
                         return image.width * image.height > largest.width * largest.height ? image : largest;
                         }, concert.images[0]).url}
