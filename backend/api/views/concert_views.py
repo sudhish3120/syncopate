@@ -55,7 +55,8 @@ def concerts(request):
         ).json()
 
         events = []
-        if response["page"]["totalElements"] > 0:
+        logger.info(f"total retrieved events: {response.get('page', {}).get('totalElements', 0)}")
+        if "page" in response and response["page"]["totalElements"] > 0:
             events = response["_embedded"]["events"]
 
         return JsonResponse(events, safe=False)

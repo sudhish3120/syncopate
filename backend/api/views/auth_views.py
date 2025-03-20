@@ -79,7 +79,6 @@ class LoginView(KnoxLoginView):
                 response.set_cookie(
                     "knox_token",
                     token,
-                    max_age=900,
                     httponly=True,
                     secure=True,
                     samesite="Lax",

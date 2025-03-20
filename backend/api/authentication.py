@@ -1,4 +1,7 @@
 from knox.auth import TokenAuthentication
+from knox.settings import knox_settings
+from knox.models import AuthToken
+from django.utils import timezone
 import logging
 
 logger = logging.getLogger(__name__)
@@ -11,6 +14,25 @@ class CookieTokenAuthentication(TokenAuthentication):
         knox_token = request.COOKIES.get("knox_token")
         if not knox_token:
             return None
+            
+        request.META['HTTP_AUTHORIZATION'] = f'Token {knox_token}'
+        
+        # Get user and token from parent class
+        auth_result = super().authenticate(request)
+        if not auth_result:
+            return None
 
-        request.META["HTTP_AUTHORIZATION"] = f"Token {knox_token}"
-        return super().authenticate(request)
+        user, auth_token = auth_result
+        
+        # Check token expiry
+        token_ttl = knox_settings.TOKEN_TTL
+        if token_ttl:
+            now = timezone.now()
+            expiry = auth_token.created + token_ttl
+            if expiry < now:
+                # Delete expired token
+                auth_token.delete()
+                logger.warning(f"Expired token used for user: {user.username}")
+                return None
+                
+        return auth_result
