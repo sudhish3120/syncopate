@@ -1,9 +1,15 @@
 from django.urls import path
 from knox import views as knox_views
 
-from ..views.auth_views import (LoginView, LogoutView, RegisterInitView,
-                                send_magic_link, totp_setup, totp_verify,
-                                verify_token)
+from ..views.auth_views import (
+    LoginView,
+    LogoutView,
+    RegisterInitView,
+    send_magic_link,
+    totp_setup,
+    totp_verify,
+    verify_token,
+)
 from ..views.user_views import get_user
 
 urlpatterns = [

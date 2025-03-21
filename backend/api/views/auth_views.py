@@ -82,7 +82,7 @@ class LoginView(KnoxLoginView):
 
             logger.warning(
                 "Failed login attempt for username: %s",
-                serializer.validated_data['username']
+                serializer.validated_data["username"],
             )
             return Response(
                 {"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED

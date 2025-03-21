@@ -52,7 +52,7 @@ setup-python:
 
 # Run Pylint
 lint-python:
-	$(PYTHON) -m pylint --load-plugins pylint_django $(shell find backend -name "*.py") --disable=W0718,C0103
+	$(PYTHON) -m pylint --load-plugins pylint_django $(shell find backend -name "*.py") --disable=W0718,C0103 --django-settings-module=backend.settings
 
 # Clean up the virtual environment
 clean:

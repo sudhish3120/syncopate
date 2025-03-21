@@ -7,6 +7,7 @@ from ..models import EmailVerificationToken
 
 User = get_user_model()
 
+
 @pytest.fixture
 def api_client():
     return APIClient()

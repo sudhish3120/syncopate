@@ -7,10 +7,13 @@ import logging
 import os
 
 import requests
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.http import JsonResponse
-from rest_framework.decorators import (api_view, authentication_classes,
-                                       permission_classes)
+from rest_framework.decorators import (
+    api_view,
+    authentication_classes,
+    permission_classes,
+)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -18,6 +21,7 @@ from ..authentication import CookieTokenAuthentication
 from ..models import MATCHING_DECISIONS, Concert, FavoriteConcert, Matching
 
 logger = logging.getLogger(__name__)
+User = get_user_model()
 
 LOCATIONS = {"KW": "43.449791,-80.489090", "TO": "43.653225,-79.383186"}
 
@@ -52,7 +56,8 @@ def concerts(request):
 
         events = []
         logger.info(
-            "total retrieved events: %s", response.get('page', {}).get('totalElements', 0)
+            "total retrieved events: %s",
+            response.get("page", {}).get("totalElements", 0),
         )
         if "page" in response and response["page"]["totalElements"] > 0:
             events = response["_embedded"]["events"]

@@ -13,6 +13,7 @@ MATCHING_DECISIONS = [("YES", "YES"), ("NO", "NO"), ("UNKNOWN", "UNKNOWN")]
 
 User = get_user_model()
 
+
 class EmailVerificationToken(models.Model):
     """Model to store email verification tokens"""
 

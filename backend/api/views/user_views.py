@@ -5,8 +5,11 @@ This module is responsible for returning user data
 import logging
 
 from rest_framework import permissions, status
-from rest_framework.decorators import (api_view, authentication_classes,
-                                       permission_classes)
+from rest_framework.decorators import (
+    api_view,
+    authentication_classes,
+    permission_classes,
+)
 from rest_framework.response import Response
 
 from ..authentication import CookieTokenAuthentication
