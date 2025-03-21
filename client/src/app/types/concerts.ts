@@ -1,14 +1,24 @@
-export interface UserData {
-    user: {
-        id: number;
-        username: string;
-    };
-    status: string;
-}
-
 export interface Artist {
     id: number;
     name: string;
+}
+
+export interface Genre {
+    id: number;
+    name: string;
+}
+
+export interface UserProfile {
+    profile_photo: string;
+    favorite_artists: Artist[];
+    favorite_genres: Genre[];
+}
+
+export interface UserData {
+    id: number;
+    username: string;
+    email?: string;
+    profile: UserProfile;
 }
 
 export interface Venue {

@@ -1,14 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.gis.measure import D
-from .models import Concert, FavoriteConcert
-
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ("id", "username")
-
+from .models import Concert, FavoriteConcert, Artist, Genre, UserProfile
 
 class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
@@ -49,3 +42,30 @@ class FavoriteConcertSerializer(serializers.ModelSerializer):
             "images",
             "dates",
         ]
+
+
+class ArtistSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Artist
+        fields = ['id', 'name']
+
+
+class GenreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Genre
+        fields = ['id', 'name']
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    favorite_artists = ArtistSerializer(many=True, read_only=True)
+    favorite_genres = GenreSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = UserProfile
+        fields = ['profile_photo', 'favorite_artists', 'favorite_genres']
+
+class UserSerializer(serializers.ModelSerializer):
+    profile = UserProfileSerializer()
+
+    class Meta:
+        model = User
+        fields = ("id", "username", "email", "profile")
