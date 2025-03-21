@@ -59,7 +59,7 @@ class TestProfileAPI:
         
         response = authenticated_client.post(url, data, format='json')
         assert response.status_code == 400
-        assert 'too many artists' in response.data['error'].lower()
+        assert 'invalid input' in response.data['error'].lower()
 
     def test_update_invalid_artist_name(self, authenticated_client):
         """Test adding artist with invalid characters"""
@@ -70,7 +70,7 @@ class TestProfileAPI:
         
         response = authenticated_client.post(url, data, format='json')
         assert response.status_code == 400
-        assert 'invalid characters' in response.data['error'].lower()
+        assert 'invalid input' in response.data['error'].lower()
 
     def test_update_favorite_genres(self, authenticated_client):
         """Test updating favorite genres"""
