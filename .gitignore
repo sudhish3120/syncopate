@@ -47,5 +47,6 @@ client/.cache/
 *.swp
 
 # Environment files
+.venv
 .env
 *.env

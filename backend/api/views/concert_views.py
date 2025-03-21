@@ -2,26 +2,26 @@
 This module contains all the views related with concert interractions
 """
 
-import logging
 import json
+import logging
 import os
-import requests
 
-from rest_framework.response import Response
+import requests
+from django.contrib.auth import get_user_model
+from django.http import JsonResponse
 from rest_framework.decorators import (
     api_view,
     authentication_classes,
     permission_classes,
 )
 from rest_framework.permissions import IsAuthenticated
-
-from django.http import JsonResponse
-from django.contrib.auth.models import User
+from rest_framework.response import Response
 
 from ..authentication import CookieTokenAuthentication
-from ..models import Concert, FavoriteConcert, Matching, MATCHING_DECISIONS
+from ..models import MATCHING_DECISIONS, Concert, FavoriteConcert, Matching
 
 logger = logging.getLogger(__name__)
+User = get_user_model()
 
 LOCATIONS = {"KW": "43.449791,-80.489090", "TO": "43.653225,-79.383186"}
 
@@ -30,7 +30,7 @@ LOCATIONS = {"KW": "43.449791,-80.489090", "TO": "43.653225,-79.383186"}
 @authentication_classes([CookieTokenAuthentication])
 @permission_classes([IsAuthenticated])
 def concerts(request):
-    '''fetch all concerts based on query passed in'''
+    """fetch all concerts based on query passed in"""
     try:
         request_params = {
             "apikey": os.environ["TICKETMASTER_KEY"],
@@ -55,7 +55,10 @@ def concerts(request):
         ).json()
 
         events = []
-        logger.info(f"total retrieved events: {response.get('page', {}).get('totalElements', 0)}")
+        logger.info(
+            "total retrieved events: %s",
+            response.get("page", {}).get("totalElements", 0),
+        )
         if "page" in response and response["page"]["totalElements"] > 0:
             events = response["_embedded"]["events"]
 
@@ -71,7 +74,7 @@ def concerts(request):
 @authentication_classes([CookieTokenAuthentication])
 @permission_classes([IsAuthenticated])
 def favorite(request):
-    '''user favoriting a concert'''
+    """user favoriting a concert"""
     user = request.user
     concert_id = request.data.get("concert")
     # Ensure the concert exists add add it if it does not
@@ -85,9 +88,7 @@ def favorite(request):
             user=user, concert=concert
         )
         if created:
-            return Response(
-                {"Concert favourited successfully"}, status=201
-            )
+            return Response({"Concert favourited successfully"}, status=201)
         return Response({"Concert already favourited"}, status=200)
 
     except Exception as e:
@@ -98,7 +99,7 @@ def favorite(request):
 @authentication_classes([CookieTokenAuthentication])
 @permission_classes([IsAuthenticated])
 def user_favourite_concerts(request):
-    '''fetching all the concerts that users favorited'''
+    """fetching all the concerts that users favorited"""
     try:
         fav_concerts = FavoriteConcert.objects.filter(user_id=request.user.id)
         tm_concert_ids = Concert.objects.filter(
@@ -132,13 +133,15 @@ def user_favourite_concerts(request):
 @authentication_classes([CookieTokenAuthentication])
 @permission_classes([IsAuthenticated])
 def matchings(request):
-    '''get all the matchings associated with user'''
+    """get all the matchings associated with user"""
     try:
         user_matchings = []
 
         current_user = request.user
         fav_concerts = FavoriteConcert.objects.filter(user_id=current_user.id)
-        user_concerts = Concert.objects.filter(id__in=fav_concerts.values_list("concert_id"))
+        user_concerts = Concert.objects.filter(
+            id__in=fav_concerts.values_list("concert_id")
+        )
 
         all_other_users = User.objects.exclude(id=request.user.id)
         for other_user in all_other_users:
@@ -170,7 +173,7 @@ def matchings(request):
 @authentication_classes([CookieTokenAuthentication])
 @permission_classes([IsAuthenticated])
 def review_matching(request):
-    '''process user's decision on a specific matching'''
+    """process user's decision on a specific matching"""
     try:
         content = json.loads(request.body.decode("utf-8"))
         matching_id = content.get("matchingId")
@@ -195,7 +198,7 @@ def review_matching(request):
 @authentication_classes([CookieTokenAuthentication])
 @permission_classes([IsAuthenticated])
 def matches(request):
-    '''get all the matches for user'''
+    """get all the matches for user"""
     try:
         user_matches = Matching.objects.filter(
             user=request.user, decision="YES"

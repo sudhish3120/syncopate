@@ -4,7 +4,6 @@ Test cases for authentication flow
 
 import pytest
 from django.urls import reverse
-from rest_framework import status
 
 
 # marker required for test db access
