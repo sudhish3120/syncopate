@@ -1,9 +1,16 @@
+"""
+This module contains all serializers (JSON <-> object).
+"""
+
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.contrib.gis.measure import D
 from .models import Concert, FavoriteConcert, Artist, Genre, UserProfile
 
 class RegisterSerializer(serializers.ModelSerializer):
+    """register serializer"""
+
     class Meta:
         model = User
         fields = ("id", "username", "password")
@@ -17,15 +24,23 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class LoginSerializer(serializers.Serializer):
+    """login serializer"""
+
     username = serializers.CharField()
     password = serializers.CharField(
         style={"input_type": "password"}, trim_whitespace=False
     )
 
+    def create(self, validated_data):
+        pass
+
+    def update(self, instance, validated_data):
+        pass
+
 
 class ConcertSerializer(serializers.ModelSerializer):
-    # artist = ArtistSerializer()
-    # venue = VenueSerializer()
+    """concert serializer"""
+
     users_favorited = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
@@ -34,6 +49,8 @@ class ConcertSerializer(serializers.ModelSerializer):
 
 
 class FavoriteConcertSerializer(serializers.ModelSerializer):
+    """favorite concert serializer"""
+
     class Meta:
         model = FavoriteConcert
         fields = [

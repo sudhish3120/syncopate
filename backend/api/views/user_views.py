@@ -1,8 +1,10 @@
-'''
+"""
 This module is responsible for returning user data
-'''
+"""
 
 import logging
+
+from rest_framework import permissions, status
 from rest_framework.decorators import (
     api_view,
     authentication_classes,
@@ -29,7 +31,7 @@ name_validator = RegexValidator(
 @authentication_classes([CookieTokenAuthentication])
 @permission_classes([permissions.IsAuthenticated])
 def get_user(request):
-    '''fetching user data'''
+    """fetching user data"""
     try:
         logger.info("Getting user data for: %s", request.user.username)
         serializer = UserSerializer(request.user)

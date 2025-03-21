@@ -4,11 +4,14 @@ Provides some arithmetic functions
 
 import secrets
 from datetime import timedelta
+
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils import timezone
-from django.contrib.auth.models import User
 
 MATCHING_DECISIONS = [("YES", "YES"), ("NO", "NO"), ("UNKNOWN", "UNKNOWN")]
+
+User = get_user_model()
 
 
 class EmailVerificationToken(models.Model):
@@ -73,12 +76,14 @@ class TemporaryRegistration(models.Model):
 
 class Matching(models.Model):
     """Model to store matching decisions"""
+
     user = models.ForeignKey(User, related_name="user", on_delete=models.CASCADE)
     target = models.ForeignKey(User, related_name="target", on_delete=models.CASCADE)
     decision = models.CharField(max_length=7, choices=MATCHING_DECISIONS)
 
     class Meta:
         """Meta class for Matching"""
+
         unique_together = ("user", "target")
 
 

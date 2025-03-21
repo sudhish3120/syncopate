@@ -10,10 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
-from pathlib import Path
 import os  # Add this at the top if not already present
 import sys
 from datetime import timedelta
+from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -177,13 +177,13 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 FRONTEND_URL = "http://localhost:3000"
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '[{levelname}] {asctime} {name} {message}',
-            'style': '{',
-            'datefmt': '%Y-%m-%d %H:%M:%S'
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "[{levelname}] {asctime} {name} {message}",
+            "style": "{",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
         },
     },
     "handlers": {
@@ -192,30 +192,30 @@ LOGGING = {
             "formatter": "verbose",
         },
     },
-    'loggers': {
-        '': {  # Root logger
-            'handlers': ['console'],
-            'level': 'INFO',
+    "loggers": {
+        "": {  # Root logger
+            "handlers": ["console"],
+            "level": "INFO",
         },
-        'django': {  # Django framework logger
-            'handlers': ['console'],
-            'level': 'INFO',
-            'propagate': False,
+        "django": {  # Django framework logger
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
         },
-        'api': {  # Your app logger
-            'handlers': ['console'],
-            'level': 'INFO',
-            'propagate': False,
-        }
-    }
+        "api": {  # Your app logger
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+    },
 }
 
 # Add OTP settings
-OTP_TOTP_ISSUER = 'Syncopate'
+OTP_TOTP_ISSUER = "Syncopate"
 
 # Knox settings
 REST_KNOX = {
-    'TOKEN_TTL': timedelta(minutes=15),
-    'AUTO_REFRESH': True,
-    'TOKEN_LIMIT_PER_USER': 1,
+    "TOKEN_TTL": timedelta(minutes=15),
+    "AUTO_REFRESH": True,
+    "TOKEN_LIMIT_PER_USER": 1,
 }

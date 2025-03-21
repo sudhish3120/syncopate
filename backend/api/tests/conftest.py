@@ -1,7 +1,11 @@
+# pylint: disable=W0621
 import pytest
+from django.contrib.auth import get_user_model
 from rest_framework.test import APIClient
-from django.contrib.auth.models import User
-from ..models import EmailVerificationToken, TemporaryRegistration
+
+from ..models import EmailVerificationToken
+
+User = get_user_model()
 
 
 @pytest.fixture

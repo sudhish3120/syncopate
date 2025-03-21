@@ -1,11 +1,14 @@
+"""configures urls associated with concerts"""
+
 from django.urls import path
+
 from ..views.concert_views import (
     concerts,
-    user_favourite_concerts,
     favorite,
+    matches,
     matchings,
     review_matching,
-    matches,
+    user_favourite_concerts,
 )
 
 urlpatterns = [
