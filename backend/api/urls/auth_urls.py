@@ -1,3 +1,5 @@
+"""URL configuration for authentication-related views."""
+
 from django.urls import path
 from knox import views as knox_views
 

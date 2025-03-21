@@ -1,3 +1,5 @@
+"""Views handling user authentication and registration."""
+
 import base64
 import logging
 import secrets
@@ -7,8 +9,7 @@ import pyotp
 import qrcode
 import qrcode.image.svg
 from django.conf import settings
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, get_user_model
 from django.core.mail import send_mail
 from django_otp.plugins.otp_totp.models import TOTPDevice
 from knox.models import AuthToken
@@ -21,10 +22,11 @@ from ..authentication import CookieTokenAuthentication
 from ..models import EmailVerificationToken, TemporaryRegistration
 from ..serializers import LoginSerializer, UserSerializer
 
+User = get_user_model()
 logger = logging.getLogger(__name__)
 
-
 class LoginView(KnoxLoginView):
+    """Handle user login and token generation."""
     permission_classes = [permissions.AllowAny]
     serializer_class = LoginSerializer
 
@@ -96,10 +98,12 @@ class LoginView(KnoxLoginView):
 
 
 class LogoutView(generics.GenericAPIView):
+    """Handle user logout and token invalidation."""
     authentication_classes = [CookieTokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
+        """Process logout request."""
         try:
             knox_token = request.COOKIES.get("knox_token")
             if knox_token:
@@ -119,6 +123,7 @@ class LogoutView(generics.GenericAPIView):
 
 @api_view(["POST"])
 def send_magic_link(request):
+    """Send a verification email with magic link to the user."""
     email = request.data.get("email")
     if not email:
         return Response({"error": "Email is required"}, status=400)
@@ -152,6 +157,7 @@ def send_magic_link(request):
 
 @api_view(["GET"])
 def verify_token(request, token):
+    """Verify an email verification token."""
     try:
         verification = EmailVerificationToken.objects.get(token=token, is_used=False)
 
@@ -169,6 +175,7 @@ def verify_token(request, token):
 
 
 class RegisterInitView(generics.CreateAPIView):
+    """Handle initial user registration."""
     permission_classes = [permissions.AllowAny]
 
     def post(self, request, *args, **kwargs):
@@ -203,6 +210,7 @@ class RegisterInitView(generics.CreateAPIView):
 
 @api_view(["GET"])
 def totp_setup(request):
+    """Set up TOTP-based two-factor authentication."""
     setup_token = request.headers.get("Authorization", "").split(" ")[1]
     try:
         temp_reg = TemporaryRegistration.objects.get(setup_token=setup_token)
@@ -239,14 +247,12 @@ def totp_setup(request):
 
 @api_view(["POST"])
 def totp_verify(request):
+    """Verify TOTP code and complete user registration."""
     setup_token = request.headers.get("Authorization", "").split(" ")[1]
     try:
         temp_reg = TemporaryRegistration.objects.filter(setup_token=setup_token).first()
-        if not temp_reg:
-            return Response({"error": "Invalid setup token"}, status=400)
-
-        if temp_reg.is_expired:
-            return Response({"error": "Setup token expired"}, status=400)
+        if not temp_reg or temp_reg.is_expired:
+            return Response({"error": "Invalid setup token or setup token expired"}, status=400)
 
         code = request.data.get("code")
         if not code:

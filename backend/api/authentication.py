@@ -1,3 +1,4 @@
+"""TokenAuthentication Wrapper that integrates cookies and knox tokens"""
 import logging
 
 from django.utils import timezone
@@ -6,10 +7,12 @@ from knox.settings import knox_settings
 
 logger = logging.getLogger(__name__)
 
+"""Custom authentication classes for the API."""
 
-# We want to modify the request right before Django's Token Authentication is called
-# so created this class to fill in the required fields before its authentication happens :D
 class CookieTokenAuthentication(TokenAuthentication):
+    """Authentication class that handles token authentication via cookies.
+    We want to modify the request right before Django's Token Authentication is called
+    so created this class to fill in the required fields before its authentication happens :D"""
     def authenticate(self, request):
         knox_token = request.COOKIES.get("knox_token")
         if not knox_token:
