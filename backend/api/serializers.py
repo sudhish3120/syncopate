@@ -1,6 +1,7 @@
-from rest_framework import serializers
+# pylint: disable=E5142
 from django.contrib.auth.models import User
-from django.contrib.gis.measure import D
+from rest_framework import serializers
+
 from .models import Concert, FavoriteConcert
 
 

@@ -1,15 +1,10 @@
 from django.urls import path
-from ..views.auth_views import (
-    LoginView,
-    LogoutView,
-    RegisterInitView,
-    send_magic_link,
-    verify_token,
-    totp_setup,
-    totp_verify,
-)
-from ..views.user_views import get_user
 from knox import views as knox_views
+
+from ..views.auth_views import (LoginView, LogoutView, RegisterInitView,
+                                send_magic_link, totp_setup, totp_verify,
+                                verify_token)
+from ..views.user_views import get_user
 
 urlpatterns = [
     path("register/init/", RegisterInitView.as_view(), name="register-init"),
