@@ -1,4 +1,3 @@
-# pylint: disable=E5142
 """
 Provides some arithmetic functions
 """
@@ -6,12 +5,13 @@ Provides some arithmetic functions
 import secrets
 from datetime import timedelta
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils import timezone
 
 MATCHING_DECISIONS = [("YES", "YES"), ("NO", "NO"), ("UNKNOWN", "UNKNOWN")]
 
+User = get_user_model()
 
 class EmailVerificationToken(models.Model):
     """Model to store email verification tokens"""

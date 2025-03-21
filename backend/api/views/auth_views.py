@@ -64,7 +64,7 @@ class LoginView(KnoxLoginView):
 
                 # If TOTP verified or not required, proceed with login
                 login(request, user)
-                instance, token = AuthToken.objects.create(user)
+                _, token = AuthToken.objects.create(user)
                 logger.info("Login successful for user: %s", user.username)
 
                 response = Response(
@@ -135,7 +135,8 @@ def send_magic_link(request):
         # Send email with magic link
         send_mail(
             "Verify your Syncopate account",
-            f"Click this link to verify your email: {verification_url}\n\nThis link expires in 24 hours.",
+            f"Click this link to verify your email: \
+                {verification_url}\n\nThis link expires in 24 hours.",
             settings.DEFAULT_FROM_EMAIL,
             [email],
             fail_silently=False,

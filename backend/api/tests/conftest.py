@@ -1,10 +1,11 @@
-# pylint: disable=W0621,E5142
+# pylint: disable=W0621
 import pytest
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from rest_framework.test import APIClient
 
 from ..models import EmailVerificationToken
 
+User = get_user_model()
 
 @pytest.fixture
 def api_client():
