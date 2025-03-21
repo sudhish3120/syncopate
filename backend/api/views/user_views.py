@@ -105,7 +105,7 @@ def update_profile(request):
     except ValidationError as e:
         logger.warning(f"Validation error for user {user.username}: {str(e)}")
         return Response(
-            {"error": str(e)},
+            {"error":" Invalid Input"},
             status=status.HTTP_400_BAD_REQUEST
         )
     except Exception as e:
