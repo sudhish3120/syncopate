@@ -3,6 +3,7 @@ from django.dispatch import receiver
 from django.contrib.auth.models import User
 from .models import UserProfile
 
+
 @receiver(post_save, sender=User)
 def create_or_get_user_profile(sender, instance, created, **kwargs):
     """Create or get user profile when user is created/saved"""

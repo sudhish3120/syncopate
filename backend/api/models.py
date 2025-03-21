@@ -89,23 +89,28 @@ class Matching(models.Model):
 
 class UserProfile(models.Model):
     """Extended user profile model"""
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    profile_photo = models.CharField(max_length=200, default='/avatars/1.jpg')
-    favorite_artists = models.ManyToManyField('Artist', related_name='favorited_by')
-    favorite_genres = models.ManyToManyField('Genre', related_name='favorited_by')
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+    profile_photo = models.CharField(max_length=200, default="/avatars/1.jpg")
+    favorite_artists = models.ManyToManyField("Artist", related_name="favorited_by")
+    favorite_genres = models.ManyToManyField("Genre", related_name="favorited_by")
 
     def __str__(self):
         return f"{self.user.username}'s profile"
 
+
 class Artist(models.Model):
     """Artist model"""
+
     name = models.CharField(max_length=200, unique=True)
 
     def __str__(self):
         return self.name
 
+
 class Genre(models.Model):
     """Genre model"""
+
     name = models.CharField(max_length=200, unique=True)
 
     def __str__(self):

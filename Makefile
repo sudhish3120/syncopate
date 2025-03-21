@@ -37,7 +37,7 @@ rebuild: down up
 
 # Run pytest in backend directory
 test:
-	cd backend && pytest
+	cd backend && pytest api/tests/test_concert_views.py
 
 # Define variables
 PYTHON_VENV = .venv

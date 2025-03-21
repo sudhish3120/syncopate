@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from django.contrib.gis.measure import D
 from .models import Concert, FavoriteConcert, Artist, Genre, UserProfile
 
+
 class RegisterSerializer(serializers.ModelSerializer):
     """register serializer"""
 
@@ -64,13 +65,14 @@ class FavoriteConcertSerializer(serializers.ModelSerializer):
 class ArtistSerializer(serializers.ModelSerializer):
     class Meta:
         model = Artist
-        fields = ['id', 'name']
+        fields = ["id", "name"]
 
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
-        fields = ['id', 'name']
+        fields = ["id", "name"]
+
 
 class UserProfileSerializer(serializers.ModelSerializer):
     favorite_artists = ArtistSerializer(many=True, read_only=True)
@@ -78,7 +80,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ['profile_photo', 'favorite_artists', 'favorite_genres']
+        fields = ["profile_photo", "favorite_artists", "favorite_genres"]
+
 
 class UserSerializer(serializers.ModelSerializer):
     profile = UserProfileSerializer()
