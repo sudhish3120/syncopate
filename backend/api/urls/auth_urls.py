@@ -12,6 +12,8 @@ from ..views.auth_views import (
 )
 from ..views.user_views import get_user
 
+from ..views import user_views
+
 urlpatterns = [
     path("register/init/", RegisterInitView.as_view(), name="register-init"),
     path("register/send_magic_link/", send_magic_link, name="send_magic_link"),
@@ -22,4 +24,5 @@ urlpatterns = [
     path("verify-token/<str:token>/", verify_token, name="verify-token"),
     path("totp/setup/", totp_setup, name="totp-setup"),
     path("totp/verify/", totp_verify, name="totp-verify"),
+    path("update-profile/", user_views.update_profile, name="update-profile"),
 ]
