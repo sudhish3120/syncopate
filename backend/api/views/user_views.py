@@ -4,28 +4,24 @@ This module is responsible for returning user data
 
 import logging
 
-from rest_framework import permissions, status
-from rest_framework.decorators import (
-    api_view,
-    authentication_classes,
-    permission_classes,
-)
-from rest_framework.response import Response
-from rest_framework import permissions, status
-from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError as DjangoValidationError
+from django.core.validators import RegexValidator
+from rest_framework import permissions, status
+from rest_framework.decorators import (api_view, authentication_classes,
+                                       permission_classes)
+from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 
-from ..models import Artist, Genre, UserProfile
 from ..authentication import CookieTokenAuthentication
+from ..models import Artist, Genre, UserProfile
 from ..serializers import UserSerializer
 
 logger = logging.getLogger(__name__)
 
 name_validator = RegexValidator(
-    regex=r'^[a-zA-Z0-9\s&\'-]{0,50}$',
-    message='Contains invalid characters'
+    regex=r"^[a-zA-Z0-9\s&\'-]{0,50}$", message="Contains invalid characters"
 )
+
 
 @api_view(["GET"])
 @authentication_classes([CookieTokenAuthentication])
@@ -48,26 +44,31 @@ def get_user(request):
 @authentication_classes([CookieTokenAuthentication])
 @permission_classes([permissions.IsAuthenticated])
 def update_profile(request):
-    '''Update user profile'''
+    """Update user profile"""
     try:
         user = request.user
         profile, _created = UserProfile.objects.get_or_create(user=user)
         data = request.data
 
         # Validate profile photo
-        allowed_avatars = ['/avatars/1.jpg', '/avatars/2.jpg', '/avatars/3.jpg', '/avatars/4.jpg']
-        if 'profile_photo' in data:
-            if data['profile_photo'] not in allowed_avatars:
-                raise ValidationError('Invalid avatar selection')
-            profile.profile_photo = data['profile_photo']
+        allowed_avatars = [
+            "/avatars/1.jpg",
+            "/avatars/2.jpg",
+            "/avatars/3.jpg",
+            "/avatars/4.jpg",
+        ]
+        if "profile_photo" in data:
+            if data["profile_photo"] not in allowed_avatars:
+                raise ValidationError("Invalid avatar selection")
+            profile.profile_photo = data["profile_photo"]
             profile.save()
 
         # Update favorite artists with validation
-        if 'favorite_artists' in data:
-            artists = data['favorite_artists']
+        if "favorite_artists" in data:
+            artists = data["favorite_artists"]
             if not isinstance(artists, list) or len(artists) > 3:
-                raise ValidationError('Invalid artists format or too many artists')
-                
+                raise ValidationError("Invalid artists format or too many artists")
+
             profile.favorite_artists.clear()
             for artist_name in artists:
                 if artist_name and isinstance(artist_name, str):
@@ -81,11 +82,11 @@ def update_profile(request):
                     profile.favorite_artists.add(artist)
 
         # Update favorite genres with validation
-        if 'favorite_genres' in data:
-            genres = data['favorite_genres']
+        if "favorite_genres" in data:
+            genres = data["favorite_genres"]
             if not isinstance(genres, list) or len(genres) > 3:
-                raise ValidationError('Invalid genres format or too many genres')
-                
+                raise ValidationError("Invalid genres format or too many genres")
+
             profile.favorite_genres.clear()
             for genre_name in genres:
                 if genre_name and isinstance(genre_name, str):
@@ -109,5 +110,5 @@ def update_profile(request):
         logger.error("Profile update error: %s", str(e), exc_info=True)
         return Response(
             {"error": "Failed to update profile"},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )

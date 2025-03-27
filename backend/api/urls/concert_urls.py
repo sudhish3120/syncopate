@@ -2,14 +2,8 @@
 
 from django.urls import path
 
-from ..views.concert_views import (
-    concerts,
-    favorite,
-    matches,
-    matchings,
-    review_matching,
-    user_favourite_concerts,
-)
+from ..views.concert_views import (concerts, favorite, matches, matchings,
+                                   review_matching, user_favourite_concerts)
 
 urlpatterns = [
     path("favorites/", user_favourite_concerts, name="favorites"),

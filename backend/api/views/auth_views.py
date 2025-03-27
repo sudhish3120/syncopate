@@ -9,7 +9,7 @@ import pyotp
 import qrcode
 import qrcode.image.svg
 from django.conf import settings
-from django.contrib.auth import authenticate, login, get_user_model
+from django.contrib.auth import authenticate, get_user_model, login
 from django.core.mail import send_mail
 from django_otp.plugins.otp_totp.models import TOTPDevice
 from knox.models import AuthToken
@@ -25,8 +25,10 @@ from ..serializers import LoginSerializer, UserSerializer
 User = get_user_model()
 logger = logging.getLogger(__name__)
 
+
 class LoginView(KnoxLoginView):
     """Handle user login and token generation."""
+
     permission_classes = [permissions.AllowAny]
     serializer_class = LoginSerializer
 
@@ -99,6 +101,7 @@ class LoginView(KnoxLoginView):
 
 class LogoutView(generics.GenericAPIView):
     """Handle user logout and token invalidation."""
+
     authentication_classes = [CookieTokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
@@ -176,6 +179,7 @@ def verify_token(request, token):
 
 class RegisterInitView(generics.CreateAPIView):
     """Handle initial user registration."""
+
     permission_classes = [permissions.AllowAny]
 
     def post(self, request, *args, **kwargs):
@@ -252,7 +256,9 @@ def totp_verify(request):
     try:
         temp_reg = TemporaryRegistration.objects.filter(setup_token=setup_token).first()
         if not temp_reg or temp_reg.is_expired:
-            return Response({"error": "Invalid setup token or setup token expired"}, status=400)
+            return Response(
+                {"error": "Invalid setup token or setup token expired"}, status=400
+            )
 
         code = request.data.get("code")
         if not code:

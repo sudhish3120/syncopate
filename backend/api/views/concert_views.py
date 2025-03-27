@@ -60,10 +60,10 @@ def concerts(request):
         if "page" in response and response["page"]["totalElements"] > 0:
             events = response["_embedded"]["events"]
 
-        return JsonResponse(events, safe=False)
+        return Response({"concerts": events}, status=200)
     except Exception as e:
         logger.error("Concert fetch error: %s", str(e))
-        return JsonResponse(
+        return Response(
             {"error": "Unable to fetch concerts. Please try again later."}, status=500
         )
 

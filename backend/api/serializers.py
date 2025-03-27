@@ -68,7 +68,7 @@ class ArtistSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Artist
-        fields = ['id', 'name']
+        fields = ["id", "name"]
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -76,7 +76,8 @@ class GenreSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Genre
-        fields = ['id', 'name']
+        fields = ["id", "name"]
+
 
 class UserProfileSerializer(serializers.ModelSerializer):
     """user profile serializer"""
@@ -86,7 +87,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ['profile_photo', 'favorite_artists', 'favorite_genres']
+        fields = ["profile_photo", "favorite_artists", "favorite_genres"]
+
 
 class UserSerializer(serializers.ModelSerializer):
     """user serializer"""

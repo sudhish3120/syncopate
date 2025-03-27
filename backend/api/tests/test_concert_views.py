@@ -23,8 +23,7 @@ User = get_user_model()
 class TestConcertsView:
     """Test cases for concert fetching flow"""
 
-    def __init__(self):
-        self.res_body = ""
+    res_body = ""
 
     @pytest.fixture(autouse=True)
     def setup(self):

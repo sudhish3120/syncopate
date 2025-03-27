@@ -9,10 +9,12 @@ from ..models import EmailVerificationToken
 
 User = get_user_model()
 
+
 @pytest.fixture
 def api_client():
     """Return a Django REST framework APIClient instance."""
     return APIClient()
+
 
 @pytest.fixture
 def test_user():
@@ -21,6 +23,7 @@ def test_user():
         username="testuser", password="testpass123", email="test@uwaterloo.ca"
     )
     return user
+
 
 @pytest.fixture
 def other_user():
@@ -34,6 +37,7 @@ def other_user():
 def test_verification_token(test_user):
     """Create and return a test verification token."""
     return EmailVerificationToken.generate_token(test_user.email)
+
 
 @pytest.fixture
 def authenticated_client(api_client, test_user):
