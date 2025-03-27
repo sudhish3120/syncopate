@@ -23,6 +23,14 @@ def test_user():
     return user
 
 @pytest.fixture
+def other_user():
+    """Create and return a another test user."""
+    return User.objects.create_user(
+        username="hello", password="hello123", email="hello@uwaterloo.ca"
+    )
+
+
+@pytest.fixture
 def test_verification_token(test_user):
     """Create and return a test verification token."""
     return EmailVerificationToken.generate_token(test_user.email)

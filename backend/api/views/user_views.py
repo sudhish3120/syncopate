@@ -51,7 +51,7 @@ def update_profile(request):
     '''Update user profile'''
     try:
         user = request.user
-        profile, created = UserProfile.objects.get_or_create(user=user)
+        profile, _created = UserProfile.objects.get_or_create(user=user)
         data = request.data
 
         # Validate profile photo
@@ -74,7 +74,7 @@ def update_profile(request):
                     try:
                         name_validator(artist_name.strip())
                     except DjangoValidationError:
-                        raise ValidationError(f"Invalid characters for artist name")
+                        raise ValidationError("Invalid characters for artist name")
                     artist, _ = Artist.objects.get_or_create(
                         name=artist_name.strip()[:50]  # Enforce max length
                     )
@@ -92,7 +92,7 @@ def update_profile(request):
                     try:
                         name_validator(genre_name.strip())
                     except DjangoValidationError:
-                        raise ValidationError(f"Invalid characters for Genre name")
+                        raise ValidationError("Invalid characters for Genre name")
                     genre, _ = Genre.objects.get_or_create(
                         name=genre_name.strip()[:30]  # Enforce max length
                     )
@@ -103,13 +103,10 @@ def update_profile(request):
         return Response({"user": serializer.data}, status=status.HTTP_200_OK)
 
     except ValidationError as e:
-        logger.warning(f"Validation error for user {user.username}: {str(e)}")
-        return Response(
-            {"error":" Invalid Input"},
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        logger.warning("Validation error for user %s: %s", user.username, str(e))
+        return Response({"error": " Invalid Input"}, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
-        logger.error(f"Profile update error: {str(e)}", exc_info=True)
+        logger.error("Profile update error: %s", str(e), exc_info=True)
         return Response(
             {"error": "Failed to update profile"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR

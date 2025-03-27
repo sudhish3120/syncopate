@@ -110,11 +110,7 @@ class LogoutView(generics.GenericAPIView):
                 AuthToken.objects.filter(user=request.user).delete()
 
             response = Response({"detail": "Successfully logged out"})
-            response.delete_cookie(
-                "knox_token",
-                path='/',
-                samesite='Lax'
-            )
+            response.delete_cookie("knox_token", path="/", samesite="Lax")
             return response
 
         except Exception as e:

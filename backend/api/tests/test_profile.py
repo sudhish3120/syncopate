@@ -1,7 +1,11 @@
+"""
+This module tests profile API endpoints.
+"""
+
 import pytest
 from django.urls import reverse
-from rest_framework import status
-from ..models import Artist, Genre, UserProfile
+
+from ..models import UserProfile
 
 @pytest.mark.django_db
 class TestProfileAPI:
