@@ -18,3 +18,5 @@ pytest-cov
 pytest-asyncio
 factory-boy
 pytest-dotenv
+coverage
+atheris

@@ -49,7 +49,6 @@ class TestAuthenticationFlow:
         }
 
         response = api_client.post(url, data, format="json")
-
         assert response.status_code == 200
         assert "setup_token" in response.data
 

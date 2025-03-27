@@ -1,0 +1,47 @@
+INFO 2025-03-20 16:24:31,108 fuzz Fuzzing /api/concerts/ with query: bc1234567890
+
+ERROR 2025-03-20 16:24:31,513 concert_views Concert fetch error: 'page'
+ERROR 2025-03-20 16:24:31,513 concert_views Concert fetch error: 'page'
+ERROR 2025-03-20 16:24:31,514 log Internal Server Error: /api/concerts/
+ERROR 2025-03-20 16:24:31,514 log Internal Server Error: /api/concerts/
+ERROR 2025-03-20 16:24:31,515 fuzz Unexpected status code: 500
+INFO 2025-03-20 16:24:31,515 fuzz Fuzzing /api/concerts/ with query: 捯੫
+ERROR 2025-03-20 16:24:31,660 concert_views Concert fetch error: 'page'
+ERROR 2025-03-20 16:24:31,660 concert_views Concert fetch error: 'page'
+ERROR 2025-03-20 16:24:31,662 log Internal Server Error: /api/concerts/
+ERROR 2025-03-20 16:24:31,662 log Internal Server Error: /api/concerts/
+ERROR 2025-03-20 16:24:31,663 fuzz Unexpected status code: 500
+INFO 2025-03-20 16:24:31,663 fuzz Fuzzing /api/concerts/ with query: 23456
+
+ERROR 2025-03-20 16:24:31,809 concert_views Concert fetch error: 'page'
+ERROR 2025-03-20 16:24:31,809 concert_views Concert fetch error: 'page'
+ERROR 2025-03-20 16:24:31,818 log Internal Server Error: /api/concerts/
+ERROR 2025-03-20 16:24:31,818 log Internal Server Error: /api/concerts/
+ERROR 2025-03-20 16:24:31,818 fuzz Unexpected status code: 500
+INFO 2025-03-20 16:24:31,820 fuzz Fuzzing /api/concerts/ with query: uery=%C2%A9
+
+ERROR 2025-03-20 16:24:32,045 concert_views Concert fetch error: 'page'
+ERROR 2025-03-20 16:24:32,045 concert_views Concert fetch error: 'page'
+ERROR 2025-03-20 16:24:32,046 log Internal Server Error: /api/concerts/
+ERROR 2025-03-20 16:24:32,046 log Internal Server Error: /api/concerts/
+ERROR 2025-03-20 16:24:32,047 fuzz Unexpected status code: 500
+INFO 2025-03-20 16:24:32,048 fuzz Fuzzing /api/concerts/ with query: %^&*()
+
+ERROR 2025-03-20 16:24:32,209 concert_views Concert fetch error: 'page'
+ERROR 2025-03-20 16:24:32,209 concert_views Concert fetch error: 'page'
+ERROR 2025-03-20 16:24:32,211 log Internal Server Error: /api/concerts/
+ERROR 2025-03-20 16:24:32,211 log Internal Server Error: /api/concerts/
+ERROR 2025-03-20 16:24:32,212 fuzz Unexpected status code: 500
+INFO 2025-03-20 16:24:32,213 fuzz Fuzzing /api/concerts/ with query: 
+ERROR 2025-03-20 16:24:32,365 concert_views Concert fetch error: 'page'
+ERROR 2025-03-20 16:24:32,365 concert_views Concert fetch error: 'page'
+ERROR 2025-03-20 16:24:32,366 log Internal Server Error: /api/concerts/
+ERROR 2025-03-20 16:24:32,366 log Internal Server Error: /api/concerts/
+ERROR 2025-03-20 16:24:32,367 fuzz Unexpected status code: 500
+INFO 2025-03-20 16:24:32,368 fuzz Fuzzing /api/concerts/ with query: 󶽯񦑧󦝪񶙤񶭫򦭤񆭮򶝦񶙤񆹪
+ERROR 2025-03-20 16:24:32,587 concert_views Concert fetch error: 'page'
+ERROR 2025-03-20 16:24:32,587 concert_views Concert fetch error: 'page'
+ERROR 2025-03-20 16:24:32,588 log Internal Server Error: /api/concerts/
+ERROR 2025-03-20 16:24:32,588 log Internal Server Error: /api/concerts/
+ERROR 2025-03-20 16:24:32,588 fuzz Unexpected status code: 500
+[*] Ran 7 inputs from "corpus"
