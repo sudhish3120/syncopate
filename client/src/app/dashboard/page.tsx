@@ -78,8 +78,8 @@ export default function Dashboard() {
         throw new Error(data.error || 'Failed to fetch concerts');
       }
 
-      const concerts = await res.json();
-      setConcerts(concerts);
+      const data = await res.json();
+      setConcerts(data["concerts"]);
     } catch (err) {
       console.error("Concert fetch error:", err);
       setError(err instanceof Error ? err.message : "Failed to fetch concerts");
@@ -132,8 +132,8 @@ export default function Dashboard() {
               throw new Error(errorData.error || "Failed to fetch concerts");
           }
 
-          const concerts = await res.json();
-          setConcerts(concerts);
+          const data = await res.json();
+          setConcerts(data["concerts"]);
       } catch (err) {
           console.error("Concert fetch error:", err);
           setError(err instanceof Error ? err.message : "Failed to fetch concerts");
