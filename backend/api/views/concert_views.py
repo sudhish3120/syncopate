@@ -112,7 +112,7 @@ def user_favourite_concerts(request):
         for concert_id in tm_concert_ids:
             request_params = {
                 "apikey": os.environ["TICKETMASTER_KEY"],
-                "id": str(concert_id),
+                "id": concert_id,
                 "includeTest": "no",
             }
 
@@ -121,14 +121,13 @@ def user_favourite_concerts(request):
                 params=request_params,
                 timeout=10,
             ).json()
+
             if response["page"]["totalElements"] > 0:
                 fetched_concerts.append(response["_embedded"]["events"][0])
 
-        return Response({"concerts": fetched_concerts})
-
+        return Response({"concerts": fetched_concerts}, status=200)
     except Exception as e:
-        print(f"ERROR {e}")
-        return Response({"error": "Unable to fetch favourited concerts"})
+        return Response({"error": "Unable to fetch favourited concerts"}, status=500)
 
 
 @api_view(["GET"])
@@ -167,7 +166,6 @@ def matchings(request):
 
         return Response({"matchings": user_matchings}, status=200)
     except Exception as e:
-        print(e)
         return Response({"error": "Error fetching matchings"}, status=500)
 
 
@@ -194,7 +192,6 @@ def review_matching(request):
 
         return Response({"message": "Matching processed successfully"}, status=200)
     except Exception as e:
-        print(e)
         return Response({"error": "Failed to process matching"}, status=500)
 
 

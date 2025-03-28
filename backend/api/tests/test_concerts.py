@@ -23,13 +23,12 @@ User = get_user_model()
 class TestConcertsView:
     """Test cases for concert fetching flow"""
 
-    res_body = ""
+    res_body = {}
 
     @pytest.fixture(autouse=True)
     def setup(self):
         """Setting up tests"""
 
-        self.res_body = {}
         file_path = os.path.join(
             os.path.dirname(__file__), "ticketmaster_response.json"
         )
@@ -282,6 +281,97 @@ class TestFavoriteView:
         assert response.status_code == 500
         assert "error" in response.data
         assert response.data["error"] == "Failed to create/fetch concert"
+
+
+@pytest.mark.django_db
+class TestUserFavoritedConcertsView:
+    """Test cases for user favorited concert flow"""
+
+    res_body = {}
+
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        """Setting up tests"""
+
+        file_path = os.path.join(
+            os.path.dirname(__file__), "ticketmaster_response.json"
+        )
+        with open(file_path, encoding="utf-8") as f:
+            self.res_body = json.load(f)
+
+    @patch("api.views.concert_views.requests.get")
+    def test_user_favorited_concerts(self, mocked_get, authenticated_client, test_user):
+        """Test basic GET user favorited concerts API call"""
+
+        concert = Concert.objects.create(concert_id="123")
+        FavoriteConcert.objects.create(concert=concert, user=test_user)
+
+        res = Response()
+        res.raw = BytesIO(
+            str(
+                json.dumps(
+                    {
+                        "page": {"totalElements": 1},
+                        "_embedded": {"events": [{"name": "hello"}]},
+                    }
+                )
+            ).encode("ascii")
+        )
+        res.status_code = 200
+
+        request_params = {
+            "apikey": os.environ["TICKETMASTER_KEY"],
+            "id": "123",
+            "includeTest": "no",
+        }
+        mocked_get.return_value = res
+
+        url = reverse("favorites")
+        response = authenticated_client.get(url, format="json")
+
+        mocked_get.assert_called_with(
+            f'{os.environ["TICKETMASTER_URL_BASE"]}/events',
+            params=request_params,
+            timeout=10,
+        )
+
+        assert response.status_code == 200
+        assert "concerts" in response.data
+        assert len(response.data["concerts"]) == 1
+        assert response.data["concerts"][0] == {"name": "hello"}
+
+    @patch("api.views.concert_views.requests.get")
+    def test_user_favorited_concerts_with_no_concerts(
+        self, mocked_get, authenticated_client
+    ):
+        """Test basic GET user favorited concerts API call"""
+
+        url = reverse("favorites")
+        response = authenticated_client.get(url, format="json")
+
+        mocked_get.assert_not_called()
+
+        assert response.status_code == 200
+        assert "concerts" in response.data
+        assert len(response.data["concerts"]) == 0
+
+    @patch("api.views.concert_views.requests.get")
+    def test_user_favorited_concerts_with_other_users(
+        self, mocked_get, authenticated_client, other_user
+    ):
+        """Test basic GET user favorited concerts API call"""
+
+        concert = Concert.objects.create(concert_id="123")
+        FavoriteConcert.objects.create(concert=concert, user=other_user)
+
+        url = reverse("favorites")
+        response = authenticated_client.get(url, format="json")
+
+        mocked_get.assert_not_called()
+
+        assert response.status_code == 200
+        assert "concerts" in response.data
+        assert len(response.data["concerts"]) == 0
 
 
 @pytest.mark.django_db
