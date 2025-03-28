@@ -5,8 +5,6 @@ This module tests profile API endpoints.
 import pytest
 from django.urls import reverse
 
-from ..models import UserProfile
-
 
 @pytest.mark.django_db
 class TestProfileAPI:
