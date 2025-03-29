@@ -42,7 +42,7 @@ class TestRegistrationFlow:
         url = reverse("register-init")
         data = {
             "username": "newuser",
-            "password": "testpass123",
+            "password": "Testpass123!",
             "email": test_verification_token.email,
         }
 
@@ -51,12 +51,32 @@ class TestRegistrationFlow:
         assert response.status_code == 200
         assert "setup_token" in response.data
 
+    def test_user_registration_with_invalid_password(
+        self, api_client, test_verification_token
+    ):
+        """Test user registration"""
+        test_verification_token.is_used = True
+        test_verification_token.save()
+
+        url = reverse("register-init")
+        data = {
+            "username": "newuser",
+            "password": "testpass123",
+            "email": test_verification_token.email,
+        }
+
+        response = api_client.post(url, data, format="json")
+
+        assert response.status_code == 400
+        assert "error" in response.data
+        assert response.data["error"] == "Registration failed. Please try again."
+
     def test_user_registration_email_not_verified(self, api_client):
         """Test registration attempt with unverified email"""
         url = reverse("register-init")
         data = {
             "username": "newuser",
-            "password": "testpass123",
+            "password": "Testpass123!",
             "email": "unverified@uwaterloo.ca",
         }
 
