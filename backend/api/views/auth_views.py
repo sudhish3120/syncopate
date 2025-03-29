@@ -207,7 +207,8 @@ class RegisterInitView(generics.CreateAPIView):
                     {"error": "Email not verified"}, status=status.HTTP_400_BAD_REQUEST
                 )
 
-            if not request.data.get("use2FA"):
+            # Change this section to handle boolean use2FA
+            if not request.data.get("use2FA", True):  # Default to True if not provided
                 try:
                     user = User.objects.create_user(
                         username=request.data["username"],
@@ -227,7 +228,7 @@ class RegisterInitView(generics.CreateAPIView):
                         status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                     )
 
-            # Create temporary registration with raw password
+            # Create temporary registration with raw password for 2FA setup
             setup_token = secrets.token_urlsafe(32)
             TemporaryRegistration.objects.create(
                 setup_token=setup_token,
