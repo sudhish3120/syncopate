@@ -59,7 +59,7 @@ class TestRegistrationFlow:
         url = reverse("register-init")
         data = {
             "username": "newuser",
-            "password": "testpass123",
+            "password": "Testpass123!",  # Updated to match password requirements
             "email": test_verification_token.email,
             "use2FA": False,
         }
