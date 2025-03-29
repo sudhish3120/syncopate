@@ -2,18 +2,16 @@
 This module contains all the views related with concert interractions
 """
 
+# pylint: disable=W0719
+
 import json
 import logging
 import os
 
 import requests
 from django.contrib.auth import get_user_model
-from django.http import JsonResponse
-from rest_framework.decorators import (
-    api_view,
-    authentication_classes,
-    permission_classes,
-)
+from rest_framework.decorators import (api_view, authentication_classes,
+                                       permission_classes)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -62,10 +60,10 @@ def concerts(request):
         if "page" in response and response["page"]["totalElements"] > 0:
             events = response["_embedded"]["events"]
 
-        return JsonResponse(events, safe=False)
+        return Response({"concerts": events}, status=200)
     except Exception as e:
         logger.error("Concert fetch error: %s", str(e))
-        return JsonResponse(
+        return Response(
             {"error": "Unable to fetch concerts. Please try again later."}, status=500
         )
 
@@ -75,24 +73,28 @@ def concerts(request):
 @permission_classes([IsAuthenticated])
 def favorite(request):
     """user favoriting a concert"""
-    user = request.user
-    concert_id = request.data.get("concert")
-    # Ensure the concert exists add add it if it does not
     try:
+        user = request.user
+        concert_id = request.data.get("concert")
+
+        if not concert_id:
+            raise Exception()
+
+        # Ensure the concert exists and add it if it does not
         concert, created = Concert.objects.get_or_create(concert_id=concert_id)
-    except Exception as e:
-        return Response({"error: ": "Failed to create/fetch concert"}, status=e)
+    except Exception:
+        return Response({"error": "Failed to create/fetch concert"}, status=500)
     # Favourite a concert logic
     try:
         _favorite, created = FavoriteConcert.objects.get_or_create(
             user=user, concert=concert
         )
         if created:
-            return Response({"Concert favourited successfully"}, status=201)
-        return Response({"Concert already favourited"}, status=200)
+            return Response({"message": "Concert favourited successfully"}, status=201)
+        return Response({"message": "Concert already favourited"}, status=200)
 
-    except Exception as e:
-        return Response({"error: ": "Failed to favorite concert"}, status=e)
+    except Exception:
+        return Response({"error": "Failed to favorite concert"}, status=500)
 
 
 @api_view(["GET"])
@@ -110,7 +112,7 @@ def user_favourite_concerts(request):
         for concert_id in tm_concert_ids:
             request_params = {
                 "apikey": os.environ["TICKETMASTER_KEY"],
-                "id": str(concert_id),
+                "id": concert_id,
                 "includeTest": "no",
             }
 
@@ -119,14 +121,13 @@ def user_favourite_concerts(request):
                 params=request_params,
                 timeout=10,
             ).json()
+
             if response["page"]["totalElements"] > 0:
                 fetched_concerts.append(response["_embedded"]["events"][0])
 
-        return Response({"concerts": fetched_concerts})
-
+        return Response({"concerts": fetched_concerts}, status=200)
     except Exception as e:
-        print(f"ERROR {e}")
-        return Response({"error", "Unable to fetch favourited concerts"})
+        return Response({"error": "Unable to fetch favourited concerts"}, status=500)
 
 
 @api_view(["GET"])
@@ -165,7 +166,6 @@ def matchings(request):
 
         return Response({"matchings": user_matchings}, status=200)
     except Exception as e:
-        print(e)
         return Response({"error": "Error fetching matchings"}, status=500)
 
 
@@ -177,20 +177,21 @@ def review_matching(request):
     try:
         content = json.loads(request.body.decode("utf-8"))
         matching_id = content.get("matchingId")
-        matching = Matching.objects.get(id=matching_id)
-        if not matching:
-            return Response({"error": "Cannot process matching decision"}, status=500)
+        if not matching_id:
+            raise Exception()
+        matching = Matching.objects.get(
+            id=matching_id, user=request.user, decision="UNKNOWN"
+        )
 
         decision = content.get("decision")
         if decision in dict(MATCHING_DECISIONS) and decision != "UNKNOWN":
             matching.decision = decision
             matching.save()
         else:
-            return Response({"error": "Cannot process matching decision"}, status=500)
+            raise Exception()
 
-        return Response({"Matching processed successfully"}, status=200)
+        return Response({"message": "Matching processed successfully"}, status=200)
     except Exception as e:
-        print(e)
         return Response({"error": "Failed to process matching"}, status=500)
 
 

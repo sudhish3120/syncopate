@@ -1,12 +1,13 @@
 """Test cases for authentication flow"""
 
-import pytest
-from django.urls import reverse
-from rest_framework import status
-from django_otp.plugins.otp_totp.models import TOTPDevice
-import pyotp
 import base64
 import os
+
+import pyotp
+import pytest
+from django.urls import reverse
+from django_otp.plugins.otp_totp.models import TOTPDevice
+
 
 @pytest.mark.django_db
 class TestAuthenticationFlow:
@@ -30,10 +31,7 @@ class TestAuthenticationFlow:
     def test_login_invalid_credentials(self, api_client):
         """Test login with invalid credentials"""
         url = reverse("login")
-        data = {
-            "username": "nonexistent",
-            "password": "wrongpass"
-        }
+        data = {"username": "nonexistent", "password": "wrongpass"}
         response = api_client.post(url, data, format="json")
 
         assert response.status_code == 401
@@ -42,13 +40,13 @@ class TestAuthenticationFlow:
     def test_login_with_valid_totp(self, api_client, test_user):
         """Test login with valid credentials and valid TOTP code"""
         # Create and configure TOTP device with proper secret
-        secret = base64.b32encode(os.urandom(10)).decode()  # Generate valid base32 secret
-        totp_device = TOTPDevice.objects.create(
-            user=test_user,
-            confirmed=True,
-            key=secret
+        secret = base64.b32encode(
+            os.urandom(10)
+        ).decode()  # Generate valid base32 secret
+        _totp_device = TOTPDevice.objects.create(
+            user=test_user, confirmed=True, key=secret
         )
-        
+
         totp = pyotp.TOTP(secret)
         valid_code = totp.now()
 
@@ -56,11 +54,11 @@ class TestAuthenticationFlow:
         data = {
             "username": "testuser",
             "password": "testpass123",
-            "totp_code": valid_code
+            "totp_code": valid_code,
         }
-        
+
         response = api_client.post(url, data, format="json")
-        
+
         assert response.status_code == 200
         assert "user" in response.data
         assert "knox_token" in response.cookies
@@ -69,21 +67,17 @@ class TestAuthenticationFlow:
         """Test login with valid credentials but invalid TOTP code"""
         # Create and configure TOTP device with proper secret
         secret = base64.b32encode(os.urandom(10)).decode()
-        TOTPDevice.objects.create(
-            user=test_user,
-            confirmed=True,
-            key=secret
-        )
+        TOTPDevice.objects.create(user=test_user, confirmed=True, key=secret)
 
         url = reverse("login")
         data = {
             "username": "testuser",
             "password": "testpass123",
-            "totp_code": "123456"  # Wrong TOTP code
+            "totp_code": "123456",  # Wrong TOTP code
         }
-        
+
         response = api_client.post(url, data, format="json")
-        
+
         assert response.status_code == 401
         assert "error" in response.data
         assert response.data["error"] == "Invalid TOTP code"
@@ -95,7 +89,7 @@ class TestAuthenticationFlow:
 
         assert response.status_code == 200
         # Check if cookie is present and has proper deletion attributes
-        assert 'knox_token' in response.cookies
-        knox_cookie = response.cookies['knox_token']
-        assert knox_cookie['max-age'] == 0  # Cookie is expired
-        assert knox_cookie.value == ''  # Cookie value is cleared
+        assert "knox_token" in response.cookies
+        knox_cookie = response.cookies["knox_token"]
+        assert knox_cookie["max-age"] == 0  # Cookie is expired
+        assert knox_cookie.value == ""  # Cookie value is cleared

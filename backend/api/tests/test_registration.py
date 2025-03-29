@@ -1,11 +1,12 @@
 """Test cases for user registration flow"""
 
+from unittest.mock import patch
+
 import pytest
 from django.urls import reverse
-from unittest.mock import patch
-from datetime import timedelta
-from django.utils import timezone
+
 from ..models import TemporaryRegistration
+
 
 @pytest.mark.django_db
 class TestRegistrationFlow:
@@ -72,12 +73,11 @@ class TestRegistrationFlow:
             setup_token="valid_token",
             username="testuser",
             email="test@uwaterloo.ca",
-            password="testpass123"
+            password="testpass123",
         )
 
         response = api_client.get(
-            reverse("totp-setup"),
-            HTTP_AUTHORIZATION=f"Bearer {temp_reg.setup_token}"
+            reverse("totp-setup"), HTTP_AUTHORIZATION=f"Bearer {temp_reg.setup_token}"
         )
 
         assert response.status_code == 200
@@ -87,8 +87,7 @@ class TestRegistrationFlow:
     def test_totp_setup_invalid_token(self, api_client):
         """Test TOTP setup with invalid token"""
         response = api_client.get(
-            reverse("totp-setup"),
-            HTTP_AUTHORIZATION="Bearer invalid_token"
+            reverse("totp-setup"), HTTP_AUTHORIZATION="Bearer invalid_token"
         )
 
         assert response.status_code == 400
@@ -96,7 +95,7 @@ class TestRegistrationFlow:
         assert response.data["error"] == "Invalid setup token"
 
     # TOTP Verification Tests
-    @patch('pyotp.TOTP.verify')
+    @patch("pyotp.TOTP.verify")
     def test_totp_verify_success(self, mock_verify, api_client):
         """Test successful TOTP verification"""
         mock_verify.return_value = True
@@ -105,13 +104,13 @@ class TestRegistrationFlow:
             username="testuser",
             email="test@uwaterloo.ca",
             password="testpass123",
-            totp_secret="test_secret"
+            totp_secret="test_secret",
         )
 
         response = api_client.post(
             reverse("totp-verify"),
             {"code": "123456"},
-            HTTP_AUTHORIZATION=f"Bearer {temp_reg.setup_token}"
+            HTTP_AUTHORIZATION=f"Bearer {temp_reg.setup_token}",
         )
 
         assert response.status_code == 200
@@ -126,13 +125,13 @@ class TestRegistrationFlow:
             username="testuser",
             email="test@uwaterloo.ca",
             password="testpass123",
-            totp_secret="test_secret"
+            totp_secret="test_secret",
         )
 
         response = api_client.post(
             reverse("totp-verify"),
             {},
-            HTTP_AUTHORIZATION=f"Bearer {temp_reg.setup_token}"
+            HTTP_AUTHORIZATION=f"Bearer {temp_reg.setup_token}",
         )
 
         assert response.status_code == 400
