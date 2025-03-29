@@ -7,6 +7,7 @@ This module contains all the views related with concert interractions
 import json
 import logging
 import os
+from datetime import datetime
 
 import requests
 from django.contrib.auth import get_user_model
@@ -17,12 +18,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from ..authentication import CookieTokenAuthentication
-from ..models import MATCHING_DECISIONS, Concert, FavoriteConcert, Matching, UserProfile
+from ..models import (MATCHING_DECISIONS, Concert, FavoriteConcert, Matching,
+                      UserProfile)
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
 
 LOCATIONS = {"KW": "43.449791,-80.489090", "TO": "43.653225,-79.383186"}
+VENUES = {"HISTORY": "KovZ917AJ4f"}
 
 
 @api_view(["GET"])
@@ -37,15 +40,24 @@ def concerts(request):
             "unit": "km",
             "classificationName": "Music",
             "includeTest": "no",
+            "sort": "date,asc",
         }
 
         search_params = request.GET.get("query", None)
         location_params = request.GET.get("location", "ALL")
+        venue_params = request.GET.get("venue", None)
+        onsale_params = request.GET.get("onsaleSoon", False)
 
         if search_params:
             request_params["keyword"] = search_params
         if location_params != "ALL":
             request_params["latlong"] = LOCATIONS[location_params]
+        if venue_params:
+            request_params["venueId"] = VENUES[venue_params]
+        if onsale_params:
+            today = datetime.today().strftime("%Y-%m-%dT00:00:00Z")
+            request_params["onsaleStartDateTime"] = today
+            request_params["startDateTime"] = today
 
         response = requests.get(
             f'{os.environ["TICKETMASTER_URL_BASE"]}/events',

@@ -5,6 +5,7 @@ This module is responsible for returning user data
 # pylint: disable=R0912
 
 import logging
+
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.core.validators import RegexValidator
 from rest_framework import permissions, status
@@ -78,7 +79,9 @@ def update_profile(request):
                     try:
                         name_validator(artist_name.strip())
                     except DjangoValidationError as exc:
-                        raise ValidationError("Invalid characters for artist name") from exc
+                        raise ValidationError(
+                            "Invalid characters for artist name"
+                        ) from exc
                     artist, _ = Artist.objects.get_or_create(
                         name=artist_name.strip()[:50]  # Enforce max length
                     )
@@ -98,7 +101,9 @@ def update_profile(request):
                     try:
                         name_validator(genre_name.strip())
                     except DjangoValidationError as exc:
-                        raise ValidationError("Invalid characters for Genre name") from exc
+                        raise ValidationError(
+                            "Invalid characters for Genre name"
+                        ) from exc
                     genre, _ = Genre.objects.get_or_create(
                         name=genre_name.strip()[:30]  # Enforce max length
                     )

@@ -11,5 +11,6 @@ class ApiConfig(AppConfig):
 
     def ready(self):
         import api.signals  # noqa: E402, F401
+
         # E402: Module level import not at top of file
         # F401: Imported but unused

@@ -50,8 +50,10 @@ setup-python:
 	$(PIP) install --upgrade pip
 	$(PIP) install -r backend/requirements.txt
 
-# Run Pylint
+# Run linting checks
 lint-python:
+	black backend
+	isort backend
 	$(PYTHON) -m pylint --load-plugins pylint_django $(shell find backend -name "*.py") --disable=C0114,C0115,C0116,missing-docstring,invalid-name,W0718,C0415,W0611,C0103 --django-settings-module=backend.settings
 
 # Clean up the virtual environment
