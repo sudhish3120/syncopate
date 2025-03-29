@@ -19,7 +19,6 @@ export default function Profile() {
           setError('session-expired');
           return;
         }
-
         if (!res.ok) {
           throw new Error("Failed to fetch user data");
         }

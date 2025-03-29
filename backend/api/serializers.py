@@ -87,7 +87,15 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ["profile_photo", "favorite_artists", "favorite_genres"]
+        fields = [
+            "first_name",
+            "last_name",
+            "faculty",
+            "term",
+            "profile_photo",
+            "favorite_artists",
+            "favorite_genres",
+        ]
 
 
 class UserSerializer(serializers.ModelSerializer):

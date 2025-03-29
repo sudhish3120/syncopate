@@ -10,13 +10,16 @@ import os
 
 import requests
 from django.contrib.auth import get_user_model
-from rest_framework.decorators import (api_view, authentication_classes,
-                                       permission_classes)
+from rest_framework.decorators import (
+    api_view,
+    authentication_classes,
+    permission_classes,
+)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from ..authentication import CookieTokenAuthentication
-from ..models import MATCHING_DECISIONS, Concert, FavoriteConcert, Matching
+from ..models import MATCHING_DECISIONS, Concert, FavoriteConcert, Matching, UserProfile
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -137,7 +140,6 @@ def matchings(request):
     """get all the matchings associated with user"""
     try:
         user_matchings = []
-
         current_user = request.user
         fav_concerts = FavoriteConcert.objects.filter(user_id=current_user.id)
         user_concerts = Concert.objects.filter(
@@ -150,18 +152,24 @@ def matchings(request):
             other_concerts = Concert.objects.filter(
                 id__in=other_fav_concerts.values_list("concert_id")
             )
-
             # has at least 1 common concert
             if (user_concerts & other_concerts).exists():
                 preexisting_match = Matching.objects.filter(
                     user=current_user, target=other_user
                 ).exclude(decision="UNKNOWN")
+                target_profile_photo = (
+                    UserProfile.objects.filter(user=other_user).first().profile_photo
+                )
                 if not preexisting_match:
                     matching, _created = Matching.objects.get_or_create(
                         user=current_user, target=other_user, decision="UNKNOWN"
                     )
                     user_matchings.append(
-                        {"id": matching.id, "username": matching.target.username}
+                        {
+                            "id": matching.id,
+                            "username": matching.target.username,
+                            "profile_photo": target_profile_photo,
+                        }
                     )
 
         return Response({"matchings": user_matchings}, status=200)

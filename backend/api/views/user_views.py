@@ -9,8 +9,11 @@ import re
 
 from django.core.exceptions import ValidationError
 from rest_framework import permissions, status
-from rest_framework.decorators import (api_view, authentication_classes,
-                                       permission_classes)
+from rest_framework.decorators import (
+    api_view,
+    authentication_classes,
+    permission_classes,
+)
 from rest_framework.response import Response
 
 from ..authentication import CookieTokenAuthentication
@@ -47,6 +50,8 @@ def update_profile(request):
         profile, _created = UserProfile.objects.get_or_create(user=user)
         data = request.data
 
+        print(data)
+
         # Validate profile photo
         allowed_avatars = [
             "/avatars/1.jpg",
@@ -55,11 +60,49 @@ def update_profile(request):
             "/avatars/4.jpg",
         ]
 
+        allowed_terms = [
+            "1A",
+            "1B",
+            "2A",
+            "2B",
+            "3A",
+            "3B",
+            "4A",
+            "4B",
+            "Masters",
+            "Graduate",
+            "PhD",
+            "Undergraduate",
+            "Exchange Student",
+            "Prefer not to say",
+        ]
+
+        allowed_faculties = [
+            "Arts",
+            "Engineering",
+            "Environment",
+            "Health",
+            "Mathematics",
+            "Science",
+        ]
+
         if "profile_photo" in data:
             if data["profile_photo"] not in allowed_avatars:
                 raise ValidationError("Invalid avatar selection")
             profile.profile_photo = data["profile_photo"]
-            profile.save()
+        if "first_name" in data:
+            profile.first_name = data["first_name"].strip()
+        if "last_name" in data:
+            profile.last_name = data["last_name"].strip()
+        if "term" in data:
+            if data["term"] not in allowed_terms:
+                raise ValidationError("Invalid term selection")
+            profile.term = data["term"]
+        if "faculty" in data:
+            if data["faculty"] not in allowed_faculties:
+                raise ValidationError("Invalid faculty selection")
+            profile.faculty = data["faculty"]
+        profile.save()
 
         input_regex = r"^[a-zA-Z0-9\s&\'-]{0,50}$"
 

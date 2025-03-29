@@ -1,5 +1,5 @@
 "use client";
-import * as React from "react";
+import React, { useEffect } from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -14,8 +14,7 @@ import { redirect } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { pages_url } from "../constants";
 
-
-const settings = ["Profile", "Account", "Dashboard", "Logout"];
+const settings = ["Profile", "Logout"];
 
 function NavBar() {
   const router = useRouter();
@@ -26,6 +25,7 @@ function NavBar() {
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
     null
   );
+  const [profilePhoto, setProfilePhoto] = React.useState<string | null>(null);
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -73,6 +73,26 @@ function NavBar() {
       </div>
     );
   }
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const res = await fetch("http://localhost:8000/api/auth/user/", {
+          credentials: "include",
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setProfilePhoto(data.user.profile.profile_photo)
+        }
+      } catch (error) {
+        console.error("Auth check failed:", error);
+      } finally {
+        // setIsLoading(false);
+      }
+    };
+    fetchUserProfile();
+  }, []);
 
   return (
     <AppBar position="fixed" sx={{ backgroundColor: "#1A1A1A" }}>
@@ -132,18 +152,15 @@ function NavBar() {
               sx={{ display: { xs: "block", md: "none" } }}
             >
               {Object.keys(pages_url).map((page) => (
-                <MenuItem
-                    key={page}
-                    onClick={handleCloseNavMenu}
-                >
-                    <Typography
-                        sx={{
-                            textAlign: "center",
-                            color: "white",
-                        }}
-                    >
-                        {page}
-                    </Typography>
+                <MenuItem key={page} onClick={handleCloseNavMenu}>
+                  <Typography
+                    sx={{
+                      textAlign: "center",
+                      color: "white",
+                    }}
+                  >
+                    {page}
+                  </Typography>
                 </MenuItem>
               ))}
             </Menu>
@@ -164,7 +181,7 @@ function NavBar() {
               textDecoration: "none",
             }}
           >
-            LOGO
+            SYNCOPATE
           </Typography>
           <Box
             sx={{
@@ -174,25 +191,30 @@ function NavBar() {
             }}
           >
             {Object.keys(pages_url).map((page) => (
-                <MenuItem
-                    key={page}
-                    onClick={() => redirect(pages_url[page])}
+              <MenuItem key={page} onClick={() => redirect(pages_url[page])}>
+                <Typography
+                  sx={{
+                    textAlign: "center",
+                    color: "white",
+                  }}
                 >
-                    <Typography
-                        sx={{
-                            textAlign: "center",
-                            color: "white",
-                        }}
-                    >
-                        {page}
-                    </Typography>
-                </MenuItem>
+                  {page}
+                </Typography>
+              </MenuItem>
             ))}
           </Box>
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar />
+                {profilePhoto ? (
+                  <Avatar
+                    src={profilePhoto}
+                    alt="Profile"
+                    sx={{ width: 40, height: 40 }}
+                  />
+                ) : (
+                  <Avatar sx={{ width: 40, height: 40 }} />
+                )}
               </IconButton>
             </Tooltip>
             <Menu
