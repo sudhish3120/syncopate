@@ -2,6 +2,7 @@
 
 import base64
 import logging
+import re
 import secrets
 from io import BytesIO
 
@@ -184,6 +185,17 @@ class RegisterInitView(generics.CreateAPIView):
 
     def post(self, request, *args, **kwargs):
         try:
+            password_regex = (
+                r"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$"
+            )
+            if not request.data["password"] or not re.match(
+                password_regex, request.data["password"]
+            ):
+                logger.error(
+                    "Registration error: password doesn't exist or doesn't match regex"
+                )
+                raise Exception()
+
             # Validate email verification
             verified = EmailVerificationToken.objects.filter(
                 email=request.data.get("email"), is_used=True
