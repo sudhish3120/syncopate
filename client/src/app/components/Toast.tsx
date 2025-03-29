@@ -1,4 +1,6 @@
-import React, { useEffect } from 'react';
+'use client';
+import React from 'react';
+import { useEffect } from 'react';
 
 interface ToastProps {
   message: string;
