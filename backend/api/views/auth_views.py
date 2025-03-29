@@ -11,6 +11,7 @@ import qrcode
 import qrcode.image.svg
 from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model, login
+from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django_otp.plugins.otp_totp.models import TOTPDevice
 from knox.models import AuthToken
@@ -194,7 +195,7 @@ class RegisterInitView(generics.CreateAPIView):
                 logger.error(
                     "Registration error: password doesn't exist or doesn't match regex"
                 )
-                raise Exception()
+                raise ValidationError("Registration failed. Please try again.")
 
             # Validate email verification
             verified = EmailVerificationToken.objects.filter(
