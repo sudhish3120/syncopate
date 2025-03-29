@@ -12,6 +12,7 @@ import {
   LinearProgress,
   Typography,
 } from "../../../node_modules/@mui/material/index";
+import { useRef } from "react";
 
 enum MatchingStatus {
   YES = "YES",
@@ -22,6 +23,8 @@ enum MatchingStatus {
 interface Matching {
   id: string;
   username: string;
+  profile_photo: string;
+  concerts: Array<string>;
 }
 
 export default function ExplorePeople() {
@@ -30,8 +33,48 @@ export default function ExplorePeople() {
   const [people, setPeople] = useState<MatchingStatus[]>([]);
   const [peopleIndex, setPeopleIndex] = useState<number>(0);
   const [noMatchings, setNoMatchings] = useState<boolean>(true);
+  const [commonConcerts, setCommonConcerts] = useState<Array<String>>();
 
+  const fetchCalled = useRef(false);
+  const getConcertById = async (id: String) => {
+    try {
+      const res = await fetch(
+        `http://localhost:8000/api/concerts/concert_by_id/?id=${id}`,
+        {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (res.status === 401) {
+        setError("session-expired");
+        return;
+      }
+
+      if (res.status === 503) {
+        setError("Service temporarily unavailable");
+        return;
+      }
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to fetch concert");
+      }
+      const data = await res.json();
+      const concertName = data.concerts[0]?.name;
+      if (concertName) {
+        setCommonConcerts((prev) => [...prev, concertName]);
+      }
+    } catch (err) {
+      console.error("Concert fetch error:", err);
+      setError(err instanceof Error ? err.message : "Failed to fetch concerts");
+    }
+  };
   const fetchMatchings = async () => {
+    if (fetchCalled.current) return;
+    fetchCalled.current = true;
     try {
       const res = await fetch("http://localhost:8000/api/concerts/matchings", {
         method: "GET",
@@ -56,10 +99,19 @@ export default function ExplorePeople() {
       setIsLoading(false);
     }
   };
-
   useEffect(() => {
     fetchMatchings();
   }, []);
+
+  useEffect(() => {
+    if (people.length > 0) {
+      console.log(peopleIndex);
+      setCommonConcerts([]);
+      people[peopleIndex]["concerts"].forEach((c) => {
+        getConcertById(c);
+      });
+    }
+  }, [peopleIndex, people]);
 
   if (isLoading) {
     return <div className="p-4">Loading...</div>;
@@ -185,6 +237,25 @@ export default function ExplorePeople() {
                     YES
                   </Button>
                 </CardActions>
+                <Typography
+                  gutterBottom
+                  variant="h5"
+                  component="div"
+                  className="font-semibold text-white pb-10"
+                >
+                  You both want to go to:
+                </Typography>
+                {commonConcerts ? (
+                  <ul>
+                    {commonConcerts.map((concert, index) => (
+                      <li key={index} className="text-white">
+                        {concert}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <Typography>H</Typography>
+                )}
               </Box>
             </Box>
             // <Card sx={{ display: 'flex' }}>

@@ -4,7 +4,6 @@ This module contains all serializers (JSON <-> object).
 
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
-
 from .models import Artist, Concert, FavoriteConcert, Genre, UserProfile
 
 User = get_user_model()
@@ -64,24 +63,21 @@ class FavoriteConcertSerializer(serializers.ModelSerializer):
 
 
 class ArtistSerializer(serializers.ModelSerializer):
-    """artist serializer"""
-
+    """Artist Serializer"""
     class Meta:
         model = Artist
         fields = ["id", "name"]
 
 
 class GenreSerializer(serializers.ModelSerializer):
-    """genre serializer"""
-
+    """Genre Serializer"""
     class Meta:
         model = Genre
         fields = ["id", "name"]
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    """user profile serializer"""
-
+    """User Profile Serializer"""
     favorite_artists = ArtistSerializer(many=True, read_only=True)
     favorite_genres = GenreSerializer(many=True, read_only=True)
 

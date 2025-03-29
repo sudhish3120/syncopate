@@ -106,12 +106,13 @@ class Artist(models.Model):
     """Artist model"""
     name = models.CharField(max_length=200, unique=True)
 
-    def __str__(self):
-        return self.name
+    def __str__(self) -> str:
+        return str(self.name)
+
 
 class Genre(models.Model):
     """Genre model"""
     name = models.CharField(max_length=200, unique=True)
 
     def __str__(self):
-        return self.name
+        return str(self.name)

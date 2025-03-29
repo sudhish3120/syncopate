@@ -10,11 +10,9 @@ import os
 
 import requests
 from django.contrib.auth import get_user_model
-from rest_framework.decorators import (
-    api_view,
-    authentication_classes,
-    permission_classes,
-)
+from django.http import JsonResponse
+from rest_framework.decorators import (api_view, authentication_classes,
+                                       permission_classes)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -25,17 +23,19 @@ logger = logging.getLogger(__name__)
 User = get_user_model()
 
 LOCATIONS = {"KW": "43.449791,-80.489090", "TO": "43.653225,-79.383186"}
+
 @api_view(["GET"])
 @authentication_classes([CookieTokenAuthentication])
 @permission_classes([IsAuthenticated])
 def get_concert(request):
-    """fetch concert by id"""
+    """fetch all concerts based on query passed in"""
     try:
         request_params = {
+            "apikey": os.environ["TICKETMASTER_KEY"],
             "id": ""
         }
         concert_id = request.GET.get("id", "")
-        if concert_id:
+        if concert_id != "":
             request_params["id"] = concert_id
         response = requests.get(
             f'{os.environ["TICKETMASTER_URL_BASE"]}/events',
@@ -50,14 +50,13 @@ def get_concert(request):
         )
         if "page" in response and response["page"]["totalElements"] > 0:
             events = response["_embedded"]["events"]
-        return Response({"concerts": events}, status=200)
 
+        return Response({"concerts": events}, status=200)
     except Exception as e:
         logger.error("Concert fetch error: %s", str(e))
         return Response(
             {"error": "Unable to fetch concerts. Please try again later."}, status=500
         )
-
 @api_view(["GET"])
 @authentication_classes([CookieTokenAuthentication])
 @permission_classes([IsAuthenticated])

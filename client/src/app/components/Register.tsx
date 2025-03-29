@@ -9,6 +9,7 @@ interface RegisterValues {
   username: string;
   password: string;
   confirmPassword: string;
+  use2FA: boolean;  // Add this line
 }
 
 const RegisterSchema = Yup.object().shape({
@@ -48,13 +49,19 @@ export default function Register() {
         body: JSON.stringify({
           username: values.username,
           email: email,
-          password: values.password
+          password: values.password,
+          use2FA: values.use2FA 
         }),
       });
 
       if (res.ok) {
-        const { setup_token } = await res.json();
-        router.push(`/register/totp-setup?token=${setup_token}`);
+        const resJson = await res.json();
+        if (resJson.user) {
+          router.push('/'); 
+        } else if (resJson.setup_token) {
+          const { setup_token } = resJson;
+          router.push(`/register/totp-setup?token=${setup_token}`);
+        }
       } else {
         const data = await res.json();
         throw new Error(data.error || 'Registration failed');
@@ -87,11 +94,11 @@ export default function Register() {
 
   return (
     <Formik
-      initialValues={{ username: "", password: "", confirmPassword: "" }}
+      initialValues={{ username: "", password: "", confirmPassword: "", use2FA: true }}
       validationSchema={RegisterSchema}
       onSubmit={handleSubmit}
     >
-      {({ errors, touched, isSubmitting, status }) => (
+      {({ errors, touched, isSubmitting, status, values, setFieldValue }) => (
         <Form className="flex flex-col gap-4 max-w-md mx-auto mt-8">
           {verified && (
             <div className="bg-green-50 text-green-700 p-4 rounded-lg mb-4">
@@ -136,6 +143,28 @@ export default function Register() {
             {errors.confirmPassword && touched.confirmPassword && (
               <div className="text-red-500 text-sm">{errors.confirmPassword}</div>
             )}
+          </div>
+
+          <div className="flex items-center justify-between p-4 bg-gray-800 rounded-lg">
+            <div className="flex flex-col">
+              <span className="text-white font-medium">Disable 2FA</span>
+              <span className="text-gray-400 text-sm">
+                Two-factor authentication adds an extra layer of security
+              </span>
+            </div>
+            <button
+              type="button"
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-violet-600 focus:ring-offset-2 focus:ring-offset-black ${
+                values.use2FA ? 'bg-gray-500' : 'bg-violet-600'
+              }`}
+              onClick={() => setFieldValue('use2FA', !values.use2FA)}
+            >
+              <span
+                className={`${
+                  values.use2FA ? 'translate-x-1' : 'translate-x-6'
+                } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+              />
+            </button>
           </div>
 
           {status && (
