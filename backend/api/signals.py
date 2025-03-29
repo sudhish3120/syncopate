@@ -10,6 +10,6 @@ User = get_user_model()
 
 
 @receiver(post_save, sender=User)
-def create_or_get_user_profile(_sender, instance, _created, **kwargs):
+def create_or_get_user_profile(instance, **kwargs):
     """Create or get user profile when user is created/saved"""
     UserProfile.objects.get_or_create(user=instance)
