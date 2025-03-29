@@ -6,6 +6,7 @@ Test cases for concert views.
 
 import json
 import os
+from datetime import datetime
 from io import BytesIO
 from unittest.mock import patch
 
@@ -91,10 +92,50 @@ class TestConcertsView:
             "classificationName": "Music",
             "includeTest": "no",
             "keyword": "hello",
+            "sort": "date,asc",
         }
 
         mocked_get.return_value = res
         url = reverse("concerts") + "?query=hello"
+        response = authenticated_client.get(url, format="json")
+
+        mocked_get.assert_called_once_with(
+            f'{os.environ["TICKETMASTER_URL_BASE"]}/events',
+            params=request_params,
+            timeout=10,
+        )
+
+        assert response.status_code == 200
+        assert "concerts" in response.data
+        assert (
+            response.data["concerts"]
+            == self.res_body["populated_response"]["_embedded"]["events"]
+        )
+
+    @patch("api.views.concert_views.requests.get")
+    def test_concerts_with_onsale(self, mocked_get, authenticated_client):
+        """Test GET concerts API call with search query and location"""
+
+        res = Response()
+        res.raw = BytesIO(
+            str(json.dumps(self.res_body["populated_response"])).encode("ascii")
+        )
+        res.status_code = 200
+
+        today = datetime.today().strftime("%Y-%m-%dT00:00:00Z")
+        request_params = {
+            "apikey": os.environ["TICKETMASTER_KEY"],
+            "radius": "20",
+            "unit": "km",
+            "classificationName": "Music",
+            "includeTest": "no",
+            "sort": "date,asc",
+            "onsaleStartDateTime": today,
+            "startDateTime": today,
+        }
+
+        mocked_get.return_value = res
+        url = reverse("concerts") + "?onsaleSoon=true"
         response = authenticated_client.get(url, format="json")
 
         mocked_get.assert_called_once_with(
@@ -127,6 +168,7 @@ class TestConcertsView:
             "classificationName": "Music",
             "includeTest": "no",
             "latlong": "43.653225,-79.383186",
+            "sort": "date,asc",
         }
 
         mocked_get.return_value = res
@@ -185,6 +227,7 @@ class TestConcertsView:
             "includeTest": "no",
             "keyword": "hello",
             "latlong": "43.653225,-79.383186",
+            "sort": "date,asc",
         }
 
         mocked_get.return_value = res

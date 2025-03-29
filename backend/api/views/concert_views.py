@@ -7,6 +7,7 @@ This module contains all the views related with concert interractions
 import json
 import logging
 import os
+from datetime import datetime
 
 import requests
 from django.contrib.auth import get_user_model
@@ -17,12 +18,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from ..authentication import CookieTokenAuthentication
-from ..models import MATCHING_DECISIONS, Concert, FavoriteConcert, Matching, UserProfile
+from ..models import (MATCHING_DECISIONS, Concert, FavoriteConcert, Matching,
+                      UserProfile)
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
 
 LOCATIONS = {"KW": "43.449791,-80.489090", "TO": "43.653225,-79.383186"}
+VENUES = {"HISTORY": "KovZ917AJ4f"}
 
 @api_view(["GET"])
 @authentication_classes([CookieTokenAuthentication])
@@ -69,15 +72,24 @@ def concerts(request):
             "unit": "km",
             "classificationName": "Music",
             "includeTest": "no",
+            "sort": "date,asc",
         }
 
         search_params = request.GET.get("query", None)
         location_params = request.GET.get("location", "ALL")
+        venue_params = request.GET.get("venue", None)
+        onsale_params = request.GET.get("onsaleSoon", False)
 
         if search_params:
             request_params["keyword"] = search_params
         if location_params != "ALL":
             request_params["latlong"] = LOCATIONS[location_params]
+        if venue_params:
+            request_params["venueId"] = VENUES[venue_params]
+        if onsale_params:
+            today = datetime.today().strftime("%Y-%m-%dT00:00:00Z")
+            request_params["onsaleStartDateTime"] = today
+            request_params["startDateTime"] = today
 
         response = requests.get(
             f'{os.environ["TICKETMASTER_URL_BASE"]}/events',
@@ -231,13 +243,32 @@ def matchings(request):
                 target_profile_photo = (
                     UserProfile.objects.filter(user=other_user).first().profile_photo
                 )
+                target_name = (
+                    UserProfile.objects.filter(user=other_user).first().first_name
+                    + " "
+                    + UserProfile.objects.filter(user=other_user).first().last_name
+                )
+                target_faculty = (
+                    UserProfile.objects.filter(user=other_user).first().faculty
+                )
+                target_academic_term = (
+                    UserProfile.objects.filter(user=other_user).first().term
+                )
                 if not preexsting_match:
                     matching, _created = Matching.objects.get_or_create(
                         user=current_user, target=other_user, decision="UNKNOWN"
                     )
                     matching.matched_concerts.set(shared_concerts) #link shared concerts
                     user_matchings.append(
-                    {"id": matching.id, "username": matching.target.username, "concerts": list(shared_concerts.values_list("concert_id", flat=True)),  "profile_photo": target_profile_photo,}
+                        {
+                            "id": matching.id,
+                            "username": matching.target.username,
+                            "profile_photo": target_profile_photo,
+                            "target_name": target_name,
+                            "target_faculty": target_faculty,
+                            "target_academic_term": target_academic_term,
+                            "concerts": list(shared_concerts.values_list("concert_id", flat=True))
+                        }
                     )
         return Response({"matchings": user_matchings}, status=200)
     except Exception as e:
