@@ -241,8 +241,8 @@ def matchings(request):
                     {"id": matching.id, "username": matching.target.username, "concerts": list(shared_concerts.values_list("concert_id", flat=True)),  "profile_photo": target_profile_photo,}
                     )
         return Response({"matchings": user_matchings}, status=200)
-    except Exception:
-        return Response({"error": "Error fetching matchings"}, status=500)
+    except Exception as e:
+        return Response({"error": "Error fetching matchings"}, status=e)
 
 
 @api_view(["POST"])

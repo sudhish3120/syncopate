@@ -27,18 +27,9 @@ interface Matching {
 export default function ExplorePeople() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-
   const [people, setPeople] = useState<MatchingStatus[]>([]);
   const [peopleIndex, setPeopleIndex] = useState<number>(0);
   const [noMatchings, setNoMatchings] = useState<boolean>(true);
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      redirect("/login");
-      return;
-    }
-  }, []);
 
   const fetchMatchings = async () => {
     try {
