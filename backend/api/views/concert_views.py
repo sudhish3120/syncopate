@@ -126,7 +126,7 @@ def user_favourite_concerts(request):
                 fetched_concerts.append(response["_embedded"]["events"][0])
 
         return Response({"concerts": fetched_concerts}, status=200)
-    except Exception as e:
+    except Exception:
         return Response({"error": "Unable to fetch favourited concerts"}, status=500)
 
 
@@ -165,7 +165,7 @@ def matchings(request):
                     )
 
         return Response({"matchings": user_matchings}, status=200)
-    except Exception as e:
+    except Exception:
         return Response({"error": "Error fetching matchings"}, status=500)
 
 
@@ -191,7 +191,7 @@ def review_matching(request):
             raise Exception()
 
         return Response({"message": "Matching processed successfully"}, status=200)
-    except Exception as e:
+    except Exception:
         return Response({"error": "Failed to process matching"}, status=500)
 
 
