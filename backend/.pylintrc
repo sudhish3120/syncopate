@@ -1,0 +1,13 @@
+[MASTER]
+load-plugins=pylint_django
+django-settings-module=backend.settings
+ignore=migrations
+
+[MESSAGES CONTROL]
+disable=C0114,C0115,C0116,missing-docstring,invalid-name,W0718,C0415,W0611,C0103
+
+[TYPECHECK]
+generated-members=REQUEST,acl_users,aq_parent,objects,DoesNotExist,id,pk,_meta,base_fields,context,clean,save,delete
+
+[FORMAT]
+max-line-length=120
