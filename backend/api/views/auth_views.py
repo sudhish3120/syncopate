@@ -60,9 +60,9 @@ class LoginView(KnoxLoginView):
                             status=status.HTTP_401_UNAUTHORIZED,
                         )
 
-                    # Use pyotp for verification
+                    # Use pyotp for verification with time window
                     totp = pyotp.TOTP(totp_device.key)
-                    if not totp.verify(request.data.get("totp_code")):
+                    if not totp.verify(request.data.get("totp_code"), valid_window=1):
                         return Response(
                             {"error": "Invalid TOTP code"},
                             status=status.HTTP_401_UNAUTHORIZED,
@@ -317,6 +317,13 @@ def totp_verify(request):
                 username=temp_reg.username,
                 email=temp_reg.email,
                 password=temp_reg.password,
+            )
+
+            # Create and confirm TOTP device
+            TOTPDevice.objects.create(
+                user=user,
+                key=temp_reg.totp_secret,
+                confirmed=True
             )
 
             # Cleanup
