@@ -1,6 +1,5 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { redirect } from "next/navigation";
 import ConcertCard from "../components/ConcertCard";
 import Nav from "../components/Nav";
 import { FaMagnifyingGlass } from "react-icons/fa6";

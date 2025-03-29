@@ -4,6 +4,7 @@ import * as Yup from "yup";
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from "next/link";
 import React from "react";
+import { FormikErrors, FormikTouched } from "../../../node_modules/formik/dist/types";
 interface RegisterValues {
   username: string;
   password: string;
@@ -12,14 +13,17 @@ interface RegisterValues {
 
 const RegisterSchema = Yup.object().shape({
   username: Yup.string()
-    .min(2, "Username too short")
-    .required("Username is required"),
+    .min(2, "Username too short.")
+    .required("Username is required."),
   password: Yup.string()
-    .min(6, "Password must be at least 6 characters")
-    .required("Password is required"),
+    .matches(
+      /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/,
+      "Password is invalid."
+    )
+    .required("Password is required."),
   confirmPassword: Yup.string()
-    .oneOf([Yup.ref('password')], 'Passwords must match')
-    .required("Please confirm your password"),
+    .oneOf([Yup.ref('password')], 'Passwords must match.')
+    .required("Please confirm your password."),
 });
 
 export default function Register() {
@@ -62,6 +66,25 @@ export default function Register() {
     }
   };
 
+  const formattedPasswordError = (touched: FormikTouched<RegisterValues>, error: FormikErrors<RegisterValues>) => {
+    if (touched.password && error.password == "Password is invalid.") {
+      return (
+        <>
+          <p>Password must include at least:</p>
+            <ul>
+              <li>1 uppercase letter</li>
+              <li>1 lowercase letter</li>
+              <li>1 digit</li>
+              <li>1 special character</li>
+            </ul>
+          <p>and is at least 8 characters long.</p>
+        </>
+      )
+    } else if (touched.password && error.password) {
+      return <>{error.password}</>
+    }
+  }
+
   return (
     <Formik
       initialValues={{ username: "", password: "", confirmPassword: "" }}
@@ -94,9 +117,13 @@ export default function Register() {
               placeholder="Password"
               className="w-full p-2 border rounded"
             />
-            {errors.password && touched.password && (
-              <div className="text-red-500 text-sm">{errors.password}</div>
-            )}
+            {errors.password && touched.password && 
+              (
+                <div className="text-red-500 text-sm">
+                  {formattedPasswordError(touched, errors)}
+                </div>
+              )
+}
           </div>
 
           <div>
