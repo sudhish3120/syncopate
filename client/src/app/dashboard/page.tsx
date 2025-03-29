@@ -41,7 +41,7 @@ export default function Dashboard() {
         if (!res.ok) {
           throw new Error("Failed to fetch user data");
         }
-        const { user, status } = await res.json();
+        await res.json(); // Remove destructuring since variables aren't used
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
         console.error(err);

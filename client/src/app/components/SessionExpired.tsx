@@ -1,4 +1,6 @@
-import React, { useRouter } from 'next/navigation';
+'use client';
+import React from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function SessionExpired() {
   const router = useRouter();

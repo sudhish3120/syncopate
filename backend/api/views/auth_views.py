@@ -207,6 +207,26 @@ class RegisterInitView(generics.CreateAPIView):
                     {"error": "Email not verified"}, status=status.HTTP_400_BAD_REQUEST
                 )
 
+            if not request.data.get("use2FA"):
+                try:
+                    user = User.objects.create_user(
+                        username=request.data["username"],
+                        email=request.data["email"],
+                        password=request.data["password"],
+                    )
+                    return Response(
+                        {
+                            "user": UserSerializer(user).data,
+                            "message": "User registration successful",
+                        }
+                    )
+                except Exception as e:
+                    logger.error("Error creating user: %s", str(e))
+                    return Response(
+                        {"error": "Failed to complete registration. Please try again."},
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    )
+
             # Create temporary registration with raw password
             setup_token = secrets.token_urlsafe(32)
             TemporaryRegistration.objects.create(
