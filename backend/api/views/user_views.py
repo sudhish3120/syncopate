@@ -2,25 +2,25 @@
 This module is responsible for returning user data
 """
 
-import logging
+# pylint: disable=R0912
 
-from django.core.exceptions import ValidationError as DjangoValidationError
-from django.core.validators import RegexValidator
+import logging
+import re
+
+from django.core.exceptions import ValidationError
 from rest_framework import permissions, status
-from rest_framework.decorators import (api_view, authentication_classes,
-                                       permission_classes)
+from rest_framework.decorators import (
+    api_view,
+    authentication_classes,
+    permission_classes,
+)
 from rest_framework.response import Response
-from rest_framework.serializers import ValidationError
 
 from ..authentication import CookieTokenAuthentication
 from ..models import Artist, Genre, UserProfile
 from ..serializers import UserSerializer
 
 logger = logging.getLogger(__name__)
-
-name_validator = RegexValidator(
-    regex=r"^[a-zA-Z0-9\s&\'-]{0,50}$", message="Contains invalid characters"
-)
 
 
 @api_view(["GET"])
@@ -50,6 +50,8 @@ def update_profile(request):
         profile, _created = UserProfile.objects.get_or_create(user=user)
         data = request.data
 
+        print(data)
+
         # Validate profile photo
         allowed_avatars = [
             "/avatars/1.jpg",
@@ -57,11 +59,52 @@ def update_profile(request):
             "/avatars/3.jpg",
             "/avatars/4.jpg",
         ]
+
+        allowed_terms = [
+            "1A",
+            "1B",
+            "2A",
+            "2B",
+            "3A",
+            "3B",
+            "4A",
+            "4B",
+            "Masters",
+            "Graduate",
+            "PhD",
+            "Undergraduate",
+            "Exchange Student",
+            "Prefer not to say",
+        ]
+
+        allowed_faculties = [
+            "Arts",
+            "Engineering",
+            "Environment",
+            "Health",
+            "Mathematics",
+            "Science",
+        ]
+
         if "profile_photo" in data:
             if data["profile_photo"] not in allowed_avatars:
                 raise ValidationError("Invalid avatar selection")
             profile.profile_photo = data["profile_photo"]
-            profile.save()
+        if "first_name" in data:
+            profile.first_name = data["first_name"].strip()
+        if "last_name" in data:
+            profile.last_name = data["last_name"].strip()
+        if "term" in data:
+            if data["term"] not in allowed_terms:
+                raise ValidationError("Invalid term selection")
+            profile.term = data["term"]
+        if "faculty" in data:
+            if data["faculty"] not in allowed_faculties:
+                raise ValidationError("Invalid faculty selection")
+            profile.faculty = data["faculty"]
+        profile.save()
+
+        input_regex = r"^[a-zA-Z0-9\s&\'-]{0,50}$"
 
         # Update favorite artists with validation
         if "favorite_artists" in data:
@@ -71,15 +114,15 @@ def update_profile(request):
 
             profile.favorite_artists.clear()
             for artist_name in artists:
-                if artist_name and isinstance(artist_name, str):
-                    try:
-                        name_validator(artist_name.strip())
-                    except DjangoValidationError:
-                        raise ValidationError("Invalid characters for artist name")
+                if isinstance(artist_name, str) and re.match(
+                    input_regex, artist_name.strip()
+                ):
                     artist, _ = Artist.objects.get_or_create(
                         name=artist_name.strip()[:50]  # Enforce max length
                     )
                     profile.favorite_artists.add(artist)
+                else:
+                    raise ValidationError("Invalid artist name")
 
         # Update favorite genres with validation
         if "favorite_genres" in data:
@@ -89,15 +132,15 @@ def update_profile(request):
 
             profile.favorite_genres.clear()
             for genre_name in genres:
-                if genre_name and isinstance(genre_name, str):
-                    try:
-                        name_validator(genre_name.strip())
-                    except DjangoValidationError:
-                        raise ValidationError("Invalid characters for Genre name")
+                if isinstance(genre_name, str) and re.match(
+                    input_regex, genre_name.strip()
+                ):
                     genre, _ = Genre.objects.get_or_create(
                         name=genre_name.strip()[:30]  # Enforce max length
                     )
                     profile.favorite_genres.add(genre)
+                else:
+                    raise ValidationError("Invalid genre name")
 
         user.refresh_from_db()
         serializer = UserSerializer(user)

@@ -6,7 +6,6 @@ import {
   Avatar,
   Box,
   Button,
-  Card,
   CardActions,
   CardContent,
   CardMedia,
@@ -32,6 +31,14 @@ export default function ExplorePeople() {
   const [people, setPeople] = useState<MatchingStatus[]>([]);
   const [peopleIndex, setPeopleIndex] = useState<number>(0);
   const [noMatchings, setNoMatchings] = useState<boolean>(true);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      redirect("/login");
+      return;
+    }
+  }, []);
 
   const fetchMatchings = async () => {
     try {
@@ -89,8 +96,8 @@ export default function ExplorePeople() {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              "matchingId": matchingId,
-              "decision": decision,
+              matchingId: matchingId,
+              decision: decision,
             }),
           }
         );
@@ -129,11 +136,13 @@ export default function ExplorePeople() {
               You&apos;ve reached your matching limit. Please come back later!
             </Typography>
           ) : (
-            <Card sx={{ display: "flex" }}>
-              {people[peopleIndex]["image"] ? (
+            <Box className="bg-space_black rounded-md w-full h-full mx-auto mt-20 flex flex-row relative">
+              {people[peopleIndex]["profile_photo"] ? (
                 <CardMedia
+                  component="img"
+                  style={{ width: "60%" }}
                   sx={{ height: 500, width: 500 }}
-                  image={people[peopleIndex]["image"]}
+                  image={people[peopleIndex]["profile_photo"]}
                   alt="Profile Picture"
                 />
               ) : (
@@ -148,7 +157,12 @@ export default function ExplorePeople() {
               )}
               <Box>
                 <CardContent>
-                  <Typography gutterBottom variant="h5" component="div">
+                  <Typography
+                    gutterBottom
+                    variant="h5"
+                    component="div"
+                    className="font-semibold text-white"
+                  >
                     {people[peopleIndex]["username"]}
                   </Typography>
                   <Box>
@@ -181,7 +195,41 @@ export default function ExplorePeople() {
                   </Button>
                 </CardActions>
               </Box>
-            </Card>
+            </Box>
+            // <Card sx={{ display: 'flex' }}>
+            //     {
+            //         people[peopleIndex]["image"] ? (
+            //             <CardMedia
+            //                 sx={{ height: 500, width: 500 }}
+            //                 image={people[peopleIndex]["image"]}
+            //                 alt="Profile Picture"
+            //             />
+            //         ) : (
+            //             <CardMedia component="div">
+            //                 <Avatar variant="square" sx={{ height: 500, width: 500, fontSize: 200 }}>
+            //                     {people[peopleIndex]["username"][0]}
+            //                 </Avatar>
+            //             </CardMedia>
+            //         )
+            //     }
+            //     <Box>
+            //         <CardContent>
+            //             <Typography gutterBottom variant="h5" component="div">
+            //                 {people[peopleIndex]["username"]}
+            //             </Typography>
+            //             <Box>
+            //                 {/* Top songs: {people[peopleIndex]["topSongs"].join(", ")} */}
+            //             </Box>
+            //             <Box>
+            //                 {/* Top artists: {people[peopleIndex]["topArtists"].join(", ")} */}
+            //             </Box>
+            //         </CardContent>
+            //         <CardActions sx={{ display: 'flex' }}>
+            //             <Button onClick={() => reviewMatching(MatchingStatus.NO, people[peopleIndex]["id"])}>NO</Button>
+            //             <Button onClick={() => reviewMatching(MatchingStatus.YES, people[peopleIndex]["id"])}>YES</Button>
+            //         </CardActions>
+            //     </Box>
+            // </Card>
           )}
         </section>
       </main>

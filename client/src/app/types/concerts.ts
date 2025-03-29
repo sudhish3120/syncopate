@@ -12,6 +12,8 @@ export interface UserProfile {
     profile_photo: string;
     favorite_artists: Artist[];
     favorite_genres: Genre[];
+    term: string;
+    faculty: string;
 }
 
 export interface UserData {

@@ -49,10 +49,10 @@ export default function Matches() {
   }
 
   return (
-    <div className="font-sans bg-gray-50">
+    <div className="font-sans  bg-black relative pt-20">
       <Nav />
       <main className="container mx-auto  py-8 px-8 h-screen relative">
-        <h2 className="text-3xl font-md text-white mb-4">Your matches</h2>
+        <h2 className="text-3xl font-md text-white mb-4">View Your Matches</h2>
         {matches ? (
           matches.map((match) => (
             <Card key={match["username"]}>

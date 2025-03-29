@@ -10,13 +10,16 @@ import os
 
 import requests
 from django.contrib.auth import get_user_model
-from rest_framework.decorators import (api_view, authentication_classes,
-                                       permission_classes)
+from rest_framework.decorators import (
+    api_view,
+    authentication_classes,
+    permission_classes,
+)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from ..authentication import CookieTokenAuthentication
-from ..models import MATCHING_DECISIONS, Concert, FavoriteConcert, Matching
+from ..models import MATCHING_DECISIONS, Concert, FavoriteConcert, Matching, UserProfile
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -226,16 +229,19 @@ def matchings(request):
             shared_concerts = user_concerts & other_concerts
             if shared_concerts.exists():
                 preexsting_match = Matching.objects.filter(user=current_user, target=other_user).exclude(decision="UNKNOWN")
+                target_profile_photo = (
+                    UserProfile.objects.filter(user=other_user).first().profile_photo
+                )
                 if not preexsting_match:
                     matching, _created = Matching.objects.get_or_create(
                         user=current_user, target=other_user, decision="UNKNOWN"
                     )
                     matching.matched_concerts.set(shared_concerts) #link shared concerts
                     user_matchings.append(
-                        {"id": matching.id, "username": matching.target.username, "concerts": list(shared_concerts.values_list("concert_id", flat=True))}
+                    {"id": matching.id, "username": matching.target.username, "concerts": list(shared_concerts.values_list("concert_id", flat=True)),  "profile_photo": target_profile_photo,}
                     )
         return Response({"matchings": user_matchings}, status=200)
-    except Exception as e:
+    except Exception:
         return Response({"error": "Error fetching matchings"}, status=500)
 
 
@@ -260,7 +266,7 @@ def review_matching(request):
             raise Exception()
 
         return Response({"message": "Matching processed successfully"}, status=200)
-    except Exception as e:
+    except Exception:
         return Response({"error": "Failed to process matching"}, status=500)
 
 

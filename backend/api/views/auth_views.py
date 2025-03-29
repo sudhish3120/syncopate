@@ -2,6 +2,7 @@
 
 import base64
 import logging
+import re
 import secrets
 from io import BytesIO
 
@@ -10,6 +11,7 @@ import qrcode
 import qrcode.image.svg
 from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model, login
+from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django_otp.plugins.otp_totp.models import TOTPDevice
 from knox.models import AuthToken
@@ -184,6 +186,17 @@ class RegisterInitView(generics.CreateAPIView):
 
     def post(self, request, *args, **kwargs):
         try:
+            password_regex = (
+                r"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$"
+            )
+            if not request.data["password"] or not re.match(
+                password_regex, request.data["password"]
+            ):
+                logger.error(
+                    "Registration error: password doesn't exist or doesn't match regex"
+                )
+                raise ValidationError("Registration failed. Please try again.")
+
             # Validate email verification
             verified = EmailVerificationToken.objects.filter(
                 email=request.data.get("email"), is_used=True

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Avatar } from "@mui/material";
 import { UserData, Artist, Genre } from "../types/concerts";
-import Toast from './Toast';
+import Toast from "./Toast";
 import * as Yup from "yup";
 
 const avatars = [
@@ -13,18 +13,44 @@ const avatars = [
   "/avatars/4.jpg",
 ];
 
+const academicTerms = [
+  "1A",
+  "1B",
+  "2A",
+  "2B",
+  "3A",
+  "3B",
+  "4A",
+  "4B",
+  "Masters",
+  "Graduate",
+  "PhD",
+  "Undergraduate",
+  "Exchange Student",
+  "Prefer not to say",
+];
+
+const faculties = [
+  "Arts",
+  "Engineering",
+  "Environment",
+  "Health",
+  "Mathematics",
+  "Science",
+];
+
 const UpdateSchema = Yup.object().shape({
   favoriteArtists: Yup.array().of(
     Yup.string()
       .trim()
-      .matches(/^[a-zA-Z0-9\s&'-]{0,50}$/, 'Contains invalid characters')
-      .max(50, 'Artist name too long')
+      .matches(/^[a-zA-Z0-9\s&'-]{0,50}$/, "Contains invalid characters")
+      .max(50, "Artist name too long")
   ),
   favoriteGenres: Yup.array().of(
     Yup.string()
       .trim()
-      .matches(/^[a-zA-Z0-9\s&'-]{0,30}$/, 'Contains invalid characters')
-      .max(30, 'Genre name too long')
+      .matches(/^[a-zA-Z0-9\s&'-]{0,30}$/, "Contains invalid characters")
+      .max(30, "Genre name too long")
   ),
 });
 
@@ -33,8 +59,10 @@ const UpdateModal = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [favoriteArtists, setFavoriteArtists] = useState<string[]>(['']);
-  const [favoriteGenres, setFavoriteGenres] = useState<string[]>(['']);
+  const [favoriteArtists, setFavoriteArtists] = useState<string[]>([""]);
+  const [favoriteGenres, setFavoriteGenres] = useState<string[]>([""]);
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
   const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
@@ -48,18 +76,20 @@ const UpdateModal = () => {
           setIsAuthenticated(true);
           const data = await res.json();
           setUser(data.user);
-          
+
           // Initialize artists and genres from profile
           if (data.user.profile) {
+            setFirstName(data.user.profile.first_name);
+            setLastName(data.user.profile.last_name);
             setFavoriteArtists(
-              data.user.profile.favorite_artists.length > 0 
+              data.user.profile.favorite_artists.length > 0
                 ? data.user.profile.favorite_artists.map((a: Artist) => a.name)
-                : ['']
+                : [""]
             );
             setFavoriteGenres(
               data.user.profile.favorite_genres.length > 0
                 ? data.user.profile.favorite_genres.map((g: Genre) => g.name)
-                : ['']
+                : [""]
             );
           }
         }
@@ -75,13 +105,13 @@ const UpdateModal = () => {
 
   const addArtist = () => {
     if (favoriteArtists.length < 3) {
-      setFavoriteArtists([...favoriteArtists, '']);
+      setFavoriteArtists([...favoriteArtists, ""]);
     }
   };
 
   const addGenre = () => {
     if (favoriteGenres.length < 3) {
-      setFavoriteGenres([...favoriteGenres, '']);
+      setFavoriteGenres([...favoriteGenres, ""]);
     }
   };
 
@@ -100,27 +130,44 @@ const UpdateModal = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const nonEmptyArtists = favoriteArtists.filter(artist => artist.trim());
-      const nonEmptyGenres = favoriteGenres.filter(genre => genre.trim());
+      const nonEmptyArtists = favoriteArtists.filter((artist) => artist.trim());
+      const nonEmptyGenres = favoriteGenres.filter((genre) => genre.trim());
 
       // Validate data before sending
       await UpdateSchema.validate({
         favoriteArtists: nonEmptyArtists,
-        favoriteGenres: nonEmptyGenres
+        favoriteGenres: nonEmptyGenres,
       });
 
-      const res = await fetch("http://localhost:8000/api/auth/update-profile/", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      console.log(
+        JSON.stringify({
           profile_photo: user?.profile.profile_photo,
           favorite_artists: nonEmptyArtists,
           favorite_genres: nonEmptyGenres,
-        }),
-      });
+          first_name: firstName,
+          last_name: lastName,
+        })
+      );
+
+      const res = await fetch(
+        "http://localhost:8000/api/auth/update-profile/",
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            profile_photo: user?.profile.profile_photo,
+            favorite_artists: nonEmptyArtists,
+            favorite_genres: nonEmptyGenres,
+            first_name: firstName,
+            last_name: lastName,
+            term: user?.profile.term,
+            faculty: user?.profile.faculty,
+          }),
+        }
+      );
 
       if (!res.ok) {
         throw new Error("Failed to update profile");
@@ -129,7 +176,6 @@ const UpdateModal = () => {
       const data = await res.json();
       setUser(data.user);
       setShowToast(true);
-
     } catch (error) {
       console.error("Update failed:", error);
       alert("Failed to update profile. Please try again.");
@@ -142,17 +188,15 @@ const UpdateModal = () => {
         ...user,
         profile: {
           ...user.profile,
-          profile_photo: avatar
-        }
+          profile_photo: avatar,
+        },
       });
     }
   };
 
   return (
     <>
-      {isAuthenticated &&
-      !isLoading &&
-      user && (
+      {isAuthenticated && !isLoading && user && (
         <form onSubmit={handleSubmit} className="bg-space_black p-4 rounded">
           <div className="flex flex-row items-start">
             <div className="w-1/3 justify-items-center">
@@ -212,6 +256,92 @@ const UpdateModal = () => {
                   />
                 </div>
                 <div className="mb-4">
+                  <label className="block text-white mb-2" htmlFor="username">
+                    First Name
+                  </label>
+                  <input
+                    type="text"
+                    id="first_name"
+                    name="first_name"
+                    value={firstName}
+                    onChange={(e) => {
+                      setFirstName(e.target.value);
+                    }}
+                    className="w-full p-2 rounded bg-black text-white"
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-white mb-2" htmlFor="username">
+                    Last Name
+                  </label>
+                  <input
+                    type="text"
+                    id="last_name"
+                    name="last_name"
+                    value={lastName}
+                    onChange={(e) => {
+                      setLastName(e.target.value);
+                    }}
+                    className="w-full p-2 rounded bg-black text-white"
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-white mb-2" htmlFor="faculty">
+                    Faculty
+                  </label>
+                  <select
+                    id="faculty"
+                    name="faculty"
+                    value={user.profile?.faculty || ""}
+                    onChange={(e) => {
+                      if (user) {
+                        setUser({
+                          ...user,
+                          profile: {
+                            ...user.profile,
+                            faculty: e.target.value,
+                          },
+                        });
+                      }
+                    }}
+                    className="w-full p-2 rounded bg-black text-white"
+                  >
+                    {faculties.map((faculty) => (
+                      <option key={faculty} value={faculty}>
+                        {faculty}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="mb-4">
+                  <label className="block text-white mb-2" htmlFor="term">
+                    Academic Term
+                  </label>
+                  <select
+                    id="term"
+                    name="term"
+                    value={user.profile?.term || ""}
+                    onChange={(e) => {
+                      if (user) {
+                        setUser({
+                          ...user,
+                          profile: {
+                            ...user.profile,
+                            term: e.target.value,
+                          },
+                        });
+                      }
+                    }}
+                    className="w-full p-2 rounded bg-black text-white"
+                  >
+                    {academicTerms.map((term) => (
+                      <option key={term} value={term}>
+                        {term}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="mb-4">
                   <label className="block text-white mb-2">
                     Favorite Artists (max 3)
                   </label>
@@ -220,7 +350,9 @@ const UpdateModal = () => {
                       <input
                         type="text"
                         value={artist}
-                        onChange={(e) => handleArtistChange(index, e.target.value)}
+                        onChange={(e) =>
+                          handleArtistChange(index, e.target.value)
+                        }
                         className="w-full p-2 rounded bg-black text-white"
                         placeholder="Enter artist name"
                       />
@@ -246,7 +378,9 @@ const UpdateModal = () => {
                       <input
                         type="text"
                         value={genre}
-                        onChange={(e) => handleGenreChange(index, e.target.value)}
+                        onChange={(e) =>
+                          handleGenreChange(index, e.target.value)
+                        }
                         className="w-full p-2 rounded bg-black text-white"
                         placeholder="Enter genre"
                       />
@@ -275,9 +409,9 @@ const UpdateModal = () => {
         </form>
       )}
       {showToast && (
-        <Toast 
-          message="Profile updated successfully!" 
-          onClose={() => setShowToast(false)} 
+        <Toast
+          message="Profile updated successfully!"
+          onClose={() => setShowToast(false)}
         />
       )}
     </>
