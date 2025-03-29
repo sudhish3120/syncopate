@@ -12,6 +12,10 @@ import {
   LinearProgress,
   Typography,
 } from "../../../node_modules/@mui/material/index";
+import {
+  IoCheckmarkCircleOutline,
+  IoCloseCircleOutline,
+} from "react-icons/io5";
 
 enum MatchingStatus {
   YES = "YES",
@@ -53,7 +57,7 @@ export default function ExplorePeople() {
         throw new Error("Failed to fetch db matchings");
       }
       const data = await res.json();
-      console.log(data)
+      console.log(data);
       setPeople(data["matchings"] as Matching[]);
       if (data["matchings"] && data["matchings"].length > 0) {
         setNoMatchings(false);
@@ -117,7 +121,7 @@ export default function ExplorePeople() {
   };
 
   return (
-    <div className="font-sans bg-gray-50">
+    <div className="font-sans bg-black">
       <Nav />
       <main className="container mx-auto  py-8 px-8 h-screen">
         <section className="mb-8">
@@ -125,6 +129,7 @@ export default function ExplorePeople() {
             variant="determinate"
             value={people ? (peopleIndex / people.length) * 100 : 0}
             sx={{ m: 3, height: 10 }}
+            className="top-10 rounded-md"
           />
           {noMatchings ? (
             <Typography
@@ -136,94 +141,73 @@ export default function ExplorePeople() {
               You&apos;ve reached your matching limit. Please come back later!
             </Typography>
           ) : (
-            <Box className="bg-space_black rounded-md w-full h-full mx-auto mt-20 flex flex-row relative">
-              {
-                    people[peopleIndex]["profile_photo"] ? (
-                        <CardMedia
-                            component="img"
-                            style={{ width: "60%" }}
-                            sx={{ height: 500, width: 500 }}
-                            image={people[peopleIndex]["profile_photo"]}
-                            alt="Profile Picture"
-                        />
-                    ) : (
-                        <CardMedia component="div">
-                            <Avatar variant="square" sx={{ height: 500, width: 500, fontSize: 200 }}>
-                                {people[peopleIndex]["username"][0]}
-                            </Avatar>
-                        </CardMedia>
-                    )
-                }
-              <Box>
-                <CardContent>
-                  <Typography gutterBottom variant="h5" component="div" className="font-semibold text-white">
-                    {people[peopleIndex]["username"]}
+            <Box className="bg-space_black border-2 border-violet-700 rounded-md w-3/5 h-full mx-auto mt-20 flex flex-row relative ">
+              {people[peopleIndex]["profile_photo"] ? (
+                <CardMedia
+                  component="img"
+                  sx={{ height: 300, width: 300 }}
+                  image={people[peopleIndex]["profile_photo"]}
+                  alt="Profile Picture"
+                  className="rounded-md"
+                />
+              ) : (
+                <CardMedia component="div">
+                  <Avatar
+                    variant="square"
+                    sx={{ height: 300, width: 300, fontSize: 100 }}
+                  >
+                    {people[peopleIndex]["username"][0]}
+                  </Avatar>
+                </CardMedia>
+              )}
+              <div className="p-6 shadow-lg w-full relative">
+                <Typography
+                  gutterBottom
+                  variant="h5"
+                  component="div"
+                  className="font-semibold text-white"
+                >
+                  {people[peopleIndex]["target_name"] ||
+                    people[peopleIndex]["username"]}
+                </Typography>
+                <div className="flex flex-row space-x-4 w-16 h-full">
+                  <Typography
+                    gutterBottom
+                    component="div"
+                    variant="body1"
+                    className="mt-2 text-violet-600"
+                  >
+                    {people[peopleIndex]["target_faculty"]}
                   </Typography>
-                  <Box>
-                    {/* Top songs: {people[peopleIndex]["topSongs"].join(", ")} */}
-                  </Box>
-                  <Box>
-                    {/* Top artists: {people[peopleIndex]["topArtists"].join(", ")} */}
-                  </Box>
-                </CardContent>
-                <CardActions sx={{ display: "flex" }}>
-                  <Button
-                    onClick={() =>
-                      reviewMatching(
-                        MatchingStatus.NO,
-                        people[peopleIndex]["id"]
-                      )
-                    }
+                  <Typography
+                    gutterBottom
+                    component="div"
+                    variant="body1"
+                    className="mt-2 text-violet-600"
                   >
-                    NO
-                  </Button>
-                  <Button
-                    onClick={() =>
-                      reviewMatching(
-                        MatchingStatus.YES,
-                        people[peopleIndex]["id"]
-                      )
-                    }
-                  >
-                    YES
-                  </Button>
-                </CardActions>
-              </Box>
+                    {people[peopleIndex]["target_academic_term"]}
+                  </Typography>
+                </div>
+
+                <IoCloseCircleOutline
+                  size={36}
+                  onClick={() =>
+                    reviewMatching(MatchingStatus.NO, people[peopleIndex]["id"])
+                  }
+                  className="text-red-600 absolute bottom-5 left-5 hover:cursor-pointer"
+                />
+                <IoCheckmarkCircleOutline
+                  size={36}
+                  onClick={() =>
+                    reviewMatching(
+                      MatchingStatus.YES,
+                      people[peopleIndex]["id"]
+                    )
+                  }
+                  className="text-green-400 absolute bottom-5 right-5 hover:cursor-pointer"
+                />
+              </div>
             </Box>
-            // <Card sx={{ display: 'flex' }}>
-            //     {
-            //         people[peopleIndex]["image"] ? (
-            //             <CardMedia
-            //                 sx={{ height: 500, width: 500 }}
-            //                 image={people[peopleIndex]["image"]}
-            //                 alt="Profile Picture"
-            //             />
-            //         ) : (
-            //             <CardMedia component="div">
-            //                 <Avatar variant="square" sx={{ height: 500, width: 500, fontSize: 200 }}>
-            //                     {people[peopleIndex]["username"][0]}
-            //                 </Avatar>
-            //             </CardMedia>
-            //         )
-            //     }
-            //     <Box>
-            //         <CardContent>
-            //             <Typography gutterBottom variant="h5" component="div">
-            //                 {people[peopleIndex]["username"]}
-            //             </Typography>
-            //             <Box>
-            //                 {/* Top songs: {people[peopleIndex]["topSongs"].join(", ")} */}
-            //             </Box>
-            //             <Box>
-            //                 {/* Top artists: {people[peopleIndex]["topArtists"].join(", ")} */}
-            //             </Box>
-            //         </CardContent>
-            //         <CardActions sx={{ display: 'flex' }}>
-            //             <Button onClick={() => reviewMatching(MatchingStatus.NO, people[peopleIndex]["id"])}>NO</Button>
-            //             <Button onClick={() => reviewMatching(MatchingStatus.YES, people[peopleIndex]["id"])}>YES</Button>
-            //         </CardActions>
-            //     </Box>
-            // </Card>
           )}
         </section>
       </main>

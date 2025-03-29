@@ -170,6 +170,17 @@ def matchings(request):
                 target_profile_photo = (
                     UserProfile.objects.filter(user=other_user).first().profile_photo
                 )
+                target_name = (
+                    UserProfile.objects.filter(user=other_user).first().first_name
+                    + " "
+                    + UserProfile.objects.filter(user=other_user).first().last_name
+                )
+                target_faculty = (
+                    UserProfile.objects.filter(user=other_user).first().faculty
+                )
+                target_academic_term = (
+                    UserProfile.objects.filter(user=other_user).first().term
+                )
                 if not preexisting_match:
                     matching, _created = Matching.objects.get_or_create(
                         user=current_user, target=other_user, decision="UNKNOWN"
@@ -179,6 +190,9 @@ def matchings(request):
                             "id": matching.id,
                             "username": matching.target.username,
                             "profile_photo": target_profile_photo,
+                            "target_name": target_name,
+                            "target_faculty": target_faculty,
+                            "target_academic_term": target_academic_term,
                         }
                     )
 
