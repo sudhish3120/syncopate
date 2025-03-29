@@ -14,14 +14,6 @@ export default function Matches() {
 
     const [matches, setMatches] = useState<Match[]>([]);
 
-    useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (!token) {
-            redirect("/login");
-            return;
-        }
-    }, []);
-
     const fetchMatches = async () => {
         try {
             const res = await fetch(
