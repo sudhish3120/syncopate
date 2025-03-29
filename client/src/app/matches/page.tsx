@@ -1,6 +1,5 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { redirect } from "next/navigation";
 import Nav from "../components/Nav";
 import { Card, CardContent } from "../../../node_modules/@mui/material/index";
 

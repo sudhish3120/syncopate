@@ -64,10 +64,7 @@ class TestAuthenticationFlow:
     def test_login_without_2fa(self, api_client, test_user):
         """Test login with valid credentials when 2FA is disabled"""
         url = reverse("login")
-        data = {
-            "username": test_user.username,
-            "password": "testpass123"
-        }
+        data = {"username": test_user.username, "password": "testpass123"}
 
         response = api_client.post(url, data, format="json")
 

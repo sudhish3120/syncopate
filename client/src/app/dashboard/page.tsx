@@ -5,7 +5,7 @@ import Nav from "../components/Nav";
 import { FaMagnifyingGlass } from "react-icons/fa6";
 import { FormControl, MenuItem, Select } from "../../../node_modules/@mui/material/index";
 import ConcertCard from "../components/ConcertCard";
-import {Concert } from "../types/concerts"
+import { Concert } from "../types/concerts"
 import SessionExpired from "../components/SessionExpired";
 
 const LOCATIONS: {[key: string]: string} = {
@@ -18,6 +18,10 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [concerts, setConcerts] = useState<Array<Concert> | null>(null);
+
+  const [inArea, setInArea] = useState<Array<Concert>>([]);
+  const [onsaleSoon, setOnsaleSoon] = useState<Array<Concert>>([]);
+  const [venueBased, setVenueBased] = useState<Array<Concert>>([]);
 
   const [location, setLocation] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -53,9 +57,9 @@ export default function Dashboard() {
     fetchUserData();
   }, []);
 
-  const getConcerts = async () => {
+  const getConcerts = async (setter: (value: Array<Concert>) => void, query: string) => {
     try {
-      const res = await fetch("http://localhost:8000/api/concerts/?location=TO", {
+      const res = await fetch("http://localhost:8000/api/concerts/?" + query, {
         method: "GET",
         credentials: 'include',
         headers: {
@@ -79,7 +83,7 @@ export default function Dashboard() {
       }
 
       const data = await res.json();
-      setConcerts(data["concerts"]);
+      setter(data["concerts"]);
     } catch (err) {
       console.error("Concert fetch error:", err);
       setError(err instanceof Error ? err.message : "Failed to fetch concerts");
@@ -89,7 +93,9 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    getConcerts();
+    getConcerts(setInArea, "location=TO");
+    getConcerts(setOnsaleSoon, "onsaleSoon=true");
+    getConcerts(setVenueBased, "venue=HISTORY&location=TO");
   }, []);
 
   if (isLoading) {
@@ -185,7 +191,6 @@ export default function Dashboard() {
     setLocation("ALL")
     setSearchQuery("")
     setSearching(false)
-    getConcerts()
   }
 
   return (
@@ -252,9 +257,9 @@ export default function Dashboard() {
           ) :
           (
             <>
-              <ConcertList title={"Upcoming Concerts"} concerts={concerts} />
-              {/* <ConcertList title={"Concerts in Toronto"} concerts={concerts} />
-              <ConcertList title={"Concerts in Waterloo"} concerts={concerts} /> */}
+              <ConcertList title={"Going On Sale Soon"} concerts={onsaleSoon} />
+              <ConcertList title={"Concerts in Toronto"} concerts={inArea} />
+              <ConcertList title={"Concerts at History"} concerts={venueBased} />
             </>
           )
         }
