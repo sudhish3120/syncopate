@@ -70,6 +70,25 @@ class TestRegistrationFlow:
         assert "message" in response.data
         assert response.data["message"] == "User registration successful"
 
+    def test_registration_without_2fa(self, api_client, test_verification_token):
+        """Test registration flow with 2FA disabled"""
+        test_verification_token.is_used = True
+        test_verification_token.save()
+
+        url = reverse("register-init")
+        data = {
+            "username": "newuser",
+            "password": "testpass123",
+            "email": test_verification_token.email,
+            "use2FA": False,
+        }
+
+        response = api_client.post(url, data, format="json")
+        assert response.status_code == 200
+        assert "user" in response.data
+        assert "message" in response.data
+        assert response.data["message"] == "User registration successful"
+
     def test_user_registration_email_not_verified(self, api_client):
         """Test registration attempt with unverified email"""
         url = reverse("register-init")

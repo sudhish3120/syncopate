@@ -112,6 +112,7 @@ class Artist(models.Model):
         return str(self.name)
 
 
+
 class Genre(models.Model):
     """Genre model"""
 

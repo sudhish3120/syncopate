@@ -77,8 +77,7 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    """user profile serializer"""
-
+    """User Profile Serializer"""
     favorite_artists = ArtistSerializer(many=True, read_only=True)
     favorite_genres = GenreSerializer(many=True, read_only=True)
 
