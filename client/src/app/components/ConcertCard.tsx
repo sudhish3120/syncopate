@@ -53,17 +53,14 @@ const ConcertCard: React.FC<ConcertCardProps> = ({
         {
           method: "GET",
           credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
         }
       );
       if (!res.ok) {
         throw new Error("Failed to see favorite concerts");
       }
-      const data = await res;
-      console.log(data);
-      // setIsFavorite(concerts.some((concert) => concert.id === id));
+      const { concerts } = await res.json();
+      console.log(concerts);
+      setIsFavorite(concerts.some((concert_id) => concert_id === id));
     } catch (error) {
       console.error(error);
     }

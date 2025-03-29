@@ -78,7 +78,7 @@ def favorite(request):
         concert_id = request.data.get("concert")
 
         if not concert_id:
-            raise Exception()
+            return Response({"error": "Concert ID is required"}, status=400)
 
         # Ensure the concert exists and add it if it does not
         concert, created = Concert.objects.get_or_create(concert_id=concert_id)
@@ -96,6 +96,32 @@ def favorite(request):
     except Exception:
         return Response({"error": "Failed to favorite concert"}, status=500)
 
+@api_view(["POST"])
+@authentication_classes([CookieTokenAuthentication])
+@permission_classes([IsAuthenticated])
+def unfavorite(request):
+    """user favoriting a concert"""
+    try:
+        user = request.user
+        concert_id = request.data.get("concert")
+
+        if not concert_id:
+            return Response({"error": "Concert ID is required"}, status=400)
+        # Ensure the concert exists and add it if it does not
+        concert = Concert.objects.get(concert_id=concert_id)
+    except Exception:
+        return Response({"error": "Failed to create/fetch concert"}, status=500)
+    # favorite a concert logic
+    try:
+        deleted, _ = FavoriteConcert.objects.filter(
+            user=user, concert=concert
+        ).delete()
+        if deleted:
+            return Response({"message": "Concert unfavorited successfully"}, status=200)
+        else:
+            return Response({"message": "Concert could not be unfavorited successfully"}, status=400)
+    except Exception:
+        return Response({"error": "Failed to favorite concert"}, status=500)
 
 @api_view(["GET"])
 @authentication_classes([CookieTokenAuthentication])
@@ -138,7 +164,11 @@ def user_favorite_concerts_by_id(request):
     """fetching all the concerts that users favorited"""
     try:
         fav_concerts = FavoriteConcert.objects.filter(user_id=request.user.id)
-        return Response({"concerts": fav_concerts}, status=200)
+        tm_concert_ids = Concert.objects.filter(
+        id__in=fav_concerts.values_list("concert_id")
+    ).values_list("concert_id", flat=True)
+
+        return Response({"concerts": tm_concert_ids}, status=200)
     except Exception as e:
         return Response({"error": "Unable to fetch favorited concerts"}, status=500)
 
@@ -150,33 +180,29 @@ def matchings(request):
     """get all the matchings associated with user"""
     try:
         user_matchings = []
-
         current_user = request.user
         fav_concerts = FavoriteConcert.objects.filter(user_id=current_user.id)
         user_concerts = Concert.objects.filter(
             id__in=fav_concerts.values_list("concert_id")
         )
-
         all_other_users = User.objects.exclude(id=request.user.id)
         for other_user in all_other_users:
             other_fav_concerts = FavoriteConcert.objects.filter(user_id=other_user.id)
             other_concerts = Concert.objects.filter(
                 id__in=other_fav_concerts.values_list("concert_id")
             )
-
-            # has at least 1 common concert
-            if (user_concerts & other_concerts).exists():
-                preexisting_match = Matching.objects.filter(
-                    user=current_user, target=other_user
-                ).exclude(decision="UNKNOWN")
-                if not preexisting_match:
+            #get list of shared concerts
+            shared_concerts = user_concerts & other_concerts
+            if shared_concerts.exists():
+                preexsting_match = Matching.objects.filter(user=current_user, target=other_user).exclude(decision="UNKNOWN")
+                if not preexsting_match:
                     matching, _created = Matching.objects.get_or_create(
                         user=current_user, target=other_user, decision="UNKNOWN"
                     )
+                    matching.matched_concerts.set(shared_concerts) #link shared concerts
                     user_matchings.append(
-                        {"id": matching.id, "username": matching.target.username}
+                        {"id": matching.id, "username": matching.target.username, "concerts": list(shared_concerts.values_list("concert_id", flat=True))}
                     )
-
         return Response({"matchings": user_matchings}, status=200)
     except Exception as e:
         return Response({"error": "Error fetching matchings"}, status=500)
@@ -195,7 +221,6 @@ def review_matching(request):
         matching = Matching.objects.get(
             id=matching_id, user=request.user, decision="UNKNOWN"
         )
-
         decision = content.get("decision")
         if decision in dict(MATCHING_DECISIONS) and decision != "UNKNOWN":
             matching.decision = decision
