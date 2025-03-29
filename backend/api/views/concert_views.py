@@ -84,14 +84,14 @@ def favorite(request):
         concert, created = Concert.objects.get_or_create(concert_id=concert_id)
     except Exception:
         return Response({"error": "Failed to create/fetch concert"}, status=500)
-    # Favourite a concert logic
+    # favorite a concert logic
     try:
         _favorite, created = FavoriteConcert.objects.get_or_create(
             user=user, concert=concert
         )
         if created:
-            return Response({"message": "Concert favourited successfully"}, status=201)
-        return Response({"message": "Concert already favourited"}, status=200)
+            return Response({"message": "Concert favorited successfully"}, status=201)
+        return Response({"message": "Concert already favorited"}, status=200)
 
     except Exception:
         return Response({"error": "Failed to favorite concert"}, status=500)
@@ -100,7 +100,7 @@ def favorite(request):
 @api_view(["GET"])
 @authentication_classes([CookieTokenAuthentication])
 @permission_classes([IsAuthenticated])
-def user_favourite_concerts(request):
+def user_favorite_concerts(request):
     """fetching all the concerts that users favorited"""
     try:
         fav_concerts = FavoriteConcert.objects.filter(user_id=request.user.id)
@@ -127,7 +127,20 @@ def user_favourite_concerts(request):
 
         return Response({"concerts": fetched_concerts}, status=200)
     except Exception as e:
-        return Response({"error": "Unable to fetch favourited concerts"}, status=500)
+        return Response({"error": "Unable to fetch favorited concerts"}, status=500)
+
+
+#get user favorite concerts by id 
+@api_view(["GET"])
+@authentication_classes([CookieTokenAuthentication])
+@permission_classes([IsAuthenticated])
+def user_favorite_concerts_by_id(request):
+    """fetching all the concerts that users favorited"""
+    try:
+        fav_concerts = FavoriteConcert.objects.filter(user_id=request.user.id)
+        return Response({"concerts": fav_concerts}, status=200)
+    except Exception as e:
+        return Response({"error": "Unable to fetch favorited concerts"}, status=500)
 
 
 @api_view(["GET"])

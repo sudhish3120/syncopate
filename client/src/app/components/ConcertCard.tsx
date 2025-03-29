@@ -48,24 +48,22 @@ const ConcertCard: React.FC<ConcertCardProps> = ({
 
   const checkFavorite = async () => {
     try {
-      const res = await fetch("http://localhost:8000/api/concerts/favorites/", {
-        method: "GET",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const res = await fetch(
+        "http://localhost:8000/api/concerts/favorites_by_id/",
+        {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       if (!res.ok) {
         throw new Error("Failed to see favorite concerts");
       }
-      const data = await res.json();
+      const data = await res;
       console.log(data);
-      for (const d of data.concerts) {
-        if (d.id === id) {
-          setIsFavorite(true);
-          break;
-        }
-      }
+      // setIsFavorite(concerts.some((concert) => concert.id === id));
     } catch (error) {
       console.error(error);
     }
