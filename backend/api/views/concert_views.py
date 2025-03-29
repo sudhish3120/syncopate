@@ -22,7 +22,38 @@ logger = logging.getLogger(__name__)
 User = get_user_model()
 
 LOCATIONS = {"KW": "43.449791,-80.489090", "TO": "43.653225,-79.383186"}
+@api_view(["GET"])
+@authentication_classes([CookieTokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_concert(request):
+    """fetch concert by id"""
+    try:
+        request_params = {
+            "id": ""
+        }
+        concert_id = request.GET.get("id", "")
+        if concert_id:
+            request_params["id"] = concert_id
+        response = requests.get(
+            f'{os.environ["TICKETMASTER_URL_BASE"]}/events',
+            params=request_params,
+            timeout=10,
+        ).json()
 
+        events = []
+        logger.info(
+            "total retrieved events: %s",
+            response.get("page", {}).get("totalElements", 0),
+        )
+        if "page" in response and response["page"]["totalElements"] > 0:
+            events = response["_embedded"]["events"]
+        return Response({"concerts": events}, status=200)
+
+    except Exception as e:
+        logger.error("Concert fetch error: %s", str(e))
+        return Response(
+            {"error": "Unable to fetch concerts. Please try again later."}, status=500
+        )
 
 @api_view(["GET"])
 @authentication_classes([CookieTokenAuthentication])
