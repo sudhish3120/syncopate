@@ -66,14 +66,6 @@ function NavBar() {
     }
   };
 
-  if (isLoggingOut) {
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
-      </div>
-    );
-  }
-
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
@@ -83,16 +75,22 @@ function NavBar() {
 
         if (res.ok) {
           const data = await res.json();
-          setProfilePhoto(data.user.profile.profile_photo)
+          setProfilePhoto(data.user.profile.profile_photo);
         }
       } catch (error) {
         console.error("Auth check failed:", error);
-      } finally {
-        // setIsLoading(false);
       }
     };
     fetchUserProfile();
   }, []);
+
+  if (isLoggingOut) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+      </div>
+    );
+  }
 
   return (
     <AppBar position="fixed" sx={{ backgroundColor: "#1A1A1A" }}>
