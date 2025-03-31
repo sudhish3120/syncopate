@@ -1,11 +1,13 @@
 """Test cases for user registration flow"""
 
 from unittest.mock import patch
-
 import pytest
 from django.urls import reverse
-
+from django.contrib.auth import get_user_model
+from django_otp.plugins.otp_totp.models import TOTPDevice
 from ..models import TemporaryRegistration
+
+User = get_user_model()
 
 
 @pytest.mark.django_db
@@ -136,6 +138,12 @@ class TestRegistrationFlow:
         assert "user" in response.data
         assert "message" in response.data
         assert response.data["message"] == "TOTP setup successful"
+
+        # Verify TOTP device was created
+        user = User.objects.get(username="testuser")
+        totp_device = TOTPDevice.objects.filter(user=user, confirmed=True).first()
+        assert totp_device is not None, "TOTP device should be created and confirmed"
+        assert totp_device.key == "test_secret", "TOTP secret should match"
 
     def test_totp_verify_no_code(self, api_client):
         """Test TOTP verification without code"""
