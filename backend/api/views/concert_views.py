@@ -212,7 +212,6 @@ def user_favorite_concerts_by_id(request):
         tm_concert_ids = Concert.objects.filter(
         id__in=fav_concerts.values_list("concert_id")
     ).values_list("concert_id", flat=True)
-
         return Response({"concerts": tm_concert_ids}, status=200)
     except Exception as e:
         return Response({"error": "Unable to fetch favorited concerts"}, status=500)
@@ -272,7 +271,7 @@ def matchings(request):
                     )
         return Response({"matchings": user_matchings}, status=200)
     except Exception as e:
-        return Response({"error": "Error fetching matchings"}, status=e)
+        return Response({"error": "Error fetching matchings"}, status=500)
 
 
 @api_view(["POST"])
@@ -292,6 +291,14 @@ def review_matching(request):
         if decision in dict(MATCHING_DECISIONS) and decision != "UNKNOWN":
             matching.decision = decision
             matching.save()
+            #delete the favorited concert from both target and user
+            if decision == "YES":
+                try:
+                    concert_ids = matching.matched_concerts.values_list('concert_id', flat=True)
+                    FavoriteConcert.objects.filter(user=request.user, concert_id=concert_ids).delete()
+                    FavoriteConcert.objects.filter(user=matching.target, concert_id=concert_ids).delete()
+                except Exception:
+                    return Response({"error: ": "Failed to unfavorite the matched concert"})
         else:
             raise Exception()
 
@@ -313,9 +320,37 @@ def matches(request):
             user_id__in=user_matches, target=request.user, decision="YES"
         )
 
-        other_matches_json = list(
-            map(lambda x: {"username": x.user.username}, other_matches)
-        )
+        other_matches_json = []
+        for match in other_matches:
+            concerts = match.matched_concerts.values_list('concert_id', flat=True)
+            other_matches_json.append({
+                "username": match.user.username,
+                "concerts": list(concerts)
+            })
+        # other_matches_json = list(
+        #     map(lambda x: {"username": x.user.username}, other_matches)
+        # )
         return Response({"matches": other_matches_json}, status=200)
     except Exception as e:
         return Response({"error": "Failed to fetch matching"}, status=e)
+
+
+@api_view(["POST"])
+@authentication_classes([CookieTokenAuthentication])
+@permission_classes([IsAuthenticated])
+def delete_match(request):
+    content = json.loads(request.body.decode("utf-8"))
+    target = content.get("user")
+    logger.info("TARGET:", target)
+    try:
+        target_user  = User.objects.get(username=target)
+        matches = Matching.objects.filter(user=request.user, target=target_user, decision="YES")
+        matches |= Matching.objects.filter(user=target_user, target=request.user, decision="YES")
+
+        for match in matches:
+            match.matched_concerts.clear()
+        matches.delete()
+        return Response({"Match deleted successfully"}, status=200)
+    except Exception as e:
+        return Response({"Match could not be deleted"}, status=400)
+    

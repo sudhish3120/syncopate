@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { redirect } from "next/navigation";
 import Nav from "../components/Nav";
 import {
@@ -16,6 +16,7 @@ import {
   IoCheckmarkCircleOutline,
   IoCloseCircleOutline,
 } from "react-icons/io5";
+import { SiTrueup } from "react-icons/si";
 
 enum MatchingStatus {
   YES = "YES",
@@ -33,7 +34,7 @@ interface Matching {
 export default function ExplorePeople() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [people, setPeople] = useState<MatchingStatus[]>([]);
+  const [people, setPeople] = useState<Matching[]>([]);
   const [peopleIndex, setPeopleIndex] = useState<number>(0);
   const [noMatchings, setNoMatchings] = useState<boolean>(true);
   const [commonConcerts, setCommonConcerts] = useState<Array<String>>();
@@ -103,17 +104,25 @@ export default function ExplorePeople() {
     }
   };
   useEffect(() => {
+    console.log("Component mounted");
     fetchMatchings();
   }, []);
 
   useEffect(() => {
-    if (people.length > 0) {
-      console.log(peopleIndex);
+    console.log("people: ", people);
+    console.log("peopleIndex:", peopleIndex);
+
+    if (people.length === 0 || peopleIndex >= people.length) {
+      setNoMatchings(true);
+    } else {
+      setNoMatchings(false);
       setCommonConcerts([]);
-      people[peopleIndex]["concerts"].forEach((c) => {
+      people[peopleIndex].concerts.forEach((c: string) => {
         getConcertById(c);
       });
     }
+
+    console.log("noMatchings:", noMatchings);
   }, [peopleIndex, people]);
 
   if (isLoading) {
@@ -161,7 +170,6 @@ export default function ExplorePeople() {
       }
     }
   };
-
   return (
     <div className="font-sans bg-black">
       <Nav />
@@ -178,7 +186,7 @@ export default function ExplorePeople() {
               gutterBottom
               variant="h5"
               component="div"
-              sx={{ color: "black" }}
+              className="pt-10 text-center"
             >
               You&apos;ve reached your matching limit. Please come back later!
             </Typography>
@@ -198,7 +206,7 @@ export default function ExplorePeople() {
                     variant="square"
                     sx={{ height: 300, width: 300, fontSize: 100 }}
                   >
-                    {people[peopleIndex]["username"][0]}
+                    {people[peopleIndex]["username"]}
                   </Avatar>
                 </CardMedia>
               )}
@@ -209,8 +217,7 @@ export default function ExplorePeople() {
                   component="div"
                   className="font-semibold text-white"
                 >
-                  {people[peopleIndex]["target_name"] ||
-                    people[peopleIndex]["username"]}
+                  {people[peopleIndex]["username"]}
                 </Typography>
                 <div className="flex flex-row space-x-4 w-16 h-full">
                   <Typography

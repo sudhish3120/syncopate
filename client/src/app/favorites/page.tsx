@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import ConcertCard from "../components/ConcertCard";
 import Nav from "../components/Nav";
 import { FaMagnifyingGlass } from "react-icons/fa6";
-import {Concert} from "../types/concerts"
+import { Concert } from "../types/concerts";
 
 export default function Favorites() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -17,7 +17,7 @@ export default function Favorites() {
           "http://localhost:8000/api/concerts/favorites",
           {
             method: "GET",
-            credentials: 'include',
+            credentials: "include",
             headers: {
               "Content-Type": "application/json",
             },
@@ -73,8 +73,8 @@ export default function Favorites() {
             </div>
           </div>
         </section>
-        <div className="grid grid-cols-4 gap-4">
-          {favorites?.slice(0, 4).map((favorite) => (
+        <div className="grid grid-cols-4 gap-8">
+          {favorites?.map((favorite) => (
             <ConcertCard
               key={favorite.id}
               id={favorite.id}
