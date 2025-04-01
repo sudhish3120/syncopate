@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Login from "./components/Login";
+import { Typography } from "../../node_modules/@mui/material/index";
 
 export default function Home() {
   const router = useRouter();
@@ -43,13 +44,32 @@ export default function Home() {
 
   // Login page
   return (
-    <div className="min-h-screen bg-black relative pt-20">
-      <main className="container mx-auto py-8 px-8">
-        <div className="max-w-md mx-auto text-center">
-          <h1 className="text-3xl font-bold mb-8 text-white">Welcome to Syncopate!</h1>
+    <div className="min-h-screen relative mx-auto w-full h-dvh">
+      <div className="grid grid-cols-2 h-full bg-stone-900">
+        <div className="bg-gradient-to-r from-purple-600 to-stone-900 break-all overflow-hidden">
+          <Typography variant="h1" className="tracking-[-10px] text-transparent bg-clip-text bg-gradient-to-l from-purple-800 to-yellow-700">
+            SYNCOPATE
+            SYNCOPATE
+            SYNCOPATE
+            SYNCOPATE
+            SYNCOPATE
+            SYNCOPATE
+            SYNCOPATE
+            SYNCOPATE
+          </Typography>
+        </div>
+        <div className="m-auto max-w-md mx-auto text-center bg-stone-700 p-20 rounded-md backdrop-blur-md">
+          <div className="mb-4">
+            <Typography fontSize={20} fontWeight={400}>
+              Welcome to
+            </Typography>
+            <Typography variant="h3" marginTop={-1} marginBottom={3}>
+              Syncopate!
+            </Typography>
+          </div>
           <Login />
         </div>
-      </main>
+      </div>
     </div>
   );
 }
