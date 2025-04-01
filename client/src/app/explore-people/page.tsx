@@ -64,16 +64,16 @@ export default function ExplorePeople() {
       }
       const data = await res.json();
       const newConcert = data.concerts[0]?.name;
-      console.log(newConcert);
+      // console.log(newConcert);
       if (newConcert) {
         setCommonConcerts((prevConcerts) => [...prevConcerts, newConcert]);
       }
-      console.log("concerts after being set: ", [
-        ...commonConcerts,
-        newConcert,
-      ]);
+      // console.log("concerts after being set: ", [
+      //   ...commonConcerts,
+      //   newConcert,
+      // ]);
     } catch (err) {
-      console.error("Concert fetch error:", err);
+      // console.error("Concert fetch error:", err);
       setError(err instanceof Error ? err.message : "Failed to fetch concerts");
     }
   };
@@ -118,7 +118,7 @@ export default function ExplorePeople() {
         throw new Error("Failed to fetch db matchings");
       }
       const data = await res.json();
-      console.log(data);
+      // console.log(data);
       setPeople(data["matchings"] as Matching[]);
       if (data["matchings"] && data["matchings"].length > 0) {
         setNoMatchings(false);
@@ -131,13 +131,13 @@ export default function ExplorePeople() {
     }
   };
   useEffect(() => {
-    console.log("Component mounted");
+    // console.log("Component mounted");
     fetchMatchings();
   }, []);
 
   useEffect(() => {
-    console.log("people: ", people);
-    console.log("peopleIndex:", peopleIndex);
+    // console.log("people: ", people);
+    // console.log("peopleIndex:", peopleIndex);
     if (people.length === 0 || peopleIndex >= people.length) {
       setNoMatchings(true);
     } else {
@@ -148,7 +148,7 @@ export default function ExplorePeople() {
       });
     }
 
-    console.log("noMatchings:", noMatchings);
+    // console.log("noMatchings:", noMatchings);
   }, [peopleIndex, people]);
 
   if (isLoading) {
@@ -173,9 +173,9 @@ export default function ExplorePeople() {
   ) => {
     try {
       if (decision != MatchingStatus.YES && decision != MatchingStatus.NO) {
-        console.log("ERROR: unapproved action");
+        // console.log("ERROR: unapproved action");
       } else {
-        console.log("ID: " + matchingId);
+        // console.log("ID: " + matchingId);
         const res = await fetch(
           "http://localhost:8000/api/concerts/review-matching/",
           {

@@ -85,8 +85,6 @@ export default function Dashboard() {
       }
 
       const data = await res.json();
-
-      console.log(data["concerts"])
       setter(data["concerts"]);
     } catch (err) {
       console.error("Concert fetch error:", err);
