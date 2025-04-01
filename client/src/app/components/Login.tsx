@@ -24,7 +24,7 @@ const LoginSchema = Yup.object().shape({
       then: (schema) =>
         schema
           .matches(/^\d{6}$/, "Must be exactly 6 digits")
-          .required("TOTP code required"),
+          .required("2FA Code required"),
       otherwise: (schema) => schema,
     }),
 });

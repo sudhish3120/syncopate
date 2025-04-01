@@ -69,7 +69,7 @@ const ConcertCard: React.FC<ConcertCardProps> = ({
         throw new Error("Failed to see favorite concerts");
       }
       const { concerts } = await res.json();
-      setIsFavorite(concerts.some((concert_id) => concert_id === id));
+      setIsFavorite(concerts.some((concert_id: number) => concert_id === id));
     } catch (error) {
       console.error(error);
     }

@@ -50,12 +50,12 @@ class LoginView(KnoxLoginView):
                     user=user, confirmed=True
                 ).first()
                 if totp_device:
-                    # If TOTP code not provided in request
+                    # If 2FA Code not provided in request
                     if not request.data.get("totp_code"):
                         return Response(
                             {
                                 "requires_totp": True,
-                                "message": "Please provide TOTP code",
+                                "message": "Please provide 2FA Code",
                             },
                             status=status.HTTP_401_UNAUTHORIZED,
                         )
@@ -64,7 +64,7 @@ class LoginView(KnoxLoginView):
                     totp = pyotp.TOTP(totp_device.key)
                     if not totp.verify(request.data.get("totp_code"), valid_window=1):
                         return Response(
-                            {"error": "Invalid TOTP code"},
+                            {"error": "Invalid 2FA Code"},
                             status=status.HTTP_401_UNAUTHORIZED,
                         )
 
@@ -145,8 +145,8 @@ def send_magic_link(request):
         # Send email with magic link
         send_mail(
             "Verify your Syncopate account",
-            f"Click this link to verify your email: \
-                {verification_url}\n\nThis link expires in 24 hours.",
+            f"Click this link to verify your email: "
+            f"{verification_url}\n\nThis link expires in 30 minutes.",
             settings.DEFAULT_FROM_EMAIL,
             [email],
             fail_silently=False,
@@ -292,7 +292,7 @@ def totp_setup(request):
 
 @api_view(["POST"])
 def totp_verify(request):
-    """Verify TOTP code and complete user registration."""
+    """Verify 2FA Code and complete user registration."""
     setup_token = request.headers.get("Authorization", "").split(" ")[1]
     try:
         temp_reg = TemporaryRegistration.objects.filter(setup_token=setup_token).first()

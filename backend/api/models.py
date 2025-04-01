@@ -25,7 +25,7 @@ class EmailVerificationToken(models.Model):
     @property
     def is_expired(self):
         """Check if the token is expired"""
-        expiry_time = self.created_at + timedelta(hours=24)
+        expiry_time = self.created_at + timedelta(minutes=30)
         return timezone.now() > expiry_time
 
     @classmethod
@@ -70,7 +70,7 @@ class TemporaryRegistration(models.Model):
     @property
     def is_expired(self):
         """Check if the token is expired"""
-        expiry_time = self.created_at + timedelta(minutes=15)
+        expiry_time = self.created_at + timedelta(minutes=5)
         return timezone.now() > expiry_time
 
 

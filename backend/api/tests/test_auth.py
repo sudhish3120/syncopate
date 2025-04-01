@@ -38,7 +38,7 @@ class TestAuthenticationFlow:
         assert "error" in response.data
 
     def test_login_with_2fa_valid(self, api_client, test_user):
-        """Test login with valid credentials and valid TOTP code when 2FA is enabled"""
+        """Test login with valid credentials and valid 2FA Code when 2FA is enabled"""
         # Create and configure TOTP device with proper secret
         secret = base64.b32encode(
             os.urandom(10)
@@ -73,7 +73,7 @@ class TestAuthenticationFlow:
         assert "knox_token" in response.cookies
 
     def test_login_with_invalid_totp(self, api_client, test_user):
-        """Test login with valid credentials but invalid TOTP code"""
+        """Test login with valid credentials but invalid 2FA Code"""
         # Create and configure TOTP device with proper secret
         secret = base64.b32encode(os.urandom(10)).decode()
         TOTPDevice.objects.create(user=test_user, confirmed=True, key=secret)
@@ -82,14 +82,14 @@ class TestAuthenticationFlow:
         data = {
             "username": "testuser",
             "password": "testpass123",
-            "totp_code": "123456",  # Wrong TOTP code
+            "totp_code": "123456",  # Wrong 2FA Code
         }
 
         response = api_client.post(url, data, format="json")
 
         assert response.status_code == 401
         assert "error" in response.data
-        assert response.data["error"] == "Invalid TOTP code"
+        assert response.data["error"] == "Invalid 2FA Code"
 
     def test_logout(self, authenticated_client):
         """Test user logout"""
