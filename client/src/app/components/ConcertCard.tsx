@@ -46,10 +46,6 @@ const ConcertCard: React.FC<ConcertCardProps> = ({
     return () => window.removeEventListener("resize", checkOverflow);
   }, [title]);
 
-  useEffect(() => {
-    console.log(id);
-  }, []);
-
   const checkFavorite = async () => {
     try {
       const res = await fetch(
@@ -63,7 +59,6 @@ const ConcertCard: React.FC<ConcertCardProps> = ({
         throw new Error("Failed to see favorite concerts");
       }
       const { concerts } = await res.json();
-      console.log(concerts);
       setIsFavorite(concerts.some((concert_id) => concert_id === id));
     } catch (error) {
       console.error(error);
@@ -91,7 +86,6 @@ const ConcertCard: React.FC<ConcertCardProps> = ({
         }
 
         const data = await res.json();
-        console.log(data.message);
       } catch (error) {
         console.error(error);
       }
@@ -112,7 +106,6 @@ const ConcertCard: React.FC<ConcertCardProps> = ({
           throw new Error("Failed to unfavorite concert");
         }
         const data = await res.json();
-        console.log(data.message);
       } catch (error) {
         console.error(error);
       }
