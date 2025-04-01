@@ -55,19 +55,16 @@ export default function Register() {
         }),
       });
 
-      console.log("is ok?", res.ok)
-
-      if (res.ok) {
-        const resJson = await res.json();
-        if (resJson.user) {
-          router.push('/'); 
-        } else if (resJson.setup_token) {
-          const { setup_token } = resJson;
-          router.push(`/register/totp-setup?token=${setup_token}`);
-        }
-      } else {
-        const data = await res.json();
+      const data = await res.json();
+      if (!res.ok) {
         throw new Error(data.error || 'Registration failed');
+      }
+
+      if (data.user) {
+        router.push('/'); 
+      } else if (data.setup_token) {
+        const { setup_token } = data;
+        router.push(`/register/totp-setup?token=${setup_token}`);
       }
     } catch (error) {
       setStatus(error instanceof Error ? error.message : 'Registration failed');

@@ -207,6 +207,13 @@ class RegisterInitView(generics.CreateAPIView):
                     {"error": "Email not verified"}, status=status.HTTP_400_BAD_REQUEST
                 )
 
+            # Check if username already exists
+            if User.objects.filter(username=request.data["username"]).exists():
+                return Response(
+                    {"error": "Username already exists"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
             # Change this section to handle boolean use2FA
             if not request.data.get("use2FA", True):  # Default to True if not provided
                 try:

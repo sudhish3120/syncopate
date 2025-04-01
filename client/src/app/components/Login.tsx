@@ -60,7 +60,8 @@ export default function Login() {
       }
 
       if (!res.ok) {
-        throw new Error(data.error || "Login failed");
+        setStatus(data.error || "Login Failed");
+        return;
       }
 
       router.push("/dashboard");
@@ -90,7 +91,9 @@ export default function Login() {
               className="w-full p-2 border rounded bg-white text-gray-900"
             />
             {errors.username && touched.username && (
-              <Typography className="text-red-500" fontWeight={800} marginTop={1}>{errors.username}</Typography>
+              <Typography className="text-red-500" fontWeight={800} marginTop={1}>
+                {errors.username}
+              </Typography>
             )}
           </div>
 
@@ -102,9 +105,17 @@ export default function Login() {
               className="w-full p-2 border rounded bg-white text-gray-900"
             />
             {errors.password && touched.password && (
-              <Typography className="text-red-500" fontWeight={800} marginTop={1}>{errors.password}</Typography>
+              <Typography className="text-red-500" fontWeight={800} marginTop={1}>
+                {errors.password}
+              </Typography>
             )}
           </div>
+
+          {status && !requiresTotp && (
+            <Typography className="text-red-500" fontWeight={800} marginTop={1}>
+              {status}
+            </Typography>
+          )}
 
           {requiresTotp && (
             <div>
@@ -115,9 +126,15 @@ export default function Login() {
                 className="w-full p-2 border rounded bg-white text-gray-900"
               />
               {errors.totp_code && touched.totp_code && (
-                <Typography className="text-red-500" fontWeight={800} marginTop={1}>{errors.totp_code}</Typography>
+                <Typography className="text-red-500" fontWeight={800} marginTop={1}>
+                  {errors.totp_code}
+                </Typography>
               )}
-              {status && (<Typography className="text-red-500" fontWeight={800} marginTop={1}>{status}</Typography>)}
+              {status && (
+                <Typography className="text-red-500" fontWeight={800} marginTop={1}>
+                  {status}
+                </Typography>
+              )}
             </div>
           )}
 

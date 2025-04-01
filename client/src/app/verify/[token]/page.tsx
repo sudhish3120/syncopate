@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
+import { Typography } from "../../../../node_modules/@mui/material/index";
 
 export default function VerifyToken({ params }: { params: Promise<{ token: string }> }) {
   const router = useRouter();
@@ -39,15 +40,16 @@ export default function VerifyToken({ params }: { params: Promise<{ token: strin
   }, [token, router]);
 
   return (
-    <div className="min-h-screen bg-black relative pt-20">
-      <div className="container mx-auto py-8 px-8">
-        <div className="flex items-center justify-center">
-          <div className="text-center text-white">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-4"></div>
-            <p>Verifying your email...</p>
-          </div>
+    <div className="min-h-screen bg-gradient-to-l from-purple-800 to-yellow-700 h-screen flex">
+      <div className="max-w-xl text-center p-20 bg-stone-700 m-auto rounded-3xl">
+        <Typography variant="h3" className="tracking-[-1px]" marginBottom={3}>
+          verifying email...
+        </Typography>
+        <div className="flex justify-center mt-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
         </div>
       </div>
     </div>
   );
 }
+
