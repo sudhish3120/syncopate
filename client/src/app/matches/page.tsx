@@ -20,7 +20,7 @@ interface Match {
 export default function Matches() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [open, setOpen] = useState(false);
+  const [openMatch, setOpenMatch] = useState<Match | null>(null);
 
   const [matches, setMatches] = useState<Match[]>([]);
   const [concerts, setConcerts] = useState<string[]>([]);
@@ -124,13 +124,13 @@ export default function Matches() {
     return <div className="p-4 text-red-500">Error: {error}</div>;
   }
 
-    if (isLoading) {
-        return (
-          <div className="flex items-center justify-center min-h-screen bg-black">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
-          </div>
-        );
-    }
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-black">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+      </div>
+    );
+  }
 
   if (error) {
     return <div className="p-4 text-red-500">Error: {error}</div>;
@@ -140,12 +140,20 @@ export default function Matches() {
     <div className="relative pt-20">
       <Nav />
       <main className="container mx-auto  py-8 px-8 h-screen relative">
-        <Typography variant="h3" marginBottom={2}>View Your Matches</Typography>
+        <Typography variant="h3" marginBottom={2}>
+          View Your Matches
+        </Typography>
         {matches.length > 0 ? (
           matches.map((match, index) => (
             <React.Fragment key={`match-${index}`}>
-              <Card key={`card-${index}`} onClick={() => setOpen(true)} className="flex align-middle justify-between px-3">
-                <CardContent sx={{ display: "flex", alignItems: "center"}}>{match["target_name"] || match["username"]}</CardContent>
+              <Card
+                key={`card-${index}`}
+                onClick={() => setOpenMatch(match)}
+                className="flex align-middle justify-between px-3 mb-10"
+              >
+                <CardContent sx={{ display: "flex", alignItems: "center" }}>
+                  {match["target_name"] || match["username"]}
+                </CardContent>
                 <CardContent
                   style={{
                     display: "flex",
@@ -171,8 +179,8 @@ export default function Matches() {
               </Card>
               <Modal
                 key={`modal-${index}`}
-                open={open}
-                onClose={() => setOpen(false)}
+                open={openMatch === match}
+                onClose={() => setOpenMatch(null)}
               >
                 <Box className="bg-space_black rounded-md w-3/5 h-3/5 mx-auto mt-20 flex flex-row relative">
                   {match["profile_photo"] ? (
@@ -184,10 +192,7 @@ export default function Matches() {
                     />
                   ) : (
                     <CardMedia component="div">
-                      <Avatar
-                        variant="square"
-                        sx={{ width: "50%" }}
-                      >
+                      <Avatar variant="square" sx={{ width: "50%" }}>
                         {match["username"][0]}
                       </Avatar>
                     </CardMedia>
@@ -206,7 +211,14 @@ export default function Matches() {
                         marginBottom={1}
                         className="text-yellow-600"
                       >
-                        {match["target_faculty"] || "unknown faculty"}{((!match["target_faculty"] && !match["target_academic_term"]) || (match["target_faculty"] && match["target_academic_term"])) && " - "}{match["target_academic_term"] || "unknown academic term"}
+                        {match["target_faculty"] || "unknown faculty"}
+                        {((!match["target_faculty"] &&
+                          !match["target_academic_term"]) ||
+                          (match["target_faculty"] &&
+                            match["target_academic_term"])) &&
+                          " - "}
+                        {match["target_academic_term"] ||
+                          "unknown academic term"}
                       </Typography>
                       <Box
                         sx={{
@@ -220,8 +232,7 @@ export default function Matches() {
                       >
                         <div className="mb-3">
                           <Typography>Top Artists:</Typography>
-                          {
-                            match["top_artists"].length > 0 ? 
+                          {match["top_artists"].length > 0 ? (
                             match["top_artists"].map((artist, index) => (
                               <Typography
                                 key={index}
@@ -230,20 +241,21 @@ export default function Matches() {
                               >
                                 {artist}
                               </Typography>
-                            )) : <Typography
-                                  key={index}
-                                  className="text-white"
-                                  fontWeight={600}
-                                  sx={{ marginBottom: 1 }}
-                                >
-                                  No top artists.
-                                </Typography>
-                          }
+                            ))
+                          ) : (
+                            <Typography
+                              key={index}
+                              className="text-white"
+                              fontWeight={600}
+                              sx={{ marginBottom: 1 }}
+                            >
+                              No top artists.
+                            </Typography>
+                          )}
                         </div>
                         <div>
                           <Typography>Top Genres:</Typography>
-                          {
-                            match["top_genres"].length > 0 ? 
+                          {match["top_genres"].length > 0 ? (
                             match["top_genres"].map((genre, index) => (
                               <Typography
                                 key={index}
@@ -252,35 +264,41 @@ export default function Matches() {
                               >
                                 {genre}
                               </Typography>
-                            )) : <Typography
-                                  key={index}
-                                  className="text-white"
-                                  fontWeight={600}
-                                  sx={{ marginBottom: 1 }}
-                                >
-                                  No top genres.
-                                </Typography>
-                          }
+                            ))
+                          ) : (
+                            <Typography
+                              key={index}
+                              className="text-white"
+                              fontWeight={600}
+                              sx={{ marginBottom: 1 }}
+                            >
+                              No top genres.
+                            </Typography>
+                          )}
                         </div>
                       </Box>
                     </div>
                     <div className="mt-3">
-                      {
-                        match["user_socials"]["discord"] && (
-                          <div className="flex">
-                            <Typography fontWeight={800} marginRight={1}>Discord:</Typography>
-                            <Typography>@{match["user_socials"]["discord"]}</Typography>
-                          </div>
-                        )
-                      }
-                      {
-                        match["user_socials"]["instagram"] && (
-                          <div className="flex">
-                            <Typography fontWeight={800} marginRight={1}>Instagram:</Typography>
-                            <Typography>{match["user_socials"]["instagram"]}</Typography>
-                          </div>
-                        )
-                      }
+                      {match["user_socials"]["discord"] && (
+                        <div className="flex">
+                          <Typography fontWeight={800} marginRight={1}>
+                            Discord:
+                          </Typography>
+                          <Typography>
+                            @{match["user_socials"]["discord"]}
+                          </Typography>
+                        </div>
+                      )}
+                      {match["user_socials"]["instagram"] && (
+                        <div className="flex">
+                          <Typography fontWeight={800} marginRight={1}>
+                            Instagram:
+                          </Typography>
+                          <Typography>
+                            {match["user_socials"]["instagram"]}
+                          </Typography>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </Box>
