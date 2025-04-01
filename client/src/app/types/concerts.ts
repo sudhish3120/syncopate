@@ -8,12 +8,18 @@ export interface Genre {
     name: string;
 }
 
+export interface UserSocials {
+    instagram: string;
+    discord: string;
+}
+
 export interface UserProfile {
     profile_photo: string;
     favorite_artists: Artist[];
     favorite_genres: Genre[];
     term: string;
     faculty: string;
+    user_socials: UserSocials;
 }
 
 export interface UserData {
