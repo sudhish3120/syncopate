@@ -16,6 +16,7 @@ from rest_framework.decorators import (api_view, authentication_classes,
                                        permission_classes)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+import time
 
 from ..authentication import CookieTokenAuthentication
 from ..models import (MATCHING_DECISIONS, Concert, FavoriteConcert, Matching,
@@ -193,11 +194,17 @@ def user_favorite_concerts(request):
                 timeout=10,
             ).json()
 
-            if response["page"]["totalElements"] > 0:
-                fetched_concerts.append(response["_embedded"]["events"][0])
+            if "page" in response and "totalElements" in response["page"]:
+                if response["page"]["totalElements"] > 0:
+                    fetched_concerts.append(response["_embedded"]["events"][0])
+            else:
+                    logger.error("unexpected response structure: %s", response)
+            
+            time.sleep(0.2)
 
         return Response({"concerts": fetched_concerts}, status=200)
     except Exception as e:
+        logger.error("errors",e)
         return Response({"error": "Unable to fetch favorited concerts"}, status=500)
 
 
@@ -291,14 +298,6 @@ def review_matching(request):
         if decision in dict(MATCHING_DECISIONS) and decision != "UNKNOWN":
             matching.decision = decision
             matching.save()
-            #delete the favorited concert from both target and user
-            if decision == "YES":
-                try:
-                    concert_ids = matching.matched_concerts.values_list('concert_id', flat=True)
-                    FavoriteConcert.objects.filter(user=request.user, concert_id=concert_ids).delete()
-                    FavoriteConcert.objects.filter(user=matching.target, concert_id=concert_ids).delete()
-                except Exception:
-                    return Response({"error: ": "Failed to unfavorite the matched concert"})
         else:
             raise Exception()
 
@@ -327,9 +326,7 @@ def matches(request):
                 "username": match.user.username,
                 "concerts": list(concerts)
             })
-        # other_matches_json = list(
-        #     map(lambda x: {"username": x.user.username}, other_matches)
-        # )
+            
         return Response({"matches": other_matches_json}, status=200)
     except Exception as e:
         return Response({"error": "Failed to fetch matching"}, status=e)

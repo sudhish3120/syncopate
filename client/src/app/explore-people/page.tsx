@@ -17,6 +17,7 @@ import {
   IoCloseCircleOutline,
 } from "react-icons/io5";
 import { SiTrueup } from "react-icons/si";
+import { common } from "@mui/material/colors";
 
 enum MatchingStatus {
   YES = "YES",
@@ -37,7 +38,7 @@ export default function ExplorePeople() {
   const [people, setPeople] = useState<Matching[]>([]);
   const [peopleIndex, setPeopleIndex] = useState<number>(0);
   const [noMatchings, setNoMatchings] = useState<boolean>(true);
-  const [commonConcerts, setCommonConcerts] = useState<Array<String>>();
+  const [commonConcerts, setCommonConcerts] = useState<string[]>([]);
 
   const fetchCalled = useRef(false);
   const getConcertById = async (id: String) => {
@@ -67,10 +68,15 @@ export default function ExplorePeople() {
         throw new Error(data.error || "Failed to fetch concert");
       }
       const data = await res.json();
-      const concertName = data.concerts[0]?.name;
-      if (concertName) {
-        setCommonConcerts((prev) => [...prev, concertName]);
+      const newConcert = data.concerts[0]?.name;
+      console.log(newConcert);
+      if (newConcert) {
+        setCommonConcerts((prevConcerts) => [...prevConcerts, newConcert]);
       }
+      console.log("concerts after being set: ", [
+        ...commonConcerts,
+        newConcert,
+      ]);
     } catch (err) {
       console.error("Concert fetch error:", err);
       setError(err instanceof Error ? err.message : "Failed to fetch concerts");
@@ -111,7 +117,6 @@ export default function ExplorePeople() {
   useEffect(() => {
     console.log("people: ", people);
     console.log("peopleIndex:", peopleIndex);
-
     if (people.length === 0 || peopleIndex >= people.length) {
       setNoMatchings(true);
     } else {
@@ -219,7 +224,7 @@ export default function ExplorePeople() {
                 >
                   {people[peopleIndex]["username"]}
                 </Typography>
-                <div className="flex flex-row space-x-4 w-16 h-full">
+                <div className="flex flex-row space-x-4 w-full h-full">
                   <Typography
                     gutterBottom
                     component="div"
@@ -236,6 +241,33 @@ export default function ExplorePeople() {
                   >
                     {people[peopleIndex]["target_academic_term"]}
                   </Typography>
+                  <Box
+                    sx={{
+                      maxHeight: 200,
+                      overflowY: "auto",
+                      backgroundColor: "rgba(255, 255, 255, 0.1)",
+                      padding: 2,
+                      borderRadius: 1,
+                      width: "100%",
+                    }}
+                  >
+                    {commonConcerts.length > 0 ? (
+                      commonConcerts.map((concert, index) => (
+                        <Typography
+                          key={index}
+                          variant="body2"
+                          className="text-white"
+                          sx={{ marginBottom: 1 }}
+                        >
+                          {concert}
+                        </Typography>
+                      ))
+                    ) : (
+                      <Typography variant="body2" className="text-gray-400">
+                        No common concerts found.
+                      </Typography>
+                    )}
+                  </Box>
                 </div>
 
                 <IoCloseCircleOutline
