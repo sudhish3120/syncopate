@@ -98,9 +98,9 @@ export default function Dashboard() {
     const fetchConcerts = async () => {
       await getConcerts(setInArea, "location=TO");
       await getConcerts(setOnsaleSoon, "onsaleSoon=true");
-      await getConcerts(setVenueBased, "venue=HISTORY&location=TO"); 
-    }
-    fetchConcerts()
+      await getConcerts(setVenueBased, "venue=HISTORY&location=TO");
+    };
+    fetchConcerts();
   }, []);
 
   if (isLoading) {
@@ -236,42 +236,42 @@ export default function Dashboard() {
             </div>
           </div>
         </section>
-        {
-          searching ? (
-            <>
-              <h2 className="text-lg font-medium text-white mb-4 uppercase">
-                {header()}
-              </h2>
-              <div className="flex flex-wrap gap-10">
-                {
-                  concerts?.map((concert) => (
-                    <div key={concert.id}>
-                      <ConcertCard
-                        id={concert.id}
-                        title={concert.name}
-                        date={new Date(
-                        concert.dates.start.localDate
-                        ).toLocaleDateString()}
-                        imageUrl={concert.images.reduce((largest, image) => {
-                        return image.width * image.height > largest.width * largest.height ? image : largest;
-                        }, concert.images[0]).url}
-                        info={concert.info}
-                        venue={concert._embedded.venues[0]["name"]}
-                      />
-                    </div>
-                  ))
-                }
-              </div>
-            </>
-          ) :
-          (
-            <>
-              <ConcertList title={"Going On Sale Soon"} concerts={onsaleSoon} />
-              <ConcertList title={"Concerts in Toronto"} concerts={inArea} />
-              <ConcertList title={"Concerts at History"} concerts={venueBased} />
-            </>
-          )
-        }
+        {searching ? (
+          <>
+            <h2 className="text-lg font-medium text-white mb-4 uppercase">
+              {header()}
+            </h2>
+            <div className="flex flex-wrap gap-10">
+              {concerts?.map((concert) => (
+                <div key={concert.id}>
+                  <ConcertCard
+                    id={concert.id}
+                    title={concert.name}
+                    date={new Date(
+                      concert.dates.start.localDate
+                    ).toLocaleDateString()}
+                    imageUrl={
+                      concert.images.reduce((largest, image) => {
+                        return image.width * image.height >
+                          largest.width * largest.height
+                          ? image
+                          : largest;
+                      }, concert.images[0]).url
+                    }
+                    info={concert.info}
+                    venue={concert._embedded.venues[0]["name"]}
+                  />
+                </div>
+              ))}
+            </div>
+          </>
+        ) : (
+          <>
+            <ConcertList title={"Going On Sale Soon"} concerts={onsaleSoon} />
+            <ConcertList title={"Concerts in Toronto"} concerts={inArea} />
+            <ConcertList title={"Concerts at History"} concerts={venueBased} />
+          </>
+        )}
       </main>
     </div>
   );
