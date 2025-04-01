@@ -33,7 +33,6 @@ export default function ExplorePeople() {
   const [peopleIndex, setPeopleIndex] = useState<number>(0);
   const [noMatchings, setNoMatchings] = useState<boolean>(true);
 
-
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -90,7 +89,11 @@ export default function ExplorePeople() {
   }, []);
 
   if (isLoading) {
-    return <div className="p-4">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-black">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+      </div>
+    );
   }
 
   if (error === "session-expired") {
