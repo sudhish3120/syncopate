@@ -18,6 +18,16 @@ interface ConcertCardProps {
   imageUrl?: string;
 }
 
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+};
+
 const ConcertCard: React.FC<ConcertCardProps> = ({
   id,
   title,
@@ -64,7 +74,7 @@ const ConcertCard: React.FC<ConcertCardProps> = ({
       }
       const { concerts } = await res.json();
       console.log(concerts);
-      setIsFavorite(concerts.some((concert_id) => concert_id === id));
+      setIsFavorite(concerts.some((concert_id: number) => concert_id === id));
     } catch (error) {
       console.error(error);
     }
@@ -122,8 +132,12 @@ const ConcertCard: React.FC<ConcertCardProps> = ({
   return (
     <>
       <Card
-        sx={{ backgroundColor: "#1A1A1A" }}
-        className="w-80 h-60 cursor-pointer shadow-lg transition-transform hover:scale-105 drop-shadow-[0_0_15px_rgba(76,29,149,0.9)]"
+        sx={{ 
+          backgroundColor: "#1A1A1A",
+          borderRadius: '1.5rem', // This matches Tailwind's rounded-3xl
+          overflow: 'hidden'
+        }}
+        className="w-80 h-60 cursor-pointer shadow-lg transition-all duration-300 ease-in-out hover:scale-105 drop-shadow-[0_0_15px_rgba(76,29,149,0.9)]"
         onClick={() => {
           setOpen(true);
           checkFavorite();
@@ -134,22 +148,22 @@ const ConcertCard: React.FC<ConcertCardProps> = ({
           style={{ height: "60%" }}
           image={imageUrl || "/concert_default_photo.jpg"}
           alt={title}
+          className="rounded-t-3xl"
         />
         <CardContent>
-          <div ref={containerRef} className="overflow-hidden whitespace-nowrap">
+          <div ref={containerRef} className="overflow-hidden whitespace-nowrap rounded-3xl">
             <Typography
               ref={titleRef}
               fontSize={16}
               variant="h6"
-              className={`font-semibold text-white inline-block ${
-                isOverflowing ? "hover:animate-marquee" : ""
-              }`}
+              className={`font-semibold text-white inline-block ${isOverflowing ? "hover:animate-marquee" : ""
+                }`}
             >
               {title}
             </Typography>
           </div>
           <Typography variant="body2" className="text-violet-600">
-            {date}
+            {formatDate(date)}
           </Typography>
         </CardContent>
       </Card>
@@ -160,19 +174,20 @@ const ConcertCard: React.FC<ConcertCardProps> = ({
           setOpen(false);
         }}
       >
-        <Box className="bg-space_black rounded-md w-3/5 h-3/5 mx-auto mt-20 flex flex-row relative">
+        <Box className="bg-space_black rounded-3xl w-3/5 h-3/5 mx-auto mt-20 flex flex-row relative">
           <CardMedia
             component="img"
             style={{ width: "60%" }}
             image={imageUrl || "/concert_default_photo.jpg"}
             alt={title}
+            className="rounded-l-3xl object-cover"
           />
-          <div className="p-6 shadow-lg w-full relative">
+          <div className="p-8 shadow-lg w-full relative">
             <Typography variant="h4" fontWeight={800} className="font-semibold text-white">
               {title}
             </Typography>
             <Typography variant="h5" className="text-violet-600">
-              {date}
+              {formatDate(date)}
             </Typography>
             <Typography marginTop={1}>
               {info}
@@ -184,9 +199,8 @@ const ConcertCard: React.FC<ConcertCardProps> = ({
             <FaStar
               size={24}
               onClick={() => toggleFavorite(id)}
-              className={`absolute bottom-5 right-5 hover:cursor-pointer ${
-                isFavorite ? "text-yellow-600" : "text-slate-400"
-              }`}
+              className={`absolute bottom-5 right-5 hover:cursor-pointer ${isFavorite ? "text-yellow-600" : "text-slate-400"
+                }`}
             />
           </div>
         </Box>
