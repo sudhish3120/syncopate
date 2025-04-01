@@ -141,7 +141,7 @@ const UpdateModal = () => {
         favoriteGenres: nonEmptyGenres,
       });
 
-      const payload: any = {
+      const payload = {
         profile_photo: user?.profile.profile_photo,
         favorite_artists: nonEmptyArtists,
         favorite_genres: nonEmptyGenres,

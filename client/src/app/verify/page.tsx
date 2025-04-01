@@ -15,8 +15,8 @@ export default function VerifyEmail() {
 
   return (
     <div className="min-h-screen bg-gradient-to-l from-purple-800 to-yellow-700 h-screen flex">
-      <div className="max-w-xl text-center p-20 rounded-md bg-stone-700 m-auto rounded-3xl">
-        <Typography variant="h3" className="tracking-[-1px]" marginBottom={2}>2. check <br /> your email</Typography>
+      <div className="max-w-xl text-center p-20 bg-stone-700 m-auto rounded-3xl">
+        <Typography variant="h3" className="tracking-[-1px]" marginBottom={2}>2. check your email</Typography>
         <div className="text-center space-y-4">
           <Typography>
             We&apos;ve sent a verification link to your email address.<br />

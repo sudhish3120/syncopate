@@ -45,9 +45,8 @@ export default function EmailVerifyPage() {
   };
 
   return (
-    <div className="h-full">
-      <div className="absolute bg-gradient-to-l from-purple-800 to-yellow-700 h-screen flex">
-        <div className="max-w-xl text-center p-20 rounded-md bg-stone-700 m-auto rounded-3xl">
+      <div className="bg-gradient-to-l from-purple-800 to-yellow-700 h-screen flex">
+        <div className="max-w-xl text-center p-20 bg-stone-700 m-auto rounded-3xl">
           <Typography variant="h5" fontWeight={600} className="text-center" marginBottom={-1}>1. enter your</Typography>
           <Typography variant="h3" className="tracking-[-1px]" marginBottom={2}>uWaterloo email</Typography>
           <Formik
@@ -91,7 +90,6 @@ export default function EmailVerifyPage() {
             )}
           </Formik>
         </div>
-      </div>
     </div>
   );
 }
