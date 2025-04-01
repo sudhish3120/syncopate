@@ -73,8 +73,8 @@ export default function Favorites() {
             </div>
           </div>
         </section>
-        <div className="grid grid-cols-4 gap-4">
-          {favorites?.slice(0, 4).map((favorite) => (
+        <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+          {favorites?.map((favorite) => (
             <ConcertCard
               key={favorite.id}
               id={favorite.id}
