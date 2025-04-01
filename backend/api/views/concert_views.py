@@ -122,9 +122,8 @@ def favorite(request):
     try:
         user = request.user
         concert_id = request.data.get("concert")
-
         if not concert_id:
-            return Response({"error": "Concert ID is required"}, status=400)
+            return Response({"error": "Failed to create/fetch concert"}, status=500)
 
         # Ensure the concert exists and add it if it does not
         concert, created = Concert.objects.get_or_create(concert_id=concert_id)
@@ -345,7 +344,7 @@ def delete_match(request):
     content = json.loads(request.body.decode("utf-8"))
     target = content.get("user")
     concert_ids = content.get("concerts")
-
+    
     if not concert_ids or not isinstance(concert_ids, list):
         return Response({"error": "Valid list of concert IDs is required"}, status=400)
 
