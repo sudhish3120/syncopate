@@ -63,6 +63,8 @@ const UpdateModal = () => {
   const [favoriteGenres, setFavoriteGenres] = useState<string[]>([""]);
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
+  const [instagramLink, setInstagramLink] = useState<string>("");
+  const [discordUser, setDiscordUser] = useState<string>("");
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState<string>("");
   const [toastType, setToastType] = useState<"success" | "error">("success");
@@ -77,6 +79,7 @@ const UpdateModal = () => {
         if (res.ok) {
           setIsAuthenticated(true);
           const data = await res.json();
+          console.log(data);
           setUser(data.user);
 
           // Initialize artists and genres from profile
@@ -93,6 +96,8 @@ const UpdateModal = () => {
                 ? data.user.profile.favorite_genres.map((g: Genre) => g.name)
                 : [""]
             );
+            setInstagramLink(data.user.profile.user_socials.instagram || "");
+            setDiscordUser(data.user.profile.user_socials.discord || "");
           }
         }
       } catch (error) {
@@ -147,6 +152,7 @@ const UpdateModal = () => {
         favorite_genres: nonEmptyGenres,
         first_name: firstName,
         last_name: lastName,
+        user_socials: { instagram: instagramLink, discord: discordUser },
       };
 
       // Add term and faculty only if they are not "Not selected"
@@ -263,7 +269,7 @@ const UpdateModal = () => {
                   />
                 </div>
                 <div className="mb-4">
-                  <label className="block text-white mb-2" htmlFor="username">
+                  <label className="block text-white mb-2" htmlFor="first_name">
                     First Name
                   </label>
                   <input
@@ -278,7 +284,7 @@ const UpdateModal = () => {
                   />
                 </div>
                 <div className="mb-4">
-                  <label className="block text-white mb-2" htmlFor="username">
+                  <label className="block text-white mb-2" htmlFor="last_name">
                     Last Name
                   </label>
                   <input
@@ -408,6 +414,36 @@ const UpdateModal = () => {
                       + Add Genre
                     </button>
                   )}
+                </div>
+                <div className="mb-4">
+                  <label className="block text-white mb-2" htmlFor="link">
+                    Instagram
+                  </label>
+                  <input
+                    type="link"
+                    id="instagram_link"
+                    name="instagram_link"
+                    value={instagramLink}
+                    onChange={(e) => {
+                      setInstagramLink(e.target.value);
+                    }}
+                    className="w-full p-2 rounded bg-black text-white"
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block text-white mb-2" htmlFor="link">
+                    Discord
+                  </label>
+                  <input
+                    type="link"
+                    id="discord_link"
+                    name="discord_link"
+                    value={discordUser}
+                    onChange={(e) => {
+                      setDiscordUser(e.target.value);
+                    }}
+                    className="w-full p-2 rounded bg-black text-white"
+                  />
                 </div>
 
                 <button

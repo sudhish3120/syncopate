@@ -98,6 +98,7 @@ class UserProfile(models.Model):
     profile_photo = models.CharField(max_length=200, default="/avatars/1.jpg")
     favorite_artists = models.ManyToManyField("Artist", related_name="favorited_by")
     favorite_genres = models.ManyToManyField("Genre", related_name="favorited_by")
+    user_socials = models.JSONField(default=dict)  # Stores socials as a JSON object
 
     def __str__(self):
         return f"{self.user.username}'s profile"

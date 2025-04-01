@@ -95,6 +95,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "profile_photo",
             "favorite_artists",
             "favorite_genres",
+            "user_socials",
         ]
 
 

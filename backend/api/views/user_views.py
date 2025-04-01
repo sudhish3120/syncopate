@@ -9,8 +9,11 @@ import logging
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.core.validators import RegexValidator
 from rest_framework import permissions, status
-from rest_framework.decorators import (api_view, authentication_classes,
-                                       permission_classes)
+from rest_framework.decorators import (
+    api_view,
+    authentication_classes,
+    permission_classes,
+)
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 
@@ -102,7 +105,42 @@ def update_profile(request):
             except DjangoValidationError:
                 raise ValidationError("Last name contains invalid characters")
             profile.last_name = data["last_name"].strip()
+        if "user_socials" in data:
+            socials = data["user_socials"]
+            print(socials)
+            if not isinstance(socials, dict) or not all(
+                key in socials for key in ["instagram", "discord"]
+            ):
+                raise ValidationError("Invalid socials format or too many social links")
 
+            # Regex to validate URLs (basic validation)
+            instagram_url_validator = RegexValidator(
+                regex=r"^https:\/\/www\.instagram\.com\/[A-Za-z0-9._\-]+\/?$",
+                message="Invalid Instagram URL format. Must be in the format: https://www.instagram.com/{username}/",
+            )
+
+            profile.user_socials.clear()
+            if socials.get("instagram") and isinstance(socials["instagram"], str):
+                try:
+                    print(socials["instagram"].strip())
+                    instagram_url_validator(socials["instagram"].strip())
+                except DjangoValidationError as exc:
+                    raise ValidationError("Invalid format for Instagram link") from exc
+                profile.user_socials["instagram"] = socials["instagram"].strip()
+            else:
+                raise ValidationError("Invalid social link")
+
+            if socials.get("discord"):
+                try:
+                    name_validator(socials["discord"].strip())
+                except DjangoValidationError:
+                    raise ValidationError(
+                        "discord username contains invalid characters"
+                    )
+            profile.user_socials = {
+                "instagram": socials.get("instagram"),
+                "discord": socials.get("discord"),
+            }
         if "term" in data:
             if data["term"] not in allowed_terms:
                 raise ValidationError("Invalid term selection")
@@ -164,7 +202,7 @@ def update_profile(request):
     except ValidationError as e:
         logger.warning("Validation error for user %s: %s", user.username, str(e))
         # Extract just the string from ErrorDetail
-        error_message = str(e.detail[0]) if hasattr(e, 'detail') else str(e)
+        error_message = str(e.detail[0]) if hasattr(e, "detail") else str(e)
         return Response({"error": error_message}, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
         logger.error("Profile update error: %s", str(e), exc_info=True)
