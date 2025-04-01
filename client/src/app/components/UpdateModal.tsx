@@ -64,6 +64,8 @@ const UpdateModal = () => {
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string>("");
+  const [toastType, setToastType] = useState<"success" | "error">("success");
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -167,16 +169,23 @@ const UpdateModal = () => {
         }
       );
 
+      const data = await res.json();
+
       if (!res.ok) {
-        throw new Error("Failed to update profile");
+        throw new Error(data.error || "Failed to update profile");
       }
 
-      const data = await res.json();
       setUser(data.user);
+      setToastType("success");
+      setToastMessage("Profile updated successfully!");
       setShowToast(true);
     } catch (error) {
       console.error("Update failed:", error);
-      alert("Failed to update profile. Please try again.");
+      setToastType("error");
+      setToastMessage(
+        error instanceof Error ? error.message : "Failed to update profile"
+      );
+      setShowToast(true);
     }
   };
 
@@ -414,8 +423,9 @@ const UpdateModal = () => {
       )}
       {showToast && (
         <Toast
-          message="Profile updated successfully!"
+          message={toastMessage}
           onClose={() => setShowToast(false)}
+          type={toastType}
         />
       )}
     </>

@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Nav from "../components/Nav";
 import { Card, CardContent } from "../../../node_modules/@mui/material/index";
+import SessionExpired from "../components/SessionExpired";
 
 interface Match {
     username: string
@@ -39,11 +40,37 @@ export default function Matches() {
     };
 
     useEffect(() => {
+        const checkAuth = async () => {
+            try {
+                const res = await fetch("http://localhost:8000/api/auth/user/", {
+                    credentials: 'include',
+                });
+
+                if (res.status === 401) {
+                    setError('session-expired');
+                    return;
+                }
+
+                if (!res.ok) {
+                    throw new Error("Failed to fetch user data");
+                }
+            } catch (err) {
+                setError(err instanceof Error ? err.message : "An error occurred");
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        checkAuth();
         fetchMatches();
-    }, [])
+    }, []);
 
     if (isLoading) {
         return <div className="p-4">Loading...</div>;
+    }
+
+    if (error === 'session-expired') {
+        return <SessionExpired />;
     }
 
     if (error) {

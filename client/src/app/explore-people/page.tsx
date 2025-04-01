@@ -16,6 +16,7 @@ import {
   IoCheckmarkCircleOutline,
   IoCloseCircleOutline,
 } from "react-icons/io5";
+import SessionExpired from "../components/SessionExpired";
 
 enum MatchingStatus {
   YES = "YES",
@@ -36,12 +37,30 @@ export default function ExplorePeople() {
   const [peopleIndex, setPeopleIndex] = useState<number>(0);
   const [noMatchings, setNoMatchings] = useState<boolean>(true);
 
+
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      redirect("/login");
-      return;
-    }
+    const checkAuth = async () => {
+      try {
+        const res = await fetch("http://localhost:8000/api/auth/user/", {
+          credentials: "include",
+        });
+
+        if (res.status === 401) {
+          setError("session-expired");
+          return;
+        }
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch user data");
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An error occurred");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuth();
   }, []);
 
   const fetchMatchings = async () => {
@@ -76,6 +95,10 @@ export default function ExplorePeople() {
 
   if (isLoading) {
     return <div className="p-4">Loading...</div>;
+  }
+
+  if (error === "session-expired") {
+    return <SessionExpired />;
   }
 
   if (error) {

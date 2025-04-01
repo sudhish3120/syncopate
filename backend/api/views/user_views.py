@@ -52,8 +52,6 @@ def update_profile(request):
         profile, _created = UserProfile.objects.get_or_create(user=user)
         data = request.data
 
-        print(data)
-
         # Validate profile photo
         allowed_avatars = [
             "/avatars/1.jpg",
@@ -89,10 +87,22 @@ def update_profile(request):
             if data["profile_photo"] not in allowed_avatars:
                 raise ValidationError("Invalid avatar selection")
             profile.profile_photo = data["profile_photo"]
+
+        # Handle name validations
         if "first_name" in data:
+            try:
+                name_validator(data["first_name"].strip())
+            except DjangoValidationError:
+                raise ValidationError("First name contains invalid characters")
             profile.first_name = data["first_name"].strip()
+
         if "last_name" in data:
+            try:
+                name_validator(data["last_name"].strip())
+            except DjangoValidationError:
+                raise ValidationError("Last name contains invalid characters")
             profile.last_name = data["last_name"].strip()
+
         if "term" in data:
             if data["term"] not in allowed_terms:
                 raise ValidationError("Invalid term selection")
@@ -153,7 +163,9 @@ def update_profile(request):
 
     except ValidationError as e:
         logger.warning("Validation error for user %s: %s", user.username, str(e))
-        return Response({"error": " Invalid Input"}, status=status.HTTP_400_BAD_REQUEST)
+        # Extract just the string from ErrorDetail
+        error_message = str(e.detail[0]) if hasattr(e, 'detail') else str(e)
+        return Response({"error": error_message}, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
         logger.error("Profile update error: %s", str(e), exc_info=True)
         return Response(

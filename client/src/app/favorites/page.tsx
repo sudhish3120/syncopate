@@ -3,12 +3,38 @@ import React, { useEffect, useState } from "react";
 import ConcertCard from "../components/ConcertCard";
 import Nav from "../components/Nav";
 import { FaMagnifyingGlass } from "react-icons/fa6";
-import {Concert} from "../types/concerts"
+import { Concert } from "../types/concerts";
+import SessionExpired from "../components/SessionExpired";
 
 export default function Favorites() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [favorites, setFavorites] = useState<Array<Concert> | null>(null);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await fetch("http://localhost:8000/api/auth/user/", {
+          credentials: "include",
+        });
+
+        if (res.status === 401) {
+          setError("session-expired");
+          return;
+        }
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch user data");
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An error occurred");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
 
   useEffect(() => {
     const getFavorites = async () => {
@@ -17,7 +43,7 @@ export default function Favorites() {
           "http://localhost:8000/api/concerts/favorites",
           {
             method: "GET",
-            credentials: 'include',
+            credentials: "include",
             headers: {
               "Content-Type": "application/json",
             },
@@ -27,7 +53,6 @@ export default function Favorites() {
           throw new Error("Failed to fetch db concerts");
         }
         const data = await res.json();
-        // console.log(concerts);
         setFavorites(data["concerts"]);
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
@@ -39,12 +64,17 @@ export default function Favorites() {
 
     getFavorites();
   }, []);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
       </div>
     );
+  }
+
+  if (error === "session-expired") {
+    return <SessionExpired />;
   }
 
   if (error) {

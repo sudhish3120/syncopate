@@ -5,6 +5,8 @@ This module tests profile API endpoints.
 import pytest
 from django.urls import reverse
 
+from ..models import UserProfile
+
 
 @pytest.mark.django_db
 class TestProfileAPI:
@@ -74,10 +76,10 @@ class TestProfileAPI:
         assert response.status_code == 200
         assert len(response.data["user"]["profile"]["favorite_genres"]) == 2
 
-    # def test_profile_creation_on_user_creation(self, test_user):
-    #     """Test profile is automatically created for new users"""
-    #     assert hasattr(test_user, "profile")
-    #     assert isinstance(test_user.profile, UserProfile)
+    def test_profile_creation_on_user_creation(self, test_user):
+        """Test profile is automatically created for new users"""
+        assert hasattr(test_user, "profile")
+        assert isinstance(test_user.profile, UserProfile)
 
     def test_concurrent_updates(self, authenticated_client):
         """Test handling concurrent profile updates"""
