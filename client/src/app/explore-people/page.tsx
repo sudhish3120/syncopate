@@ -33,6 +33,7 @@ export default function ExplorePeople() {
   const [people, setPeople] = useState<Matching[]>([]);
   const [peopleIndex, setPeopleIndex] = useState<number>(0);
   const [noMatchings, setNoMatchings] = useState<boolean>(true);
+  const [limitReached, setLimitReached] = useState<boolean>(false);
   const [commonConcerts, setCommonConcerts] = useState<string[]>([]);
 
   const fetchCalled = useRef(false);
@@ -201,6 +202,7 @@ export default function ExplorePeople() {
       setPeopleIndex(peopleIndex + 1);
       if (peopleIndex + 1 >= people.length) {
         setNoMatchings(true);
+        setLimitReached(true);
       }
     }
   };
@@ -215,14 +217,23 @@ export default function ExplorePeople() {
             sx={{ m: 3, height: 10 }}
             className="top-10 rounded-md"
           />
-          {noMatchings ? (
+          {noMatchings && limitReached ? (
+            <Typography
+              gutterBottom
+              variant="h5"
+              component="div"
+              className="pt-10 text-center text-red-500"
+            >
+              You&apos;ve seen everyone so far! Come back later!
+            </Typography>
+          ) : noMatchings ? (
             <Typography
               gutterBottom
               variant="h5"
               component="div"
               className="pt-10 text-center"
             >
-              You&apos;ve reached your matching limit. Please come back later!
+              No one shares your taste at the moment. Check back later!
             </Typography>
           ) : (
             <Box className="bg-space_black border-2 border-violet-700 rounded-3xl w-3/5 h-full mx-auto mt-20 flex flex-row relative ">
@@ -259,11 +270,15 @@ export default function ExplorePeople() {
                     className="text-yellow-300"
                     marginBottom={2}
                   >
-                    {
-                      (people[peopleIndex]["target_academic_term"] || people[peopleIndex]["target_faculty"]) ? (
-                        <>{people[peopleIndex]["target_academic_term"]} {people[peopleIndex]["target_faculty"]}</>
-                      ) : (<>unknown academic term and faculty</>)
-                    }
+                    {people[peopleIndex]["target_academic_term"] ||
+                    people[peopleIndex]["target_faculty"] ? (
+                      <>
+                        {people[peopleIndex]["target_academic_term"]}{" "}
+                        {people[peopleIndex]["target_faculty"]}
+                      </>
+                    ) : (
+                      <>unknown academic term and faculty</>
+                    )}
                   </Typography>
                   <Box
                     sx={{
@@ -278,18 +293,16 @@ export default function ExplorePeople() {
                     {commonConcerts.length > 0 ? (
                       <>
                         <Typography>Common Concerts:</Typography>
-                        {
-                          commonConcerts.map((concert, index) => (
-                            <Typography
-                              key={index}
-                              className="text-white"
-                              fontWeight={600}
-                              sx={{ marginBottom: 1 }}
-                            >
-                              {concert}
-                            </Typography>
-                          ))
-                        }
+                        {commonConcerts.map((concert, index) => (
+                          <Typography
+                            key={index}
+                            className="text-white"
+                            fontWeight={600}
+                            sx={{ marginBottom: 1 }}
+                          >
+                            {concert}
+                          </Typography>
+                        ))}
                       </>
                     ) : (
                       <Typography fontWeight={600} className="text-gray-400">
@@ -302,7 +315,10 @@ export default function ExplorePeople() {
                   <IoCloseCircleOutline
                     size={36}
                     onClick={() =>
-                      reviewMatching(MatchingStatus.NO, people[peopleIndex]["id"])
+                      reviewMatching(
+                        MatchingStatus.NO,
+                        people[peopleIndex]["id"]
+                      )
                     }
                     className="text-red-600 hover:cursor-pointer"
                   />
