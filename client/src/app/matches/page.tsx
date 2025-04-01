@@ -124,9 +124,13 @@ export default function Matches() {
     return <div className="p-4 text-red-500">Error: {error}</div>;
   }
 
-  if (isLoading) {
-    return <div className="p-4">Loading...</div>;
-  }
+    if (isLoading) {
+        return (
+          <div className="flex items-center justify-center min-h-screen bg-black">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+          </div>
+        );
+    }
 
   if (error) {
     return <div className="p-4 text-red-500">Error: {error}</div>;

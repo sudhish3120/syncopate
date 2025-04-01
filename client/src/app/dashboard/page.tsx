@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import ConcertList from "../components/ConcertList";
 import Nav from "../components/Nav";
-import { FaMagnifyingGlass } from "react-icons/fa6";
+import { FaMagnifyingGlass, FaAngleDown } from "react-icons/fa6";
 import {
   FormControl,
   MenuItem,
@@ -206,21 +206,23 @@ export default function Dashboard() {
         <section className="mb-8 flex justify-between">
           <h2 className="text-3xl font-md text-white mb-4">Explore Concerts</h2>
           <div className="flex items-center justify-between mb-4 space-x-4">
-            <FormControl className="bg-white border-gray-300 rounded-full outline-none p-0">
-              <Select
-                id="location-select"
+            <div className="relative flex flex-row justify-between border bg-white border-gray-300 rounded-full px-3 py-3 pl-6 w-80 focus:outline-none focus:border-blue-500">
+              <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                <FaAngleDown size={30} className="text-gray-300" />
+              </div>
+              <select
+                name="locationSelect"
                 value={location}
-                label="Location"
                 onChange={handleLocationChange}
-                className="w-64 p-0 focus-within:outline-none"
+                className="w-full rounded-full text-gray-600 focus:outline-none focus:border-blue-500 appearance-none pr-10 bg-transparent z-10"
               >
                 {Object.entries(LOCATIONS).map((location) => (
-                  <MenuItem value={location[0]} key={location[0]}>
+                  <option value={location[0]} key={location[0]}>
                     {location[1]}
-                  </MenuItem>
+                  </option>
                 ))}
-              </Select>
-            </FormControl>
+              </select>
+            </div>
             <div className="flex flex-row justify-between border bg-white border-gray-300 rounded-full px-3 py-3 pl-6 w-80 focus:outline-none focus:border-blue-500">
               <input
                 type="text"
