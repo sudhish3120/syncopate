@@ -45,7 +45,7 @@ export default function Matches() {
           }
         );
         if (res.ok) {
-          const response = await res.json();
+          // const response = await res.json();
           // console.log(response);
         } else {
           const response = await res.json();
@@ -144,8 +144,8 @@ export default function Matches() {
         {matches.length > 0 ? (
           matches.map((match, index) => (
             <React.Fragment key={`match-${index}`}>
-              <Card key={`card-${index}`} onClick={() => setOpen(true)}>
-                <CardContent>{match["username"]}</CardContent>
+              <Card key={`card-${index}`} onClick={() => setOpen(true)} className="flex align-middle justify-between px-3">
+                <CardContent sx={{ display: "flex", alignItems: "center"}}>{match["target_name"] || match["username"]}</CardContent>
                 <CardContent
                   style={{
                     display: "flex",
@@ -194,7 +194,7 @@ export default function Matches() {
                   )}
                   <div className="p-6 shadow-lg w-full relative">
                     <Typography
-                      variant="h5"
+                      variant="h3"
                       component="div"
                       className="font-semibold text-white"
                     >
@@ -206,7 +206,7 @@ export default function Matches() {
                         marginBottom={1}
                         className="text-yellow-600"
                       >
-                        {match["target_faculty"] || "unknown faculty"}{(match["target_faculty"] || match["target_academic_term"]) && " - "}{match["target_academic_term"] || "unknown academic term"}
+                        {match["target_faculty"] || "unknown faculty"}{((!match["target_faculty"] && !match["target_academic_term"]) || (match["target_faculty"] && match["target_academic_term"])) && " - "}{match["target_academic_term"] || "unknown academic term"}
                       </Typography>
                       <Box
                         sx={{
@@ -221,7 +221,7 @@ export default function Matches() {
                         <div className="mb-3">
                           <Typography>Top Artists:</Typography>
                           {
-                            match["top_artists"] ? 
+                            match["top_artists"].length > 0 ? 
                             match["top_artists"].map((artist, index) => (
                               <Typography
                                 key={index}
@@ -243,7 +243,7 @@ export default function Matches() {
                         <div>
                           <Typography>Top Genres:</Typography>
                           {
-                            match["top_genres"] ? 
+                            match["top_genres"].length > 0 ? 
                             match["top_genres"].map((genre, index) => (
                               <Typography
                                 key={index}
@@ -264,11 +264,26 @@ export default function Matches() {
                         </div>
                       </Box>
                     </div>
+                    <div className="mt-3">
+                      {
+                        match["user_socials"]["discord"] && (
+                          <div className="flex">
+                            <Typography fontWeight={800} marginRight={1}>Discord:</Typography>
+                            <Typography>@{match["user_socials"]["discord"]}</Typography>
+                          </div>
+                        )
+                      }
+                      {
+                        match["user_socials"]["instagram"] && (
+                          <div className="flex">
+                            <Typography fontWeight={800} marginRight={1}>Instagram:</Typography>
+                            <Typography>{match["user_socials"]["instagram"]}</Typography>
+                          </div>
+                        )
+                      }
+                    </div>
                   </div>
                 </Box>
-                <>
-                
-                </>
               </Modal>
             </React.Fragment>
           ))
