@@ -199,12 +199,18 @@ export default function Dashboard() {
         <section className="mb-8 flex justify-between">
           <h2 className="text-3xl font-md text-white mb-4">Explore Concerts</h2>
           <div className="flex items-center justify-between mb-4 space-x-4">
-            <div className="flex flex-row justify-between border bg-white border-gray-300 rounded-full px-3 py-3 pl-6 w-80 focus:outline-none focus:border-blue-500">
+            <div className="relative flex flex-row justify-between border bg-white border-gray-300 rounded-full px-3 py-3 pl-6 w-80 focus:outline-none focus:border-blue-500">
+              <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                <FaAngleDown
+                  size={30}
+                  className="text-gray-300"
+                />
+              </div>
               <select
                 name="locationSelect"
                 value={location}
                 onChange={handleLocationChange}
-                className="w-40 rounded-full text-gray-600 focus:outline-none focus:border-blue-500 appearance-none"
+                className="w-full rounded-full text-gray-600 focus:outline-none focus:border-blue-500 appearance-none pr-10 bg-transparent z-10"
               >
                 {
                   Object.entries(LOCATIONS).map(
@@ -212,10 +218,6 @@ export default function Dashboard() {
                   )
                 }
               </select>
-              <FaAngleDown
-                size={30}
-                className="inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-300"
-              />
             </div>
             <div className="flex flex-row justify-between border bg-white border-gray-300 rounded-full px-3 py-3 pl-6 w-80 focus:outline-none focus:border-blue-500">
               <input
