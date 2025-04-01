@@ -592,13 +592,15 @@ class TestMatchesView:
         assert response.data["matches"][0] == {
             "username": other_user.username,
             "profile_photo": target_profile_photo,
-            "target_name": target_name,
+            "target_name": target_name.strip(),
             "target_faculty": target_faculty,
             "target_academic_term": target_academic_term,
             "concerts": list(matched_concerts),
+            "top_artists": [],
+            "top_genres": [],
             "user_socials": (
                 target_profile.user_socials
-                if target_profile and hasattr(target_profile, "socials")
+                if target_profile and hasattr(target_profile, "user_socials")
                 else None
             ),
         }

@@ -94,8 +94,6 @@ const ConcertCard: React.FC<ConcertCardProps> = ({
         if (!res.ok) {
           throw new Error("Failed to favorite concert");
         }
-
-        const data = await res.json();
       } catch (error) {
         console.error(error);
       }
@@ -115,7 +113,6 @@ const ConcertCard: React.FC<ConcertCardProps> = ({
         if (!res.ok) {
           throw new Error("Failed to unfavorite concert");
         }
-        const data = await res.json();
       } catch (error) {
         console.error(error);
       }

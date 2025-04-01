@@ -333,6 +333,12 @@ def matches(request):
             concerts = match.matched_concerts.values_list("concert_id", flat=True)
             target_user = match.user
             target_profile = UserProfile.objects.filter(user=target_user).first()
+
+            top_artists, top_genres = [], []
+            if target_profile:
+                top_artists = list(target_profile.favorite_artists.all().values_list("name", flat=True))
+                top_genres = list(target_profile.favorite_genres.all().values_list("name", flat=True))
+
             other_matches_json.append(
                 {
                     "username": target_user.username,
@@ -340,7 +346,7 @@ def matches(request):
                         target_profile.profile_photo if target_profile else None
                     ),
                     "target_name": (
-                        f"{target_profile.first_name} {target_profile.last_name}"
+                        f"{target_profile.first_name} {target_profile.last_name}".strip()
                         if target_profile
                         else None
                     ),
@@ -351,9 +357,11 @@ def matches(request):
                         target_profile.term if target_profile else None
                     ),
                     "concerts": list(concerts),
+                    "top_artists": top_artists,
+                    "top_genres": top_genres,
                     "user_socials": (
-                        target_profile.socials
-                        if target_profile and hasattr(target_profile, "socials")
+                        target_profile.user_socials
+                        if target_profile and hasattr(target_profile, "user_socials")
                         else None
                     ),
                 }
@@ -361,7 +369,7 @@ def matches(request):
 
         return Response({"matches": other_matches_json}, status=200)
     except Exception as e:
-        return Response({"error": "Failed to fetch matching"}, status=e)
+        return Response({"error": "Failed to fetch matching"}, status=500)
 
 
 @api_view(["POST"])

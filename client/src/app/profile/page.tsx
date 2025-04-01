@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import Nav from "../components/Nav";
 import UpdateModal from "../components/UpdateModal";
 import SessionExpired from "../components/SessionExpired";
+import { Typography } from "../../../node_modules/@mui/material/index";
 
 export default function Profile() {
   const [isLoading, setIsLoading] = useState(true);
@@ -46,10 +47,10 @@ export default function Profile() {
   }
 
   return (
-    <div className="font-sans bg-black relative pt-20">
+    <div className="relative pt-20">
       <Nav />
       <div className="container mx-auto p-4">
-        <h1 className="text-white text-2xl mb-4">Edit Profile</h1>
+        <Typography variant="h3" marginBottom={2}>Edit Profile</Typography>
         <UpdateModal />
       </div>
     </div>
