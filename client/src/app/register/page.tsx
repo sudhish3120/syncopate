@@ -1,16 +1,16 @@
 "use client";
 import React from "react";
+import { Typography } from "../../../node_modules/@mui/material/index";
 import Register from "../components/Register";
 
 export default function RegisterPage() {
   return (
-    <div className="min-h-screen bg-black relative pt-20">
-      <main className="container mx-auto py-8 px-8">
-        <div className="max-w-md mx-auto text-center">
-          <h1 className="text-3xl font-bold mb-8 text-white">3. Create an Account</h1>
-          <Register />
-        </div>
-      </main>
+    <div className="min-h-screen bg-gradient-to-l from-purple-800 to-yellow-700 h-full flex">
+      <div className="max-w-xl text-center p-20 bg-stone-700 m-auto rounded-3xl">
+        <Typography variant="h5" fontWeight={600} className="text-center" marginBottom={-1}>3. create an</Typography>
+        <Typography variant="h3" className="tracking-[-1px]" marginBottom={2}>account</Typography>
+        <Register />
+      </div>
     </div>
   );
 }
