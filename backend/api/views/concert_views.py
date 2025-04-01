@@ -344,16 +344,43 @@ def matches(request):
 def delete_match(request):
     content = json.loads(request.body.decode("utf-8"))
     target = content.get("user")
-    logger.info("TARGET:", target)
+    concert_ids = content.get("concerts")
+
+    if not concert_ids or not isinstance(concert_ids, list):
+        return Response({"error": "Valid list of concert IDs is required"}, status=400)
+
     try:
-        target_user  = User.objects.get(username=target)
+        target_user = User.objects.get(username=target)
         matches = Matching.objects.filter(user=request.user, target=target_user, decision="YES")
         matches |= Matching.objects.filter(user=target_user, target=request.user, decision="YES")
 
         for match in matches:
             match.matched_concerts.clear()
         matches.delete()
-        return Response({"Match deleted successfully"}, status=200)
+
+        for concert_id in concert_ids:
+            success1 = unfavorite_by_user(target_user, concert_id)
+            success2 = unfavorite_by_user(request.user, concert_id)
+            
+            if not success1 or not success2:
+                return Response({"error": f"Could not unfavorite concert {concert_id}"}, status=400)
+
+        return Response({"message": "Match deleted successfully"}, status=200)
+
+    except User.DoesNotExist:
+        return Response({"error": "Target user not found"}, status=404)
     except Exception as e:
-        return Response({"Match could not be deleted"}, status=400)
-    
+        return Response({"error": f"Match could not be deleted: {str(e)}"}, status=500)
+
+def unfavorite_by_user(user, concert_id):
+    """Removes a concert from a user's favorites."""
+    try:
+        concert = Concert.objects.get(concert_id=concert_id)
+    except Concert.DoesNotExist:
+        return False
+
+    try:
+        deleted, _ = FavoriteConcert.objects.filter(user=user, concert=concert).delete()
+        return deleted > 0  # True if deleted, False if not found
+    except Exception as e:
+        return False
