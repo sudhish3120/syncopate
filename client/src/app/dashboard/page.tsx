@@ -3,14 +3,10 @@ import React, { useEffect, useState } from "react";
 import ConcertList from "../components/ConcertList";
 import Nav from "../components/Nav";
 import { FaMagnifyingGlass, FaAngleDown } from "react-icons/fa6";
-import {
-  FormControl,
-  MenuItem,
-  Select,
-} from "../../../node_modules/@mui/material/index";
 import ConcertCard from "../components/ConcertCard";
 import { Concert } from "../types/concerts";
 import SessionExpired from "../components/SessionExpired";
+import { Typography } from "../../../node_modules/@mui/material/index";
 
 const LOCATIONS: { [key: string]: string } = {
   "KW": "Kitchener-Waterloo",
@@ -89,6 +85,8 @@ export default function Dashboard() {
       }
 
       const data = await res.json();
+
+      console.log(data["concerts"])
       setter(data["concerts"]);
     } catch (err) {
       console.error("Concert fetch error:", err);
@@ -99,9 +97,12 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    getConcerts(setInArea, "location=TO");
-    getConcerts(setOnsaleSoon, "onsaleSoon=true");
-    getConcerts(setVenueBased, "venue=HISTORY&location=TO");
+    const fetchConcerts = async () => {
+      await getConcerts(setInArea, "location=TO");
+      await getConcerts(setOnsaleSoon, "onsaleSoon=true");
+      await getConcerts(setVenueBased, "venue=HISTORY&location=TO"); 
+    }
+    fetchConcerts()
   }, []);
 
   if (isLoading) {
@@ -200,11 +201,11 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="font-sans bg-black relative pt-20">
+    <div className="font-sans relative pt-20">
       <Nav />
       <main className="container mx-auto  py-8 px-8 h-screen relative">
         <section className="mb-8 flex justify-between">
-          <h2 className="text-3xl font-md text-white mb-4">Explore Concerts</h2>
+          <Typography variant="h3">Explore Concerts</Typography>
           <div className="flex items-center justify-between mb-4 space-x-4">
             <div className="relative flex flex-row justify-between border bg-white border-gray-300 rounded-full px-3 py-3 pl-6 w-80 focus:outline-none focus:border-blue-500">
               <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
@@ -223,7 +224,7 @@ export default function Dashboard() {
                 ))}
               </select>
             </div>
-            <div className="flex flex-row justify-between border bg-white border-gray-300 rounded-full px-3 py-3 pl-6 w-80 focus:outline-none focus:border-blue-500">
+            <div className="flex flex-row justify-between border bg-white border-gray-300 rounded-full p-2 pl-6 w-80 focus:outline-none focus:border-blue-500">
               <input
                 type="text"
                 placeholder="Search for Concerts"
@@ -237,40 +238,42 @@ export default function Dashboard() {
             </div>
           </div>
         </section>
-        {searching ? (
-          <>
-            <h2 className="text-lg font-medium text-white mb-4 uppercase">
-              {header()}
-            </h2>
-            <div className="flex flex-wrap gap-10">
-              {concerts?.map((concert) => (
-                <div key={concert.id}>
-                  <ConcertCard
-                    id={concert.id}
-                    title={concert.name}
-                    date={new Date(
-                      concert.dates.start.localDate
-                    ).toLocaleDateString()}
-                    imageUrl={
-                      concert.images.reduce((largest, image) => {
-                        return image.width * image.height >
-                          largest.width * largest.height
-                          ? image
-                          : largest;
-                      }, concert.images[0]).url
-                    }
-                  />
-                </div>
-              ))}
-            </div>
-          </>
-        ) : (
-          <>
-            <ConcertList title={"Going On Sale Soon"} concerts={onsaleSoon} />
-            <ConcertList title={"Concerts in Toronto"} concerts={inArea} />
-            <ConcertList title={"Concerts at History"} concerts={venueBased} />
-          </>
-        )}
+        {
+          searching ? (
+            <>
+              <h2 className="text-lg font-medium text-white mb-4 uppercase">
+                {header()}
+              </h2>
+              <div className="flex flex-wrap gap-10">
+                {
+                  concerts?.map((concert) => (
+                    <div key={concert.id}>
+                      <ConcertCard
+                        id={concert.id}
+                        title={concert.name}
+                        date={new Date(
+                        concert.dates.start.localDate
+                        ).toLocaleDateString()}
+                        imageUrl={concert.images.reduce((largest, image) => {
+                        return image.width * image.height > largest.width * largest.height ? image : largest;
+                        }, concert.images[0]).url}
+                        info={concert.info}
+                        venue={concert._embedded.venues[0]["name"]}
+                      />
+                    </div>
+                  ))
+                }
+              </div>
+            </>
+          ) :
+          (
+            <>
+              <ConcertList title={"Going On Sale Soon"} concerts={onsaleSoon} />
+              <ConcertList title={"Concerts in Toronto"} concerts={inArea} />
+              <ConcertList title={"Concerts at History"} concerts={venueBased} />
+            </>
+          )
+        }
       </main>
     </div>
   );

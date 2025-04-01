@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
+import { Typography } from "../../../node_modules/@mui/material/index";
 import ConcertCard from "../components/ConcertCard";
 import { Concert } from "../types/concerts";
 interface ConcertListProps {
@@ -29,9 +30,9 @@ const ConcertList: React.FC<ConcertListProps> = ({ concerts, title }) => {
 
   return (
     <>
-      <h2 className="text-lg font-medium text-white mb-4 uppercase">
+      <Typography variant="h5" fontWeight={600}>
         {title}
-      </h2>
+      </Typography>
 
       <div className="relative">
         {
@@ -51,7 +52,7 @@ const ConcertList: React.FC<ConcertListProps> = ({ concerts, title }) => {
                 className="relative overflow-x-auto whitespace-nowrap scroll-hidden snap-x snap-mandatory"
                 style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
               >
-                <div className="flex space-x-8 m-10">
+                <div className="flex space-x-8 m-5">
                   {concerts?.map((concert) => (
                       <div key={concert.id} className="snap-center shrink-0">
                       <ConcertCard
@@ -63,6 +64,8 @@ const ConcertList: React.FC<ConcertListProps> = ({ concerts, title }) => {
                         imageUrl={concert.images.reduce((largest, image) => {
                         return image.width * image.height > largest.width * largest.height ? image : largest;
                         }, concert.images[0]).url}
+                        info={concert.info}
+                        venue={concert._embedded.venues[0]["name"]}
                       />
                       </div>
                   ))}

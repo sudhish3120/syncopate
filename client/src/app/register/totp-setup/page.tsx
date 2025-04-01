@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
+import { Typography } from '../../../../node_modules/@mui/material/index';
 
 const TOTPSchema = Yup.object().shape({
   code: Yup.string()
@@ -83,56 +84,54 @@ export default function TOTPSetup() {
   }
 
   return (
-    <div className="min-h-screen bg-black relative pt-20">
-      <main className="container mx-auto py-8 px-8">
-        <div className="max-w-md mx-auto text-center">
-          <h1 className="text-3xl font-bold mb-8 text-white">Set Up Two-Factor Authentication</h1>
-          
-          {qrUrl && (
-            <div className="mb-8 bg-white p-6 rounded-lg mx-auto w-full max-w-xs">
-              <div className="flex justify-center">
-                <Image src={qrUrl} alt="QR Code" width={200} height={200} />
-              </div>
-              <p className="text-sm text-gray-600 mt-4">
-                Scan this QR code with your authenticator app
-              </p>
+    <div className="bg-gradient-to-l from-purple-800 to-yellow-700 h-screen flex">
+      <div className="max-w-xl text-center p-20 bg-stone-700 m-auto rounded-3xl">
+        <Typography variant="h4" fontWeight={600} className="tracking-[-1px]" marginBottom={2}>Set Up Two-Factor Authentication</Typography>
+        
+        {qrUrl && (
+          <div className="mb-8 bg-white p-6 rounded-lg mx-auto w-full max-w-xs">
+            <div className="flex justify-center">
+              <Image src={qrUrl} alt="QR Code" width={200} height={200} />
             </div>
+            <p className="text-sm text-gray-600 mt-4">
+              Scan this QR code with your authenticator app
+            </p>
+          </div>
+        )}
+
+        <Formik
+          initialValues={{ code: '' }}
+          validationSchema={TOTPSchema}
+          onSubmit={handleVerify}
+        >
+          {({ errors, touched, isSubmitting, status }) => (
+            <Form className="w-full max-w-xs mx-auto">
+              <div className="mb-4">
+                <Field
+                  type="text"
+                  name="code"
+                  placeholder="Enter 6-digit code"
+                  className="w-full p-2 border rounded bg-white text-gray-900"
+                />
+                {errors.code && touched.code && (
+                  <Typography className="text-red-500" fontWeight={800} marginTop={1}>{errors.code}</Typography>
+                )}
+                {status && (
+                  <Typography className="text-red-500" fontWeight={800} marginTop={1}>{status}</Typography>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-violet-600 text-white p-2 rounded-full hover:bg-violet-700 disabled:bg-violet-400 transition-colors duration-200"
+              >
+                {isSubmitting ? "Verifying..." : "Verify Code"}
+              </button>
+            </Form>
           )}
-
-          <Formik
-            initialValues={{ code: '' }}
-            validationSchema={TOTPSchema}
-            onSubmit={handleVerify}
-          >
-            {({ errors, touched, isSubmitting, status }) => (
-              <Form className="w-full max-w-xs mx-auto">
-                <div className="mb-4">
-                  <Field
-                    type="text"
-                    name="code"
-                    placeholder="Enter 6-digit code"
-                    className="w-full p-2 border rounded"
-                  />
-                  {errors.code && touched.code && (
-                    <div className="text-red-500 text-sm">{errors.code}</div>
-                  )}
-                  {status && (
-                    <div className="text-red-500 text-sm mt-2">{status}</div>
-                  )}
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full bg-violet-600 text-white p-2 rounded-full hover:bg-violet-700 disabled:bg-violet-400 transition-colors duration-200"
-                >
-                  {isSubmitting ? "Verifying..." : "Verify Code"}
-                </button>
-              </Form>
-            )}
-          </Formik>
-        </div>
-      </main>
+        </Formik>
+      </div>
     </div>
   );
 }

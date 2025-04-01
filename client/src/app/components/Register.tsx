@@ -55,6 +55,8 @@ export default function Register() {
         }),
       });
 
+      console.log("is ok?", res.ok)
+
       if (res.ok) {
         const resJson = await res.json();
         if (resJson.user) {

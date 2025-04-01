@@ -153,7 +153,7 @@ export default function Matches() {
                   }}
                 >
                   <Typography style={{ marginRight: "8px" }}>
-                    I've reached out
+                    I&apos;ve reached out
                   </Typography>
                   <IoCheckmarkCircleOutline
                     onClick={() => {
