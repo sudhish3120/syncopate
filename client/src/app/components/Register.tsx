@@ -110,7 +110,7 @@ export default function Register() {
               type="text"
               name="username"
               placeholder="Username"
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded text-black"
             />
             {errors.username && touched.username && (
               <div className="text-red-500 text-sm">{errors.username}</div>
@@ -122,7 +122,7 @@ export default function Register() {
               type="password"
               name="password"
               placeholder="Password"
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded text-black"
             />
             {errors.password && touched.password && 
               (
@@ -138,7 +138,7 @@ export default function Register() {
               type="password"
               name="confirmPassword"
               placeholder="Confirm Password"
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded text-black"
             />
             {errors.confirmPassword && touched.confirmPassword && (
               <div className="text-red-500 text-sm">{errors.confirmPassword}</div>
