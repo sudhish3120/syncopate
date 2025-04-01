@@ -205,7 +205,7 @@ export default function ExplorePeople() {
     }
   };
   return (
-    <div className="font-sans bg-black">
+    <div>
       <Nav />
       <main className="container mx-auto  py-8 px-8 h-screen">
         <section className="mb-8">
@@ -225,17 +225,17 @@ export default function ExplorePeople() {
               You&apos;ve reached your matching limit. Please come back later!
             </Typography>
           ) : (
-            <Box className="bg-space_black border-2 border-violet-700 rounded-md w-3/5 h-full mx-auto mt-20 flex flex-row relative ">
+            <Box className="bg-space_black border-2 border-violet-700 rounded-3xl w-3/5 h-full mx-auto mt-20 flex flex-row relative ">
               {people[peopleIndex]["profile_photo"] ? (
                 <CardMedia
                   component="img"
                   sx={{ height: 300, width: 300 }}
                   image={people[peopleIndex]["profile_photo"]}
                   alt="Profile Picture"
-                  className="rounded-md"
+                  className="rounded-l-3xl"
                 />
               ) : (
-                <CardMedia component="div">
+                <CardMedia component="div" className="rounded-l-3xl">
                   <Avatar
                     variant="square"
                     sx={{ height: 300, width: 300, fontSize: 100 }}
@@ -244,7 +244,7 @@ export default function ExplorePeople() {
                   </Avatar>
                 </CardMedia>
               )}
-              <div className="p-6 shadow-lg w-full relative">
+              <div className="p-6 shadow-lg w-full">
                 <Typography
                   gutterBottom
                   variant="h5"
@@ -253,22 +253,17 @@ export default function ExplorePeople() {
                 >
                   {people[peopleIndex]["username"]}
                 </Typography>
-                <div className="flex flex-row space-x-4 w-full h-full">
+                <div className="flex flex-col w-full">
                   <Typography
-                    gutterBottom
-                    component="div"
-                    variant="body1"
-                    className="mt-2 text-violet-600"
+                    fontWeight={700}
+                    className="text-yellow-300"
+                    marginBottom={2}
                   >
-                    {people[peopleIndex]["target_faculty"]}
-                  </Typography>
-                  <Typography
-                    gutterBottom
-                    component="div"
-                    variant="body1"
-                    className="mt-2 text-violet-600"
-                  >
-                    {people[peopleIndex]["target_academic_term"]}
+                    {
+                      (people[peopleIndex]["target_academic_term"] || people[peopleIndex]["target_faculty"]) ? (
+                        <>{people[peopleIndex]["target_academic_term"]} {people[peopleIndex]["target_faculty"]}</>
+                      ) : (<>unknown academic term and faculty</>)
+                    }
                   </Typography>
                   <Box
                     sx={{
@@ -281,41 +276,47 @@ export default function ExplorePeople() {
                     }}
                   >
                     {commonConcerts.length > 0 ? (
-                      commonConcerts.map((concert, index) => (
-                        <Typography
-                          key={index}
-                          variant="body2"
-                          className="text-white"
-                          sx={{ marginBottom: 1 }}
-                        >
-                          {concert}
-                        </Typography>
-                      ))
+                      <>
+                        <Typography>Common Concerts:</Typography>
+                        {
+                          commonConcerts.map((concert, index) => (
+                            <Typography
+                              key={index}
+                              className="text-white"
+                              fontWeight={600}
+                              sx={{ marginBottom: 1 }}
+                            >
+                              {concert}
+                            </Typography>
+                          ))
+                        }
+                      </>
                     ) : (
-                      <Typography variant="body2" className="text-gray-400">
+                      <Typography fontWeight={600} className="text-gray-400">
                         No common concerts found.
                       </Typography>
                     )}
                   </Box>
                 </div>
-
-                <IoCloseCircleOutline
-                  size={36}
-                  onClick={() =>
-                    reviewMatching(MatchingStatus.NO, people[peopleIndex]["id"])
-                  }
-                  className="text-red-600 absolute bottom-5 left-5 hover:cursor-pointer"
-                />
-                <IoCheckmarkCircleOutline
-                  size={36}
-                  onClick={() =>
-                    reviewMatching(
-                      MatchingStatus.YES,
-                      people[peopleIndex]["id"]
-                    )
-                  }
-                  className="text-green-400 absolute bottom-5 right-5 hover:cursor-pointer"
-                />
+                <div className="flex justify-between mt-2">
+                  <IoCloseCircleOutline
+                    size={36}
+                    onClick={() =>
+                      reviewMatching(MatchingStatus.NO, people[peopleIndex]["id"])
+                    }
+                    className="text-red-600 hover:cursor-pointer"
+                  />
+                  <IoCheckmarkCircleOutline
+                    size={36}
+                    onClick={() =>
+                      reviewMatching(
+                        MatchingStatus.YES,
+                        people[peopleIndex]["id"]
+                      )
+                    }
+                    className="text-green-400 hover:cursor-pointer"
+                  />
+                </div>
               </div>
             </Box>
           )}

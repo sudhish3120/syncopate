@@ -210,7 +210,7 @@ const UpdateModal = () => {
   return (
     <>
       {isAuthenticated && !isLoading && user && (
-        <form onSubmit={handleSubmit} className="bg-space_black p-4 rounded">
+        <form onSubmit={handleSubmit} className="bg-space_black p-10 rounded-3xl">
           <div className="flex flex-row items-start">
             <div className="w-1/3 justify-items-center">
               {user.profile ? (

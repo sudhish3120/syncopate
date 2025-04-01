@@ -71,7 +71,7 @@ export default function Matches() {
         throw new Error("Failed to fetch db matches");
       }
       const data = await res.json();
-      // console.log("matches: ", data["matches"]);
+      console.log("matches: ", data["matches"]);
       setMatches(data["matches"] as Match[]);
       // Flatten all concerts into a single array
       const allConcerts = data["matches"].flatMap(
@@ -137,10 +137,10 @@ export default function Matches() {
   }
 
   return (
-    <div className="font-sans  bg-black relative pt-20">
+    <div className="relative pt-20">
       <Nav />
       <main className="container mx-auto  py-8 px-8 h-screen relative">
-        <h2 className="text-3xl font-md text-white mb-4">View Your Matches</h2>
+        <Typography variant="h3" marginBottom={2}>View Your Matches</Typography>
         {matches.length > 0 ? (
           matches.map((match, index) => (
             <React.Fragment key={`match-${index}`}>
@@ -174,24 +174,19 @@ export default function Matches() {
                 open={open}
                 onClose={() => setOpen(false)}
               >
-                <Box className="bg-space_black border-2 border-violet-700 rounded-md w-3/5 h-3/5 mx-auto mt-20 flex flex-row relative ">
+                <Box className="bg-space_black rounded-md w-3/5 h-3/5 mx-auto mt-20 flex flex-row relative">
                   {match["profile_photo"] ? (
                     <CardMedia
                       component="img"
-                      sx={{ height: 300, width: 300 }}
+                      sx={{ width: "50%" }}
                       image={match["profile_photo"]}
                       alt="Profile Picture"
-                      className="rounded-md"
                     />
                   ) : (
                     <CardMedia component="div">
                       <Avatar
                         variant="square"
-                        sx={{
-                          height: 300,
-                          width: 300,
-                          fontSize: 100,
-                        }}
+                        sx={{ width: "50%" }}
                       >
                         {match["username"][0]}
                       </Avatar>
@@ -199,33 +194,81 @@ export default function Matches() {
                   )}
                   <div className="p-6 shadow-lg w-full relative">
                     <Typography
-                      gutterBottom
                       variant="h5"
                       component="div"
                       className="font-semibold text-white"
                     >
                       {match["target_name"] || match["username"]}
                     </Typography>
-                    <div className="flex flex-row space-x-4">
+                    <div className="flex flex-col mt-2">
                       <Typography
-                        gutterBottom
-                        component="div"
-                        variant="body1"
-                        className="mt-2 text-violet-600"
+                        fontWeight={600}
+                        marginBottom={1}
+                        className="text-yellow-600"
                       >
-                        {match["target_faculty"]}
+                        {match["target_faculty"] || "unknown faculty"}{(match["target_faculty"] || match["target_academic_term"]) && " - "}{match["target_academic_term"] || "unknown academic term"}
                       </Typography>
-                      <Typography
-                        gutterBottom
-                        component="div"
-                        variant="body1"
-                        className="mt-2 text-violet-600"
+                      <Box
+                        sx={{
+                          maxHeight: 200,
+                          overflowY: "auto",
+                          backgroundColor: "rgba(255, 255, 255, 0.1)",
+                          padding: 2,
+                          borderRadius: 1,
+                          width: "100%",
+                        }}
                       >
-                        {match["target_academic_term"]}
-                      </Typography>
+                        <div className="mb-3">
+                          <Typography>Top Artists:</Typography>
+                          {
+                            match["top_artists"] ? 
+                            match["top_artists"].map((artist, index) => (
+                              <Typography
+                                key={index}
+                                className="text-white"
+                                fontWeight={600}
+                              >
+                                {artist}
+                              </Typography>
+                            )) : <Typography
+                                  key={index}
+                                  className="text-white"
+                                  fontWeight={600}
+                                  sx={{ marginBottom: 1 }}
+                                >
+                                  No top artists.
+                                </Typography>
+                          }
+                        </div>
+                        <div>
+                          <Typography>Top Genres:</Typography>
+                          {
+                            match["top_genres"] ? 
+                            match["top_genres"].map((genre, index) => (
+                              <Typography
+                                key={index}
+                                className="text-white"
+                                fontWeight={600}
+                              >
+                                {genre}
+                              </Typography>
+                            )) : <Typography
+                                  key={index}
+                                  className="text-white"
+                                  fontWeight={600}
+                                  sx={{ marginBottom: 1 }}
+                                >
+                                  No top genres.
+                                </Typography>
+                          }
+                        </div>
+                      </Box>
                     </div>
                   </div>
                 </Box>
+                <>
+                
+                </>
               </Modal>
             </React.Fragment>
           ))
