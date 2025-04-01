@@ -64,6 +64,8 @@ const UpdateModal = () => {
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string>("");
+  const [toastType, setToastType] = useState<"success" | "error">("success");
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -139,15 +141,21 @@ const UpdateModal = () => {
         favoriteGenres: nonEmptyGenres,
       });
 
-      console.log(
-        JSON.stringify({
-          profile_photo: user?.profile.profile_photo,
-          favorite_artists: nonEmptyArtists,
-          favorite_genres: nonEmptyGenres,
-          first_name: firstName,
-          last_name: lastName,
-        })
-      );
+      const payload = {
+        profile_photo: user?.profile.profile_photo,
+        favorite_artists: nonEmptyArtists,
+        favorite_genres: nonEmptyGenres,
+        first_name: firstName,
+        last_name: lastName,
+      };
+
+      // Add term and faculty only if they are not "Not selected"
+      if (user?.profile.term && user.profile.term !== "Not selected") {
+        payload.term = user.profile.term;
+      }
+      if (user?.profile.faculty && user.profile.faculty !== "Not selected") {
+        payload.faculty = user.profile.faculty;
+      }
 
       const res = await fetch(
         "http://localhost:8000/api/auth/update-profile/",
@@ -157,28 +165,27 @@ const UpdateModal = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            profile_photo: user?.profile.profile_photo,
-            favorite_artists: nonEmptyArtists,
-            favorite_genres: nonEmptyGenres,
-            first_name: firstName,
-            last_name: lastName,
-            term: user?.profile.term,
-            faculty: user?.profile.faculty,
-          }),
+          body: JSON.stringify(payload),
         }
       );
 
+      const data = await res.json();
+
       if (!res.ok) {
-        throw new Error("Failed to update profile");
+        throw new Error(data.error || "Failed to update profile");
       }
 
-      const data = await res.json();
       setUser(data.user);
+      setToastType("success");
+      setToastMessage("Profile updated successfully!");
       setShowToast(true);
     } catch (error) {
       console.error("Update failed:", error);
-      alert("Failed to update profile. Please try again.");
+      setToastType("error");
+      setToastMessage(
+        error instanceof Error ? error.message : "Failed to update profile"
+      );
+      setShowToast(true);
     }
   };
 
@@ -306,6 +313,9 @@ const UpdateModal = () => {
                     }}
                     className="w-full p-2 rounded bg-black text-white"
                   >
+                    <option value="" disabled>
+                      Select Faculty
+                    </option>
                     {faculties.map((faculty) => (
                       <option key={faculty} value={faculty}>
                         {faculty}
@@ -334,6 +344,9 @@ const UpdateModal = () => {
                     }}
                     className="w-full p-2 rounded bg-black text-white"
                   >
+                    <option value="" disabled>
+                      Select Term
+                    </option>
                     {academicTerms.map((term) => (
                       <option key={term} value={term}>
                         {term}
@@ -410,8 +423,9 @@ const UpdateModal = () => {
       )}
       {showToast && (
         <Toast
-          message="Profile updated successfully!"
+          message={toastMessage}
           onClose={() => setShowToast(false)}
+          type={toastType}
         />
       )}
     </>

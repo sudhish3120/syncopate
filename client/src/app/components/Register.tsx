@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from "next/link";
 import React from "react";
 import { FormikErrors, FormikTouched } from "../../../node_modules/formik/dist/types";
+import { Typography } from "../../../node_modules/@mui/material/index";
 interface RegisterValues {
   username: string;
   password: string;
@@ -102,7 +103,7 @@ export default function Register() {
         <Form className="flex flex-col gap-4 max-w-md mx-auto mt-8">
           {verified && (
             <div className="bg-green-50 text-green-700 p-4 rounded-lg mb-4">
-              Email verified successfully! Complete your registration below.
+              <Typography component="div" fontWeight={600}>Email verified successfully! Complete your registration below.</Typography>
             </div>
           )}
           <div>
@@ -110,10 +111,10 @@ export default function Register() {
               type="text"
               name="username"
               placeholder="Username"
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded bg-white text-gray-900"
             />
             {errors.username && touched.username && (
-              <div className="text-red-500 text-sm">{errors.username}</div>
+              <Typography className="text-red-500" fontWeight={800} marginTop={1}>{errors.username}</Typography>
             )}
           </div>
 
@@ -122,13 +123,13 @@ export default function Register() {
               type="password"
               name="password"
               placeholder="Password"
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded bg-white text-gray-900"
             />
             {errors.password && touched.password && 
               (
-                <div className="text-red-500 text-sm">
+                <Typography component="div" className="text-red-500" fontWeight={800} marginTop={1}>
                   {formattedPasswordError(touched, errors)}
-                </div>
+                </Typography>
               )
 }
           </div>
@@ -138,19 +139,19 @@ export default function Register() {
               type="password"
               name="confirmPassword"
               placeholder="Confirm Password"
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded bg-white text-gray-900"
             />
             {errors.confirmPassword && touched.confirmPassword && (
-              <div className="text-red-500 text-sm">{errors.confirmPassword}</div>
+              <Typography className="text-red-500" fontWeight={800} marginTop={1}>{errors.confirmPassword}</Typography>
             )}
           </div>
 
-          <div className="flex items-center justify-between p-4 bg-gray-800 rounded-lg">
+          <div className="flex items-center justify-around p-4 bg-black/50 rounded-lg">
             <div className="flex flex-col">
-              <span className="text-white font-medium">Disable 2FA</span>
-              <span className="text-gray-400 text-sm">
-                Two-factor authentication adds an extra layer of security
-              </span>
+              <Typography fontWeight={800} fontSize={20}>Disable 2FA</Typography>
+              <Typography fontWeight={400} fontSize={14} className="text-gray-400">
+                Two-factor authentication adds<br/>an extra layer of security
+              </Typography>
             </div>
             <button
               type="button"
@@ -187,8 +188,8 @@ export default function Register() {
           </button>
 
           <div className="text-center">
-            <Link href="/" className="text-blue-500 hover:text-blue-600">
-              Already have an account? Login
+            <Link href="/" className="text-blue-300 hover:text-blue-600">
+              <Typography fontWeight={600}>Already have an account? Login</Typography>
             </Link>
           </div>
         </Form>

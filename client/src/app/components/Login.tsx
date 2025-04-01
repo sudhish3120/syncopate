@@ -3,6 +3,7 @@ import { Formik, Form, Field, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import Link from "next/link";
 import React, { useState } from "react";
+import { Typography } from "../../../node_modules/@mui/material/index";
 
 interface LoginValues {
   username: string;
@@ -12,7 +13,7 @@ interface LoginValues {
 
 const LoginSchema = Yup.object().shape({
   username: Yup.string()
-    .min(2, "Username too short")
+    .min(5, "Username too short")
     .required("Username is required"),
   password: Yup.string()
     .min(6, "Password must be at least 6 characters")
@@ -89,7 +90,7 @@ export default function Login() {
               className="w-full p-2 border rounded bg-white text-gray-900"
             />
             {errors.username && touched.username && (
-              <div className="text-red-500 text-sm">{errors.username}</div>
+              <Typography className="text-red-500" fontWeight={800} marginTop={1}>{errors.username}</Typography>
             )}
           </div>
 
@@ -101,7 +102,7 @@ export default function Login() {
               className="w-full p-2 border rounded bg-white text-gray-900"
             />
             {errors.password && touched.password && (
-              <div className="text-red-500 text-sm">{errors.password}</div>
+              <Typography className="text-red-500" fontWeight={800} marginTop={1}>{errors.password}</Typography>
             )}
           </div>
 
@@ -114,13 +115,9 @@ export default function Login() {
                 className="w-full p-2 border rounded bg-white text-gray-900"
               />
               {errors.totp_code && touched.totp_code && (
-                <div className="text-red-500 text-sm">{errors.totp_code}</div>
+                <Typography className="text-red-500" fontWeight={800} marginTop={1}>{errors.totp_code}</Typography>
               )}
-              {status && (
-                <div className="text-red-500 text-sm text-center mt-2">
-                  {status}
-                </div>
-              )}
+              {status && (<Typography className="text-red-500" fontWeight={800} marginTop={1}>{status}</Typography>)}
             </div>
           )}
 
@@ -144,7 +141,7 @@ export default function Login() {
           <div className="text-center">
             <Link
               href="/email-verify"
-              className="text-blue-500 hover:text-blue-600"
+              className="text-blue-300 hover:text-blue-600"
             >
               New to Syncopate? Create Account
             </Link>

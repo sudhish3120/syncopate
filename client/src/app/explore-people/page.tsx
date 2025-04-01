@@ -5,9 +5,6 @@ import Nav from "../components/Nav";
 import {
   Avatar,
   Box,
-  Button,
-  CardActions,
-  CardContent,
   CardMedia,
   LinearProgress,
   Typography,
@@ -16,6 +13,7 @@ import {
   IoCheckmarkCircleOutline,
   IoCloseCircleOutline,
 } from "react-icons/io5";
+import SessionExpired from "../components/SessionExpired";
 import { SiTrueup } from "react-icons/si";
 import { common } from "@mui/material/colors";
 
@@ -82,6 +80,32 @@ export default function ExplorePeople() {
       setError(err instanceof Error ? err.message : "Failed to fetch concerts");
     }
   };
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await fetch("http://localhost:8000/api/auth/user/", {
+          credentials: "include",
+        });
+
+        if (res.status === 401) {
+          setError("session-expired");
+          return;
+        }
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch user data");
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An error occurred");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
+
   const fetchMatchings = async () => {
     if (fetchCalled.current) return;
     fetchCalled.current = true;
@@ -132,6 +156,10 @@ export default function ExplorePeople() {
 
   if (isLoading) {
     return <div className="p-4">Loading...</div>;
+  }
+
+  if (error === "session-expired") {
+    return <SessionExpired />;
   }
 
   if (error) {
