@@ -26,8 +26,8 @@ export default function Matches() {
   const [concerts, setConcerts] = useState<string[]>([]);
 
   const deleteMatch = async (user: string) => {
-    console.log("invoked");
-    console.log(concerts);
+    // console.log("invoked");
+    // console.log(concerts);
     try {
       if (user) {
         const res = await fetch(
@@ -46,10 +46,10 @@ export default function Matches() {
         );
         if (res.ok) {
           const response = await res.json();
-          console.log(response);
+          // console.log(response);
         } else {
           const response = await res.json();
-          console.log(response);
+          // console.log(response);
           throw new Error(response.error || "delete failed");
         }
       }
@@ -71,7 +71,7 @@ export default function Matches() {
         throw new Error("Failed to fetch db matches");
       }
       const data = await res.json();
-      console.log("matches: ", data["matches"]);
+      // console.log("matches: ", data["matches"]);
       setMatches(data["matches"] as Match[]);
       // Flatten all concerts into a single array
       const allConcerts = data["matches"].flatMap(

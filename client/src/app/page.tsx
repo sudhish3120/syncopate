@@ -19,7 +19,6 @@ export default function Home() {
         if (res.ok) {
           setIsAuthenticated(true);
           const data = await res.json();
-          console.log(data);
           router.replace('/dashboard'); // Use replace instead of push
           return;
         }
