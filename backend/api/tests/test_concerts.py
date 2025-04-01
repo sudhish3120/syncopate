@@ -15,7 +15,7 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 from requests import Response
 
-from ..models import Concert, FavoriteConcert, Matching
+from ..models import Concert, FavoriteConcert, Matching, UserProfile
 
 User = get_user_model()
 
@@ -263,7 +263,7 @@ class TestFavoriteView:
         )
         assert response.status_code == 201
         assert "message" in response.data
-        assert response.data["message"] == "Concert favourited successfully"
+        assert response.data["message"] == "Concert favorited successfully"
 
         # concert object created
         concert_objects = Concert.objects.filter(concert_id="123")
@@ -303,7 +303,7 @@ class TestFavoriteView:
         )
         assert response.status_code == 200
         assert "message" in response.data
-        assert response.data["message"] == "Concert already favourited"
+        assert response.data["message"] == "Concert already favorited"
 
         # check that no other objects were created
         assert len(Concert.objects.filter(concert_id="123")) == 1
@@ -563,13 +563,30 @@ class TestMatchesView:
         Matching.objects.create(user=test_user, target=other_user, decision="YES")
         Matching.objects.create(user=other_user, target=test_user, decision="YES")
 
+        target_profile_photo = UserProfile.objects.filter(user=other_user).first().profile_photo
+        target_name = UserProfile.objects.filter(user=other_user).first().first_name + " " + UserProfile.objects.filter(user=other_user).first().last_name
+        target_faculty = UserProfile.objects.filter(user=other_user).first().faculty
+        target_academic_term = UserProfile.objects.filter(user=other_user).first().term
+
         url = reverse("matches")
         response = authenticated_client.get(url, format="json")
+
         assert response.status_code == 200
         assert "matches" in response.data
         assert len(response.data["matches"]) == 1
-        assert response.data["matches"][0] == {"username": other_user.username}
+        matched_concerts = Matching.objects.get(user=test_user, target=other_user).matched_concerts.values_list("concert_id", flat=True)
+        print("Response Data:", response.data)
+    # Check that the response matches the expected format and data
+        assert response.data["matches"][0] == {
+            "username": other_user.username,
+            "profile_photo": target_profile_photo,
+            "target_name": target_name,
+            "target_faculty": target_faculty,
+            "target_academic_term": target_academic_term,
+            "concerts": list(matched_concerts)
+        }
 
+        
     def test_matches_with_other_user_rejection(
         self, authenticated_client, test_user, other_user
     ):

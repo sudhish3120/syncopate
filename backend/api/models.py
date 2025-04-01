@@ -80,7 +80,7 @@ class Matching(models.Model):
     user = models.ForeignKey(User, related_name="user", on_delete=models.CASCADE)
     target = models.ForeignKey(User, related_name="target", on_delete=models.CASCADE)
     decision = models.CharField(max_length=7, choices=MATCHING_DECISIONS)
-
+    matched_concerts = models.ManyToManyField(Concert, related_name="matched_users")
     class Meta:
         """Meta class for Matching"""
 
@@ -102,10 +102,8 @@ class UserProfile(models.Model):
     def __str__(self):
         return f"{self.user.username}'s profile"
 
-
 class Artist(models.Model):
     """Artist model"""
-
     name = models.CharField(max_length=200, unique=True)
 
     def __str__(self) -> str:
@@ -114,7 +112,6 @@ class Artist(models.Model):
 
 class Genre(models.Model):
     """Genre model"""
-
     name = models.CharField(max_length=200, unique=True)
 
     def __str__(self):

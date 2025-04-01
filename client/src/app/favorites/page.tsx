@@ -44,6 +44,7 @@ export default function Favorites() {
           {
             method: "GET",
             credentials: "include",
+            credentials: "include",
             headers: {
               "Content-Type": "application/json",
             },

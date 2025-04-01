@@ -1,5 +1,6 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
+import { redirect } from "next/navigation";
 import Nav from "../components/Nav";
 import {
   Avatar,
@@ -13,6 +14,8 @@ import {
   IoCloseCircleOutline,
 } from "react-icons/io5";
 import SessionExpired from "../components/SessionExpired";
+import { SiTrueup } from "react-icons/si";
+import { common } from "@mui/material/colors";
 
 enum MatchingStatus {
   YES = "YES",
@@ -23,15 +26,60 @@ enum MatchingStatus {
 interface Matching {
   id: string;
   username: string;
+  profile_photo: string;
+  concerts: Array<string>;
 }
 
 export default function ExplorePeople() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-
-  const [people, setPeople] = useState<MatchingStatus[]>([]);
+  const [people, setPeople] = useState<Matching[]>([]);
   const [peopleIndex, setPeopleIndex] = useState<number>(0);
   const [noMatchings, setNoMatchings] = useState<boolean>(true);
+  const [commonConcerts, setCommonConcerts] = useState<string[]>([]);
+
+  const fetchCalled = useRef(false);
+  const getConcertById = async (id: String) => {
+    try {
+      const res = await fetch(
+        `http://localhost:8000/api/concerts/concert_by_id/?id=${id}`,
+        {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (res.status === 401) {
+        setError("session-expired");
+        return;
+      }
+
+      if (res.status === 503) {
+        setError("Service temporarily unavailable");
+        return;
+      }
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to fetch concert");
+      }
+      const data = await res.json();
+      const newConcert = data.concerts[0]?.name;
+      console.log(newConcert);
+      if (newConcert) {
+        setCommonConcerts((prevConcerts) => [...prevConcerts, newConcert]);
+      }
+      console.log("concerts after being set: ", [
+        ...commonConcerts,
+        newConcert,
+      ]);
+    } catch (err) {
+      console.error("Concert fetch error:", err);
+      setError(err instanceof Error ? err.message : "Failed to fetch concerts");
+    }
+  };
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -59,6 +107,8 @@ export default function ExplorePeople() {
   }, []);
 
   const fetchMatchings = async () => {
+    if (fetchCalled.current) return;
+    fetchCalled.current = true;
     try {
       const res = await fetch("http://localhost:8000/api/concerts/matchings", {
         method: "GET",
@@ -83,10 +133,26 @@ export default function ExplorePeople() {
       setIsLoading(false);
     }
   };
-
   useEffect(() => {
+    console.log("Component mounted");
     fetchMatchings();
   }, []);
+
+  useEffect(() => {
+    console.log("people: ", people);
+    console.log("peopleIndex:", peopleIndex);
+    if (people.length === 0 || peopleIndex >= people.length) {
+      setNoMatchings(true);
+    } else {
+      setNoMatchings(false);
+      setCommonConcerts([]);
+      people[peopleIndex].concerts.forEach((c: string) => {
+        getConcertById(c);
+      });
+    }
+
+    console.log("noMatchings:", noMatchings);
+  }, [peopleIndex, people]);
 
   if (isLoading) {
     return (
@@ -141,7 +207,6 @@ export default function ExplorePeople() {
       }
     }
   };
-
   return (
     <div className="font-sans bg-black">
       <Nav />
@@ -158,7 +223,7 @@ export default function ExplorePeople() {
               gutterBottom
               variant="h5"
               component="div"
-              sx={{ color: "black" }}
+              className="pt-10 text-center"
             >
               You&apos;ve reached your matching limit. Please come back later!
             </Typography>
@@ -178,7 +243,7 @@ export default function ExplorePeople() {
                     variant="square"
                     sx={{ height: 300, width: 300, fontSize: 100 }}
                   >
-                    {people[peopleIndex]["username"][0]}
+                    {people[peopleIndex]["username"]}
                   </Avatar>
                 </CardMedia>
               )}
@@ -189,10 +254,9 @@ export default function ExplorePeople() {
                   component="div"
                   className="font-semibold text-white"
                 >
-                  {people[peopleIndex]["target_name"] ||
-                    people[peopleIndex]["username"]}
+                  {people[peopleIndex]["username"]}
                 </Typography>
-                <div className="flex flex-row space-x-4 w-16 h-full">
+                <div className="flex flex-row space-x-4 w-full h-full">
                   <Typography
                     gutterBottom
                     component="div"
@@ -209,6 +273,33 @@ export default function ExplorePeople() {
                   >
                     {people[peopleIndex]["target_academic_term"]}
                   </Typography>
+                  <Box
+                    sx={{
+                      maxHeight: 200,
+                      overflowY: "auto",
+                      backgroundColor: "rgba(255, 255, 255, 0.1)",
+                      padding: 2,
+                      borderRadius: 1,
+                      width: "100%",
+                    }}
+                  >
+                    {commonConcerts.length > 0 ? (
+                      commonConcerts.map((concert, index) => (
+                        <Typography
+                          key={index}
+                          variant="body2"
+                          className="text-white"
+                          sx={{ marginBottom: 1 }}
+                        >
+                          {concert}
+                        </Typography>
+                      ))
+                    ) : (
+                      <Typography variant="body2" className="text-gray-400">
+                        No common concerts found.
+                      </Typography>
+                    )}
+                  </Box>
                 </div>
 
                 <IoCloseCircleOutline

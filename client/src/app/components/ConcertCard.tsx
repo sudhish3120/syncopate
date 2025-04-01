@@ -37,32 +37,81 @@ const ConcertCard: React.FC<ConcertCardProps> = ({
         setIsOverflowing(titleWidth > containerWidth);
       }
     };
-
     checkOverflow();
     window.addEventListener("resize", checkOverflow);
     return () => window.removeEventListener("resize", checkOverflow);
   }, [title]);
 
-  const toggleFavorite = async (id: number) => {
-    setIsFavorite(!isFavorite);
+  useEffect(() => {
+    console.log(id);
+  }, []);
+
+  const checkFavorite = async () => {
     try {
-      const res = await fetch("http://localhost:8000/api/concerts/favorite/", {
-        method: "POST",
-        credentials: 'include',
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ concert: id }),
-      });
-
+      const res = await fetch(
+        "http://localhost:8000/api/concerts/favorites_by_id/",
+        {
+          method: "GET",
+          credentials: "include",
+        }
+      );
       if (!res.ok) {
-        throw new Error("Failed to favorite concert");
+        throw new Error("Failed to see favorite concerts");
       }
-
-      const data = await res.json();
-      console.log(data.message);
+      const { concerts } = await res.json();
+      console.log(concerts);
+      setIsFavorite(concerts.some((concert_id) => concert_id === id));
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  const toggleFavorite = async (id: number) => {
+    setIsFavorite(!isFavorite);
+    if (isFavorite === false) {
+      try {
+        const res = await fetch(
+          "http://localhost:8000/api/concerts/favorite/",
+          {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ concert: id }),
+          }
+        );
+
+        if (!res.ok) {
+          throw new Error("Failed to favorite concert");
+        }
+
+        const data = await res.json();
+        console.log(data.message);
+      } catch (error) {
+        console.error(error);
+      }
+    } else {
+      try {
+        const res = await fetch(
+          "http://localhost:8000/api/concerts/unfavorite/",
+          {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ concert: id }),
+          }
+        );
+        if (!res.ok) {
+          throw new Error("Failed to unfavorite concert");
+        }
+        const data = await res.json();
+        console.log(data.message);
+      } catch (error) {
+        console.error(error);
+      }
     }
   };
 
@@ -71,7 +120,10 @@ const ConcertCard: React.FC<ConcertCardProps> = ({
       <Card
         sx={{ backgroundColor: "#1A1A1A" }}
         className="w-80 h-60 cursor-pointer shadow-lg transition-transform hover:scale-105 drop-shadow-[0_0_15px_rgba(76,29,149,0.9)]"
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          setOpen(true);
+          checkFavorite();
+        }}
       >
         <CardMedia
           component="img"
@@ -98,7 +150,12 @@ const ConcertCard: React.FC<ConcertCardProps> = ({
         </CardContent>
       </Card>
 
-      <Modal open={open} onClose={() => setOpen(false)}>
+      <Modal
+        open={open}
+        onClose={() => {
+          setOpen(false);
+        }}
+      >
         <Box className="bg-space_black rounded-md w-3/5 h-3/5 mx-auto mt-20 flex flex-row relative">
           <CardMedia
             component="img"
