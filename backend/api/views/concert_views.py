@@ -240,9 +240,18 @@ def matches(request):
             user_id__in=user_matches, target=request.user, decision="YES"
         )
 
-        other_matches_json = list(
-            map(lambda x: {"username": x.user.username}, other_matches)
-        )
+        other_matches_json = []
+        for match in other_matches:
+            target_user = match.user
+            target_profile = UserProfile.objects.filter(user=target_user).first()
+            other_matches_json.append({
+                "username": target_user.username,
+                "profile_photo": target_profile.profile_photo if target_profile else None,
+                "target_name": f"{target_profile.first_name} {target_profile.last_name}" if target_profile else None,
+                "target_faculty": target_profile.faculty if target_profile else None,
+                "target_academic_term": target_profile.term if target_profile else None,
+            })
+
         return Response({"matches": other_matches_json}, status=200)
     except Exception as e:
         return Response({"error": "Failed to fetch matching"}, status=e)
