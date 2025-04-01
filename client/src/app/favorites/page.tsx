@@ -2,9 +2,9 @@
 import React, { useEffect, useState } from "react";
 import ConcertCard from "../components/ConcertCard";
 import Nav from "../components/Nav";
-import { FaMagnifyingGlass } from "react-icons/fa6";
 import { Concert } from "../types/concerts";
 import SessionExpired from "../components/SessionExpired";
+import { Typography } from "../../../node_modules/@mui/material/index";
 
 export default function Favorites() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -83,28 +83,16 @@ export default function Favorites() {
   }
 
   return (
-    <div className="font-sans bg-black relative pt-20">
+    <div className="relative pt-20">
       <Nav />
       <main className="container mx-auto  py-8 px-8 h-screen relative">
         <section className="mb-8 flex justify-between">
-          <h2 className="text-3xl font-md text-white mb-4">Favorites</h2>
-          <div className="flex items-center justify-between mb-4">
-            <div className="relative">
-              <div className="flex flex-row justify-between border bg-white border-gray-300 rounded-full px-4 py-1 pl-6 w-80 focus:outline-none focus:border-blue-500">
-                <input
-                  type="text"
-                  placeholder="Search for Concerts"
-                  className="w-full text-gray-600 border-gray-300 focus:outline-none focus:border-blue-500"
-                />
-                <FaMagnifyingGlass
-                  size={32}
-                  className="inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-300"
-                />
-              </div>
-            </div>
-          </div>
+          <Typography variant="h3">Favorites</Typography>
         </section>
         <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+          {favorites?.length == 0 && (
+            <Typography>You have not favorited any concerts.</Typography>
+          )}
           {favorites?.map((favorite) => (
             <ConcertCard
               key={favorite.id}
@@ -121,6 +109,8 @@ export default function Favorites() {
                     : largest;
                 }, favorite.images[0]).url
               }
+              info={favorite.info}
+              venue={favorite._embedded.venues[0].name}
             />
           ))}{" "}
         </div>

@@ -93,8 +93,8 @@ function NavBar() {
   }
 
   return (
-    <AppBar position="fixed" sx={{ backgroundColor: "#1A1A1A" }}>
-      <Container maxWidth="xl">
+    <AppBar position="fixed">
+      <Container maxWidth="xl" className="bg-black p-1">
         <Toolbar disableGutters>
           <img
             src="SyncopateLogoWhite.png"
@@ -102,19 +102,11 @@ function NavBar() {
             style={{ width: 30, height: 25 }}
           />
           <Typography
-            variant="h6"
+            variant="h5"
             noWrap
             component="a"
             href="/dashboard"
             className="uppercase"
-            sx={{
-              mr: 2,
-              display: { xs: "none", md: "flex" },
-              fontFamily: "unset",
-              fontWeight: 700,
-              color: "white",
-              textDecoration: "none",
-            }}
           >
             Syncopate
           </Typography>

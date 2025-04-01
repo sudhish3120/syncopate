@@ -13,6 +13,8 @@ interface ConcertCardProps {
   id: number;
   title: string;
   date: string;
+  info: string;
+  venue: string;
   imageUrl?: string;
 }
 
@@ -21,6 +23,8 @@ const ConcertCard: React.FC<ConcertCardProps> = ({
   title,
   date,
   imageUrl,
+  info,
+  venue
 }) => {
   const [open, setOpen] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
@@ -164,11 +168,17 @@ const ConcertCard: React.FC<ConcertCardProps> = ({
             alt={title}
           />
           <div className="p-6 shadow-lg w-full relative">
-            <Typography variant="h5" className="font-semibold text-white">
+            <Typography variant="h4" fontWeight={800} className="font-semibold text-white">
               {title}
             </Typography>
-            <Typography variant="body1" className="mt-2 text-violet-600">
+            <Typography variant="h5" className="text-violet-600">
               {date}
+            </Typography>
+            <Typography marginTop={1}>
+              {info}
+            </Typography>
+            <Typography fontSize={18} fontWeight={1000} marginTop={1} className="text-yellow-600">
+              {venue}
             </Typography>
 
             <FaStar

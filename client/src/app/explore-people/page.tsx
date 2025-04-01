@@ -1,6 +1,5 @@
 "use client";
 import React, { useRef, useEffect, useState } from "react";
-import { redirect } from "next/navigation";
 import Nav from "../components/Nav";
 import {
   Avatar,
@@ -14,8 +13,6 @@ import {
   IoCloseCircleOutline,
 } from "react-icons/io5";
 import SessionExpired from "../components/SessionExpired";
-import { SiTrueup } from "react-icons/si";
-import { common } from "@mui/material/colors";
 
 enum MatchingStatus {
   YES = "YES",
@@ -39,7 +36,7 @@ export default function ExplorePeople() {
   const [commonConcerts, setCommonConcerts] = useState<string[]>([]);
 
   const fetchCalled = useRef(false);
-  const getConcertById = async (id: String) => {
+  const getConcertById = async (id: string) => {
     try {
       const res = await fetch(
         `http://localhost:8000/api/concerts/concert_by_id/?id=${id}`,

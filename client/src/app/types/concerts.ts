@@ -51,4 +51,8 @@ export interface Concert {
     dates: ConcertDate;
     url: string;
     images: Array<ConcertImage>;
+    info: string;
+    _embedded: {
+        venues: Array<object>
+    }
 }
