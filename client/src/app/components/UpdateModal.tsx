@@ -139,15 +139,21 @@ const UpdateModal = () => {
         favoriteGenres: nonEmptyGenres,
       });
 
-      console.log(
-        JSON.stringify({
-          profile_photo: user?.profile.profile_photo,
-          favorite_artists: nonEmptyArtists,
-          favorite_genres: nonEmptyGenres,
-          first_name: firstName,
-          last_name: lastName,
-        })
-      );
+      const payload: any = {
+        profile_photo: user?.profile.profile_photo,
+        favorite_artists: nonEmptyArtists,
+        favorite_genres: nonEmptyGenres,
+        first_name: firstName,
+        last_name: lastName,
+      };
+
+      // Add term and faculty only if they are not "Not selected"
+      if (user?.profile.term && user.profile.term !== "Not selected") {
+        payload.term = user.profile.term;
+      }
+      if (user?.profile.faculty && user.profile.faculty !== "Not selected") {
+        payload.faculty = user.profile.faculty;
+      }
 
       const res = await fetch(
         "http://localhost:8000/api/auth/update-profile/",
@@ -157,15 +163,7 @@ const UpdateModal = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            profile_photo: user?.profile.profile_photo,
-            favorite_artists: nonEmptyArtists,
-            favorite_genres: nonEmptyGenres,
-            first_name: firstName,
-            last_name: lastName,
-            term: user?.profile.term,
-            faculty: user?.profile.faculty,
-          }),
+          body: JSON.stringify(payload),
         }
       );
 
@@ -306,6 +304,9 @@ const UpdateModal = () => {
                     }}
                     className="w-full p-2 rounded bg-black text-white"
                   >
+                    <option value="" disabled>
+                      Select Faculty
+                    </option>
                     {faculties.map((faculty) => (
                       <option key={faculty} value={faculty}>
                         {faculty}
@@ -334,6 +335,9 @@ const UpdateModal = () => {
                     }}
                     className="w-full p-2 rounded bg-black text-white"
                   >
+                    <option value="" disabled>
+                      Select Term
+                    </option>
                     {academicTerms.map((term) => (
                       <option key={term} value={term}>
                         {term}

@@ -61,11 +61,47 @@ def update_profile(request):
             "/avatars/3.jpg",
             "/avatars/4.jpg",
         ]
+        allowed_terms = [
+            "1A",
+            "1B",
+            "2A",
+            "2B",
+            "3A",
+            "3B",
+            "4A",
+            "4B",
+            "Masters",
+            "Graduate",
+            "PhD",
+            "Undergraduate",
+            "Exchange Student",
+            "Prefer not to say",
+        ]
+        allowed_faculties = [
+            "Arts",
+            "Engineering",
+            "Environment",
+            "Health",
+            "Mathematics",
+            "Science",
+        ]
         if "profile_photo" in data:
             if data["profile_photo"] not in allowed_avatars:
                 raise ValidationError("Invalid avatar selection")
             profile.profile_photo = data["profile_photo"]
-            profile.save()
+        if "first_name" in data:
+            profile.first_name = data["first_name"].strip()
+        if "last_name" in data:
+            profile.last_name = data["last_name"].strip()
+        if "term" in data:
+            if data["term"] not in allowed_terms:
+                raise ValidationError("Invalid term selection")
+            profile.term = data["term"]
+        if "faculty" in data:
+            if data["faculty"] not in allowed_faculties:
+                raise ValidationError("Invalid faculty selection")
+            profile.faculty = data["faculty"]
+        profile.save()
 
         # Update favorite artists with validation
         if "favorite_artists" in data:
