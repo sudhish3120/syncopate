@@ -1,3 +1,4 @@
+'use client';
 import { Archivo, Archivo_Black } from 'next/font/google';
 import { createTheme, ThemeOptions } from '@mui/material/styles';
 

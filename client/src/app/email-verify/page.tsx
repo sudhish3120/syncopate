@@ -3,6 +3,7 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import * as Yup from "yup";
 import { Formik, Form, Field } from "formik";
+import { Typography } from '../../../node_modules/@mui/material/index';
 
 const EmailSchema = Yup.object().shape({
   email: Yup.string()
@@ -44,11 +45,11 @@ export default function EmailVerifyPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black relative pt-20">
-      <main className="container mx-auto py-8 px-8">
-        <div className="max-w-md mx-auto">
-          <h1 className="text-3xl font-bold mb-8 text-white">1. Enter Your UWaterloo Email</h1>
-          
+    <div className="h-full">
+      <div className="absolute bg-gradient-to-l from-purple-800 to-yellow-700 h-screen flex">
+        <div className="max-w-xl text-center p-20 rounded-md bg-stone-700 m-auto rounded-3xl">
+          <Typography variant="h5" fontWeight={600} className="text-center" marginBottom={-1}>1. enter your</Typography>
+          <Typography variant="h3" className="tracking-[-1px]" marginBottom={2}>uWaterloo email</Typography>
           <Formik
             initialValues={{ email: '' }}
             validationSchema={EmailSchema}
@@ -64,12 +65,12 @@ export default function EmailVerifyPage() {
                     className="w-full p-2 border rounded bg-white text-gray-900"
                   />
                   {errors.email && touched.email && (
-                    <div className="text-red-500 text-sm">{errors.email}</div>
+                    <Typography className="text-red-500" fontWeight={800} marginTop={1}>{errors.email}</Typography>
                   )}
                 </div>
 
                 {status && (
-                  <div className="text-red-500 text-sm text-center">{status}</div>
+                  <Typography className="text-red-500" fontWeight={800} marginTop={1}>{status}</Typography>
                 )}
 
                 <button
@@ -90,7 +91,7 @@ export default function EmailVerifyPage() {
             )}
           </Formik>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

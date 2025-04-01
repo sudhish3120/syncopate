@@ -44,31 +44,24 @@ export default function Home() {
 
   // Login page
   return (
-    <div className="min-h-screen relative mx-auto w-full h-dvh">
-      <div className="grid grid-cols-2 h-full bg-stone-900">
-        <div className="bg-gradient-to-r from-purple-600 to-stone-900 break-all overflow-hidden">
-          <Typography variant="h1" className="tracking-[-10px] text-transparent bg-clip-text bg-gradient-to-l from-purple-800 to-yellow-700">
-            SYNCOPATE
-            SYNCOPATE
-            SYNCOPATE
-            SYNCOPATE
-            SYNCOPATE
-            SYNCOPATE
-            SYNCOPATE
-            SYNCOPATE
-          </Typography>
-        </div>
-        <div className="m-auto max-w-md mx-auto text-center bg-stone-700 p-20 rounded-md backdrop-blur-md">
-          <div className="mb-4">
-            <Typography fontSize={20} fontWeight={400}>
-              Welcome to
-            </Typography>
-            <Typography variant="h3" marginTop={-1} marginBottom={3}>
-              Syncopate!
-            </Typography>
+    <div className="relative mx-auto w-screen h-screen">
+      <div className="absolute t-0 left-0 h-full w-full flex">
+          <div className="m-auto max-w-md text-center bg-stone-700 p-20 rounded-3xl">
+            <div className="mb-4">
+              <Typography fontSize={20} fontWeight={400}>
+                Welcome to
+              </Typography>
+              <Typography variant="h3" marginTop={-1} marginBottom={3}>
+                Syncopate!
+              </Typography>
+            </div>
+            <Login />
           </div>
-          <Login />
-        </div>
+      </div>
+      <div className="bg-gradient-to-r from-purple-600 to-stone-900 break-all overflow-hidden z-0 h-full w-full text-center">
+        <Typography variant="h1" fontSize={140} className="tracking-[-10px] text-transparent bg-clip-text bg-gradient-to-l from-purple-800 to-yellow-700">
+          SYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATESYNCOPATE
+        </Typography>
       </div>
     </div>
   );
