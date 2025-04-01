@@ -107,7 +107,7 @@ def update_profile(request):
             profile.last_name = data["last_name"].strip()
         if "user_socials" in data:
             socials = data["user_socials"]
-            print(socials)
+            # print(socials)
             if not isinstance(socials, dict) or not all(
                 key in socials for key in ["instagram", "discord"]
             ):
@@ -120,23 +120,26 @@ def update_profile(request):
             )
 
             profile.user_socials.clear()
-            if socials.get("instagram") and isinstance(socials["instagram"], str):
+            if isinstance(socials["instagram"], str):
                 try:
-                    print(socials["instagram"].strip())
-                    instagram_url_validator(socials["instagram"].strip())
+                    cleaned_instagram_socials = socials["instagram"].strip()
+                    if cleaned_instagram_socials:
+                        instagram_url_validator(cleaned_instagram_socials)
                 except DjangoValidationError as exc:
                     raise ValidationError("Invalid format for Instagram link") from exc
-                profile.user_socials["instagram"] = socials["instagram"].strip()
             else:
                 raise ValidationError("Invalid social link")
 
-            if socials.get("discord"):
+            if isinstance(socials["discord"], str):
                 try:
-                    name_validator(socials["discord"].strip())
+                    cleaned_discord_socials = socials["discord"].strip()
+                    if cleaned_discord_socials:
+                        name_validator(cleaned_discord_socials)
                 except DjangoValidationError:
                     raise ValidationError(
                         "discord username contains invalid characters"
                     )
+
             profile.user_socials = {
                 "instagram": socials.get("instagram"),
                 "discord": socials.get("discord"),
